@@ -1,0 +1,29 @@
+[
+  {
+    "id": "generic-connection-pool-exhausted",
+    "title": "Connection pool exhaustion",
+    "summary": "Inspect active and idle connection counts, acquisition latency, leak detection, transaction duration, and pool sizing before increasing limits.",
+    "error_types": ["PoolTimeout", "ConnectionPoolExhausted", "SQLTransientConnectionException"],
+    "tags": ["database", "connection-pool", "timeout"],
+    "source": "manual_seed",
+    "status": "confirmed"
+  },
+  {
+    "id": "generic-missing-configuration",
+    "title": "Missing or invalid configuration",
+    "summary": "Verify required environment variables, configuration precedence, active profile, secret injection, and startup validation without exposing secret values.",
+    "error_types": ["ConfigurationException", "MissingProperty", "IllegalArgumentException"],
+    "tags": ["configuration", "environment", "startup"],
+    "source": "manual_seed",
+    "status": "confirmed"
+  },
+  {
+    "id": "generic-downstream-failure",
+    "title": "Downstream service failure",
+    "summary": "Correlate request IDs across service boundaries and distinguish downstream HTTP errors, transport failures, circuit breaker state, and invalid upstream requests.",
+    "error_types": ["BadGateway", "ServiceUnavailable", "DownstreamException"],
+    "tags": ["downstream", "rpc", "http", "circuit-breaker"],
+    "source": "manual_seed",
+    "status": "confirmed"
+  }
+]

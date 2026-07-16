@@ -1,0 +1,10 @@
+digraph Phase0C {
+  graph [rankdir=LR,bgcolor="#FFFFFF",pad="0.35",nodesep="0.4",ranksep="0.7",splines=ortho,fontname="Microsoft YaHei",fontsize=18,label="Phase 0C · 从证据闭环扩展到可评测、可交付、可操作",labelloc=t,labeljust=l];
+  node [shape=box,style="rounded,filled",fontname="Microsoft YaHei",fontsize=11,margin="0.15,0.1",color="#64748B"];
+  edge [fontname="Microsoft YaHei",fontsize=9,color="#64748B",arrowsize=0.7];
+  subgraph cluster_a {label="复用 · Phase 0A";style="rounded,filled";color="#93C5FD";fillcolor="#EFF6FF";api[label="FastAPI / Application",fillcolor="#DBEAFE"];loop[label="ToolLoopRunner\nStrategy · Registry · Budget",fillcolor="#EDE9FE"];store[label="SQLite · AgentRun · ToolRun",fillcolor="#CCFBF1"];}
+  subgraph cluster_b {label="复用 · Phase 0B";style="rounded,filled";color="#4ADE80";fillcolor="#F0FDF4";evidence[label="Evidence + Citation Policy",fillcolor="#DCFCE7"];human[label="Supplement · Confirmation",fillcolor="#DCFCE7"];audit[label="Knowledge · Audit",fillcolor="#DCFCE7"];}
+  subgraph cluster_c {label="NEW · Phase 0C";style="rounded,filled";color="#F59E0B";fillcolor="#FFFBEB";eval[label="离线 Evaluation\n固定 Case · 机器可读指标",fillcolor="#FEF3C7",color="#D97706"];report[label="DiagnosisReport\nJSON · Markdown\n零额外 LLM 调用",fillcolor="#FEF3C7",color="#D97706"];ui[label="极简 /ui\n原生 HTML · CSS · JS",fillcolor="#FEF3C7",color="#D97706"];accept[label="Phase 0C 验收\n149 tests · 2/2 eval",fillcolor="#FEF3C7",color="#D97706"];}
+  api -> loop [color="#F59E0B",penwidth=2.2]; loop -> store; loop -> evidence; evidence -> human; human -> audit;
+  loop -> eval [label="确定性观察值"]; evidence -> report [label="可引用事实"]; store -> report [label="运行记录"]; human -> report [label="人工决定"]; api -> ui [dir=back,label="调用版本化 API",color="#D97706",penwidth=2]; report -> ui [color="#D97706",penwidth=2]; eval -> accept; report -> accept; ui -> accept;
+}

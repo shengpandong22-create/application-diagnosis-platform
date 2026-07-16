@@ -1,0 +1,236 @@
+digraph Phase0B {
+  graph [
+    rankdir=LR,
+    bgcolor="#FFFFFF",
+    pad="0.35",
+    nodesep="0.34",
+    ranksep="0.68",
+    splines=ortho,
+    fontname="Microsoft YaHei",
+    fontsize=18,
+    fontcolor="#0F172A",
+    label="Phase 0B · 在最小 Agent Loop 上扩展证据驱动的人工闭环",
+    labelloc=t,
+    labeljust=l,
+    compound=true,
+    newrank=true
+  ];
+
+  node [shape=plain, fontname="Microsoft YaHei", fontsize=10, fontcolor="#0F172A"];
+  edge [color="#64748B", penwidth=1.25, arrowsize=0.68, fontname="Microsoft YaHei", fontsize=8.5, fontcolor="#475569"];
+
+  user [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#64748B" BGCOLOR="#F8FAFC">
+      <TR><TD><B>本地用户</B></TD></TR>
+      <TR><TD><FONT POINT-SIZE="8">调用 · 补充 · 确认</FONT></TD></TR>
+    </TABLE>
+  >];
+
+  subgraph cluster_access {
+    label="① 接入与治理";
+    color="#93C5FD"; fillcolor="#EFF6FF"; penwidth=1.3; style="rounded,filled"; margin=16;
+
+    api [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#3B82F6" BGCOLOR="#DBEAFE">
+        <TR><TD><B>诊断 API</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">创建 · 查询 · 运行 · 取消</FONT></TD></TR>
+        <TR><TD BGCOLOR="#DCFCE7"><FONT COLOR="#166534"><B>NEW</B> · Evidence 查询<BR/>Supplement · Confirmation</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    governance [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#60A5FA" BGCOLOR="#FFFFFF">
+        <TR><TD><B>请求治理</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">Request ID · 统一异常 · 结构化日志</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_application {
+    label="② 应用编排";
+    color="#7DD3FC"; fillcolor="#F0F9FF"; penwidth=1.3; style="rounded,filled"; margin=16;
+
+    service [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#0284C7" BGCOLOR="#E0F2FE">
+        <TR><TD><B>DiagnosisApplicationService</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">用例 · 事务 · 运行冲突保护</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    human_usecases [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>NEW · Human Loop Use Cases</B></FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">补充信息 · 确认 · 驳回 · 继续调查</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    knowledge_usecase [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>NEW · Knowledge Use Cases</B></FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">创建 · 查询 · 状态管理</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_runtime {
+    label="③ Agent Runtime";
+    color="#C4B5FD"; fillcolor="#FAF8FF"; penwidth=1.5; style="rounded,filled"; margin=18;
+
+    strategy [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#8B5CF6" BGCOLOR="#F5F3FF">
+        <TR><TD><B>DiagnosisStrategy</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">提示 · 工具白名单</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    loop [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#7C3AED" BGCOLOR="#FFFFFF">
+        <TR><TD CELLPADDING="8" BGCOLOR="#7C3AED"><FONT COLOR="#FFFFFF"><B>ToolLoopRunner</B></FONT></TD></TR>
+        <TR><TD CELLPADDING="6">LLM 推理 ⇄ 受控工具调用</TD></TR>
+        <TR><TD CELLPADDING="6"><FONT POINT-SIZE="8">预算 · ToolRun · 结构化结论</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    registry [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#8B5CF6" BGCOLOR="#F5F3FF">
+        <TR><TD><B>Tool Registry</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">knowledge__search 契约不变</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    citation [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>NEW · EvidenceCitationPolicy</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">校验 Evidence 归属与引用<BR/>限制 probable / possible / confirmed</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_ports {
+    label="④ Ports";
+    color="#D8B4FE"; fillcolor="#FDF4FF"; penwidth=1.3; style="rounded,dashed,filled"; margin=16;
+
+    existing_ports [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#A855F7" BGCOLOR="#FAE8FF">
+        <TR><TD><B>既有 Ports</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">LLM · Diagnosis · Execution · Tool</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    new_ports [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>NEW · Phase 0B Ports</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">Redaction<BR/>Evidence Repository / Store<BR/>Knowledge Repository / Search<BR/>Confirmation · Audit</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_adapters {
+    label="⑤ Adapters";
+    color="#5EEAD4"; fillcolor="#F0FDFA"; penwidth=1.3; style="rounded,filled"; margin=16;
+
+    existing_adapters [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#0F766E" BGCOLOR="#CCFBF1">
+        <TR><TD><B>既有 Adapters</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">DeepSeek / Fake LLM<BR/>SQLite + SQLAlchemy</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    phase0b_adapters [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>NEW · Phase 0B Adapters</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">LocalRuleRedactor<BR/>Evidence / Confirmation / Audit SQLAlchemy<BR/>SQLite Knowledge Search</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    json_old [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#94A3B8" BGCOLOR="#F1F5F9">
+        <TR><TD><FONT COLOR="#64748B"><S>JSON Knowledge Adapter</S></FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8" COLOR="#64748B">Phase 0A 实现 · 已由 SQLite 替换<BR/>保留为种子导入与实现参考</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_closure {
+    label="Phase 0B 新增：证据驱动的诊断闭环";
+    color="#4ADE80"; fillcolor="#F0FDF4"; penwidth=1.6; style="rounded,filled"; margin=18;
+
+    redact [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>1 · 入库前脱敏</B></FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">用户描述 · 日志 · 人工备注</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    evidence [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>2 · Evidence Domain</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">user_statement · log_excerpt<BR/>knowledge_entry · hash 去重<BR/>reliability · redaction status</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    evidence_context [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>3 · 可引用证据上下文</B></FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">EvidenceDraft 落库<BR/>真实 Evidence ID 回传模型</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    conclusion [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>4 · 有依据的初步结论</B></FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">引用规则校验 · 不允许伪造 ID</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    confirmation [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>5 · Confirmation</B></FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">confirm · reject<BR/>continue_investigation</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    audit [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>Audit Event</B></FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">安全摘要 · 操作者 · 动作 · 目标</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  user -> api [color="#F59E0B", penwidth=2.5];
+  api -> service [color="#F59E0B", penwidth=2.5];
+  service -> loop [color="#F59E0B", penwidth=2.5];
+  strategy -> loop;
+  loop -> registry [color="#F59E0B", penwidth=2.5];
+  loop -> existing_ports;
+  registry -> existing_ports;
+  existing_ports -> existing_adapters;
+  governance -> api [style=dashed, arrowhead=none, color="#94A3B8"];
+
+  api -> human_usecases [color="#16A34A", penwidth=2.1];
+  api -> knowledge_usecase [color="#16A34A", penwidth=2.1];
+  service -> new_ports [color="#16A34A", penwidth=2.1];
+  human_usecases -> new_ports [color="#16A34A", penwidth=2.1];
+  knowledge_usecase -> new_ports [color="#16A34A", penwidth=2.1];
+  new_ports -> phase0b_adapters [color="#16A34A", penwidth=2.1];
+  json_old -> phase0b_adapters [style=dashed, color="#94A3B8"];
+
+  api -> redact [color="#16A34A", penwidth=2.3, constraint=false];
+  redact -> evidence [color="#16A34A", penwidth=2.3];
+  evidence -> evidence_context [color="#16A34A", penwidth=2.3];
+  evidence_context -> loop [color="#16A34A", penwidth=2.3, constraint=false];
+  loop -> citation [color="#16A34A", penwidth=2.3];
+  citation -> conclusion [color="#16A34A", penwidth=2.3, constraint=false];
+  conclusion -> confirmation [color="#F59E0B", penwidth=2.2, style=dashed];
+  confirmation -> human_usecases [color="#F59E0B", penwidth=2.2, style=dashed, constraint=false];
+  human_usecases -> redact [color="#F59E0B", penwidth=2.2, style=dashed, constraint=false];
+  evidence -> audit [style=dashed, color="#16A34A"];
+  confirmation -> audit [style=dashed, color="#16A34A"];
+
+  { rank=same; api; governance; redact; }
+  { rank=same; service; human_usecases; knowledge_usecase; evidence; }
+  { rank=same; strategy; loop; registry; citation; evidence_context; }
+  { rank=same; existing_ports; new_ports; conclusion; confirmation; audit; }
+  { rank=same; existing_adapters; phase0b_adapters; json_old; }
+}

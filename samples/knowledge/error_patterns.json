@@ -1,0 +1,47 @@
+[
+  {
+    "id": "generic-npe",
+    "title": "Java NullPointerException 通用排查",
+    "summary": "根据堆栈定位首个业务代码行，检查该行对象来源及数据库、RPC、配置或依赖注入返回值；知识命中只能形成待验证假设。",
+    "error_types": ["NullPointerException", "NPE"],
+    "tags": ["java", "null", "HTTP 500"],
+    "source": "manual_seed",
+    "status": "confirmed"
+  },
+  {
+    "id": "generic-http-500",
+    "title": "HTTP 500 服务端异常排查",
+    "summary": "结合请求时间、入口日志和异常堆栈定位失败节点，区分参数、业务逻辑、依赖服务和基础设施错误。",
+    "error_types": ["HTTP 500", "InternalServerError"],
+    "tags": ["http", "server-error"],
+    "source": "manual_seed",
+    "status": "confirmed"
+  },
+  {
+    "id": "generic-timeout",
+    "title": "接口与 RPC 超时排查",
+    "summary": "确认超时发生层级、客户端与服务端超时配置、下游耗时和连接池状态，并使用同一请求的证据验证。",
+    "error_types": ["TimeoutException", "ReadTimeout", "ConnectTimeout"],
+    "tags": ["timeout", "rpc", "http"],
+    "source": "manual_seed",
+    "status": "confirmed"
+  },
+  {
+    "id": "generic-oom",
+    "title": "Java OutOfMemoryError 排查",
+    "summary": "先识别 heap、metaspace、direct buffer 或 unable to create native thread 类型，再结合内存曲线和 dump 验证。",
+    "error_types": ["OutOfMemoryError", "OOM"],
+    "tags": ["java", "memory", "jvm"],
+    "source": "manual_seed",
+    "status": "confirmed"
+  },
+  {
+    "id": "generic-connection-refused",
+    "title": "Connection refused 排查",
+    "summary": "验证目标地址和端口、服务监听状态、网络策略及服务发现结果，避免仅凭异常文本判断服务宕机。",
+    "error_types": ["ConnectionRefused", "ConnectException"],
+    "tags": ["network", "connection", "service-discovery"],
+    "source": "manual_seed",
+    "status": "confirmed"
+  }
+]

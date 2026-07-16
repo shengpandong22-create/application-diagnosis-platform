@@ -1,0 +1,220 @@
+digraph Phase0A {
+  graph [
+    rankdir=LR,
+    bgcolor="#FFFFFF",
+    pad="0.35",
+    nodesep="0.38",
+    ranksep="0.72",
+    splines=ortho,
+    fontname="Microsoft YaHei",
+    fontsize=18,
+    fontcolor="#0F172A",
+    label="Phase 0A · 独立骨架与最小 Agent Loop",
+    labelloc=t,
+    labeljust=l,
+    compound=true,
+    newrank=true
+  ];
+
+  node [
+    shape=plain,
+    fontname="Microsoft YaHei",
+    fontsize=11,
+    fontcolor="#0F172A"
+  ];
+
+  edge [
+    color="#64748B",
+    penwidth=1.35,
+    arrowsize=0.72,
+    fontname="Microsoft YaHei",
+    fontsize=9,
+    fontcolor="#475569"
+  ];
+
+  user [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="9" COLOR="#64748B" BGCOLOR="#F8FAFC">
+      <TR><TD><B>本地用户</B></TD></TR>
+      <TR><TD><FONT POINT-SIZE="9" COLOR="#475569">API 调用方</FONT></TD></TR>
+    </TABLE>
+  >];
+
+  subgraph cluster_api {
+    label="① 接入与治理";
+    color="#93C5FD";
+    fillcolor="#EFF6FF";
+    penwidth=1.4;
+    style="rounded,filled";
+    margin=18;
+
+    api [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#3B82F6" BGCOLOR="#DBEAFE">
+        <TR><TD><B>FastAPI 诊断 API</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="9">创建 · 查询 · 运行 · 取消</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    governance [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#60A5FA" BGCOLOR="#FFFFFF">
+        <TR><TD><B>请求治理</B></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9" COLOR="#475569">Request ID<BR/>统一异常响应<BR/>结构化日志 · 健康检查</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_application {
+    label="② 应用编排";
+    color="#7DD3FC";
+    fillcolor="#F0F9FF";
+    penwidth=1.4;
+    style="rounded,filled";
+    margin=18;
+
+    service [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#0284C7" BGCOLOR="#E0F2FE">
+        <TR><TD><B>DiagnosisApplicationService</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="9">用例 · 事务 · 并发冲突保护</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_core {
+    label="③ 诊断核心";
+    color="#C4B5FD";
+    fillcolor="#FAF8FF";
+    penwidth=1.6;
+    style="rounded,filled";
+    margin=20;
+
+    strategy [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#8B5CF6" BGCOLOR="#F5F3FF">
+        <TR><TD><B>DiagnosisStrategy</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="9">系统提示 · 工具白名单</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    loop [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#7C3AED" BGCOLOR="#FFFFFF">
+        <TR><TD CELLPADDING="9" BGCOLOR="#7C3AED"><FONT COLOR="#FFFFFF"><B>ToolLoopRunner</B></FONT></TD></TR>
+        <TR><TD CELLPADDING="8" ALIGN="LEFT">1. 构造诊断上下文</TD></TR>
+        <TR><TD CELLPADDING="8" ALIGN="LEFT" BGCOLOR="#F5F3FF">2. 调用 LLM 推理</TD></TR>
+        <TR><TD CELLPADDING="8" ALIGN="LEFT">3. 校验并执行工具</TD></TR>
+        <TR><TD CELLPADDING="8" ALIGN="LEFT" BGCOLOR="#F5F3FF">4. 回传结果，继续推理</TD></TR>
+        <TR><TD CELLPADDING="8" ALIGN="LEFT">5. 校验结构化结论</TD></TR>
+        <TR><TD CELLPADDING="7" BGCOLOR="#FFF7ED"><FONT POINT-SIZE="9" COLOR="#9A3412">轮次 · 工具次数 · 单工具超时 · 总时间预算</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    registry [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#8B5CF6" BGCOLOR="#F5F3FF">
+        <TR><TD><B>Tool Registry</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="9">权限 · 参数 · 风险 · 超时</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_ports {
+    label="④ 稳定 Ports";
+    color="#D8B4FE";
+    fillcolor="#FDF4FF";
+    penwidth=1.4;
+    style="rounded,dashed,filled";
+    margin=18;
+
+    llm_port [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#A855F7" BGCOLOR="#FAE8FF">
+        <TR><TD><B>LLM Client Port</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="9">供应商无关对话契约</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    tool_port [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#A855F7" BGCOLOR="#FAE8FF">
+        <TR><TD><B>Tool Contract</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="9">结构化输入输出契约</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    repo_port [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#A855F7" BGCOLOR="#FAE8FF">
+        <TR><TD><B>Repository Ports</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="9">Diagnosis · Execution</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_adapters {
+    label="⑤ 可替换 Adapters";
+    color="#5EEAD4";
+    fillcolor="#F0FDFA";
+    penwidth=1.4;
+    style="rounded,filled";
+    margin=18;
+
+    llm_adapter [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#0F766E" BGCOLOR="#CCFBF1">
+        <TR><TD><B>DeepSeek Adapter</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="9">OpenAI-compatible</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="9" COLOR="#475569">测试时替换为 Fake LLM</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    knowledge [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#0F766E" BGCOLOR="#CCFBF1">
+        <TR><TD><B>JSON Knowledge Adapter</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="9">本地知识检索</FONT></TD></TR>
+      </TABLE>
+    >];
+
+    sqlite [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#0F766E" BGCOLOR="#CCFBF1">
+        <TR><TD><B>SQLite + SQLAlchemy</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="9">Diagnosis · AgentRun · ToolRun</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="9" COLOR="#475569">Alembic 0001 / 0002</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_domain {
+    label="Phase 0A 领域与执行记录";
+    color="#93C5FD";
+    fillcolor="#F8FAFC";
+    penwidth=1.2;
+    style="rounded,filled";
+    margin=15;
+
+    domain [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#2563EB" BGCOLOR="#DBEAFE">
+        <TR><TD><B>DiagnosisCase</B></TD><TD><B>诊断状态机</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="9">案例聚合根</FONT></TD><TD><FONT POINT-SIZE="9">领域规则控制状态转换</FONT></TD></TR>
+        <TR><TD><B>DiagnosisConclusion</B></TD><TD><B>AgentRun / ToolRun</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="9">结构化初步结论</FONT></TD><TD><FONT POINT-SIZE="9">运行过程与终止原因</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  user -> api [color="#F59E0B", penwidth=2.6];
+  api -> service [color="#F59E0B", penwidth=2.6];
+  service -> loop [color="#F59E0B", penwidth=2.6];
+  loop -> llm_port [color="#F59E0B", penwidth=2.6];
+  llm_port -> llm_adapter;
+
+  strategy -> loop;
+  loop -> registry [color="#F59E0B", penwidth=2.6];
+  registry -> tool_port;
+  tool_port -> knowledge;
+  knowledge -> loop [color="#F59E0B", penwidth=2.6, constraint=false];
+
+  service -> repo_port;
+  loop -> repo_port;
+  repo_port -> sqlite;
+
+  governance -> api [style=dashed, arrowhead=none, color="#94A3B8"];
+  service -> domain [style=dashed, color="#2563EB", constraint=false];
+  loop -> domain [style=dashed, color="#2563EB", constraint=false];
+
+  { rank=same; api; governance; }
+  { rank=same; strategy; loop; registry; domain; }
+  { rank=same; llm_port; tool_port; repo_port; }
+  { rank=same; llm_adapter; knowledge; sqlite; }
+}
