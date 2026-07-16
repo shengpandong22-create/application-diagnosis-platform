@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from app_diagnosis.adapters.code import LocalCodeRepository
 from app_diagnosis.adapters.knowledge import JsonKnowledgeSeedLoader, SqliteKnowledgeSearch
 from app_diagnosis.adapters.llm import OpenAICompatibleChatClient
 from app_diagnosis.adapters.persistence import Database, SqlAlchemyAgentExecutionRepository
@@ -14,8 +15,10 @@ from app_diagnosis.application import (
     KnowledgeApplicationService,
 )
 from app_diagnosis.bootstrap.settings import Settings
+from app_diagnosis.domain.code_workspace import CodeWorkspace
 from app_diagnosis.ports.llm import LLMClient, LLMTransportError
 from app_diagnosis.tools import DiagnosticToolRegistry
+from app_diagnosis.tools.code import CodeReadTool, CodeSearchTool
 from app_diagnosis.tools.knowledge_search import KnowledgeSearchTool
 
 
@@ -38,6 +41,16 @@ def build_diagnosis_service(
         JsonKnowledgeSeedLoader(Path(settings.knowledge_directory)),
     )
     registry.register(KnowledgeSearchTool(knowledge))
+    code_tools_enabled = bool(settings.code_workspace_path.strip())
+    if code_tools_enabled:
+        code = LocalCodeRepository(
+            CodeWorkspace(
+                name=settings.code_workspace_name,
+                root=Path(settings.code_workspace_path),
+            )
+        )
+        registry.register(CodeSearchTool(code))
+        registry.register(CodeReadTool(code))
     redactor = LocalRuleRedactor()
     runner = ToolLoopRunner(
         llm_client=resolved_llm,
@@ -50,7 +63,7 @@ def build_diagnosis_service(
         session_factory=database.session_factory,
         runner=runner,
         executions=executions,
-        strategy=GenericApplicationErrorStrategy(),
+        strategy=GenericApplicationErrorStrategy(code_tools_enabled=code_tools_enabled),
         budget=AgentBudget(
             max_rounds=settings.agent_max_rounds,
             max_tool_calls=settings.agent_max_tool_calls,

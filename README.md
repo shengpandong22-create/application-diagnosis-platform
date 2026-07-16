@@ -21,6 +21,7 @@
 | Phase 0A | 独立骨架与最小 Agent Loop | 完成 | [架构与学习总结](./docs/01-architecture/phase0a-framework.md) |
 | Phase 0B | Evidence、知识检索与人工闭环 | 完成 | [扩展架构与学习总结](./docs/01-architecture/phase0b-extension.md) |
 | Phase 0C | 评测、报告和极简界面 | 完成 | [扩展架构](./docs/01-architecture/phase0c-extension.md) |
+| Phase 1 | 日志与授权源码联合诊断 | 完成（本地最小闭环） | [实现规格](./docs/02-specifications/Phase%201%20实现规格说明.md) |
 
 ## 技术栈
 
@@ -48,6 +49,7 @@ uv run uvicorn app_diagnosis.api.app:create_app --factory --reload
 
 ```powershell
 uv run python scripts/demo-phase0.py
+uv run python scripts/demo-phase1-code.py
 ```
 
 演示覆盖脱敏、知识工具、Evidence ID、引用校验、人工确认和 Markdown 报告，全程不读取 API Key、不访问网络。详见[演示指南](./docs/00-overview/演示指南.md)。

@@ -105,7 +105,7 @@ class DiagnosisApplicationService:
                     actor=actor,
                     environment=environment,
                     audit_correlation_id=correlation_id,
-                    permissions=frozenset({"knowledge:read"}),
+                    permissions=frozenset({"knowledge:read", "code:read"}),
                     max_tool_output_bytes=max_tool_output_bytes,
                 ),
                 budget=self._budget,

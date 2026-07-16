@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     database_url: str = "sqlite+aiosqlite:///./data/app_diagnosis.db"
     knowledge_directory: str = "samples/knowledge"
+    code_workspace_path: str = ""
+    code_workspace_name: str = "local-application"
     llm_base_url: str = "https://example.invalid/v1"
     llm_api_key: SecretStr = SecretStr("")
     llm_model: str = ""

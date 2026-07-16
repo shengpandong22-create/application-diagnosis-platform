@@ -15,11 +15,13 @@ class EvidenceType(StrEnum):
     USER_STATEMENT = "user_statement"
     LOG_EXCERPT = "log_excerpt"
     KNOWLEDGE_ENTRY = "knowledge_entry"
+    CODE_EXCERPT = "code_excerpt"
 
 
 class EvidenceSource(StrEnum):
     USER_INPUT = "user_input"
     LOCAL_KNOWLEDGE = "local_knowledge"
+    LOCAL_CODE = "local_code"
 
 
 class EvidenceReliability(StrEnum):

@@ -20,9 +20,13 @@ class EvidenceRecord(Base):
     __tablename__ = "evidence"
     __table_args__ = (
         CheckConstraint(
-            "type IN ('user_statement', 'log_excerpt', 'knowledge_entry')", name="ck_evidence_type"
+            "type IN ('user_statement', 'log_excerpt', 'knowledge_entry', 'code_excerpt')",
+            name="ck_evidence_type",
         ),
-        CheckConstraint("source IN ('user_input', 'local_knowledge')", name="ck_evidence_source"),
+        CheckConstraint(
+            "source IN ('user_input', 'local_knowledge', 'local_code')",
+            name="ck_evidence_source",
+        ),
         CheckConstraint("reliability IN ('low', 'medium', 'high')", name="ck_evidence_reliability"),
         CheckConstraint(
             "redaction_status IN ('not_required', 'redacted', 'rejected')",

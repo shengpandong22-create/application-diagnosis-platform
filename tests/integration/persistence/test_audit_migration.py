@@ -24,7 +24,7 @@ def test_audit_migration_upgrade_and_downgrade(tmp_path: Path) -> None:
         "correlation_id",
         "created_at",
     }
-    assert revision == "0006"
+    assert revision == "0007"
     command.downgrade(config, "0005")
     with sqlite3.connect(database_path) as connection:
         table = connection.execute(
