@@ -13,6 +13,8 @@ from app_diagnosis.bootstrap.container import build_diagnosis_service
 from app_diagnosis.bootstrap.settings import Settings
 from app_diagnosis.ports.llm import ChatMessage, FinishReason, LLMRequest, LLMResponse, ToolCall
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
 
 class OfflineDemoLLM:
     def __init__(self) -> None:
@@ -54,18 +56,19 @@ class OfflineDemoLLM:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the complete Phase 0 demo offline")
-    parser.add_argument("--output", type=Path, default=Path("demo-output"))
+    parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "demo-output")
     args = parser.parse_args()
     with tempfile.TemporaryDirectory(prefix="app-diagnosis-demo-") as temporary:
         url = f"sqlite+aiosqlite:///{(Path(temporary) / 'demo.db').as_posix()}"
-        config = Config("alembic.ini")
+        config = Config(str(PROJECT_ROOT / "alembic.ini"))
+        config.set_main_option("script_location", str(PROJECT_ROOT / "migrations"))
         config.set_main_option("sqlalchemy.url", url)
         command.upgrade(config, "head")
         settings = Settings(
             _env_file=None,
             env="test",
             database_url=url,
-            knowledge_directory=str(Path("samples/knowledge").resolve()),
+            knowledge_directory=str(PROJECT_ROOT / "samples" / "knowledge"),
         )
         database = Database(url)
         service, _ = build_diagnosis_service(
