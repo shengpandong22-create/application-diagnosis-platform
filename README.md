@@ -50,6 +50,7 @@ uv run uvicorn app_diagnosis.api.app:create_app --factory --reload
 ```powershell
 uv run python scripts/demo-phase0.py
 uv run python scripts/demo-phase1-code.py
+uv run python scripts/demo-phase1-log-code.py --keyword NullPointerException
 ```
 
 演示覆盖脱敏、知识工具、Evidence ID、引用校验、人工确认和 Markdown 报告，全程不读取 API Key、不访问网络。详见[演示指南](./docs/00-overview/演示指南.md)。
