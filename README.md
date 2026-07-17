@@ -21,7 +21,7 @@
 | Phase 0A | 独立骨架与最小 Agent Loop | 完成 | [架构与学习总结](./docs/01-architecture/phase0a-framework.md) |
 | Phase 0B | Evidence、知识检索与人工闭环 | 完成 | [扩展架构与学习总结](./docs/01-architecture/phase0b-extension.md) |
 | Phase 0C | 评测、报告和极简界面 | 完成 | [扩展架构](./docs/01-architecture/phase0c-extension.md) |
-| Phase 1 | 日志与授权源码联合诊断 | 完成（本地最小闭环） | [实现规格](./docs/02-specifications/Phase%201%20实现规格说明.md) |
+| Phase 1 | 日志与授权源码联合诊断 | 完成（本地最小闭环） | [能力总结](./docs/03-progress/2026-07-17-Phase1当前能力总结.md) |
 
 ## 技术栈
 
@@ -54,7 +54,7 @@ uv run python scripts/demo-phase1-log-code.py --keyword NullPointerException
 uv run python scripts/diagnose-java-log-real.py --keyword NullPointerException
 ```
 
-演示覆盖脱敏、知识工具、Evidence ID、引用校验、人工确认和 Markdown 报告，全程不读取 API Key、不访问网络。详见[演示指南](./docs/00-overview/演示指南.md)。
+前三个脚本使用 Fake LLM，不访问外部网络；`diagnose-java-log-real.py` 会调用 `.env` 中配置的真实模型并可能产生费用。演示覆盖脱敏、知识工具、Evidence ID、引用校验、人工确认、受限源码读取和 Markdown 报告。详见[演示指南](./docs/00-overview/演示指南.md)。
 
 ## 测试与验收
 
@@ -64,7 +64,7 @@ uv run pytest
 .\scripts\verify-phase0c.ps1 -SkipSync
 ```
 
-当前基线：`149 passed`，Phase 0C 固定评测 `2/2 passed`，Phase 0A/0B/0C 一键验收通过。
+当前基线：`166 passed`，Phase 0C 固定评测 `2/2 passed`，Phase 0A/0B/0C 一键验收通过，Phase 1 Java Lab 三类真实模型案例通过。
 
 ## 主要 API
 
@@ -83,6 +83,7 @@ uv run pytest
 - [项目介绍](./docs/00-overview/项目介绍.md)
 - [完整文档导航](./docs/README.md)
 - [Phase 0C 实现规格](./docs/02-specifications/Phase%200C%20实现规格说明.md)
+- [Phase 1 当前能力总结](./docs/03-progress/2026-07-17-Phase1当前能力总结.md)
 - [简历与面试描述](./docs/00-overview/简历项目描述.md)
 
 ## 当前边界

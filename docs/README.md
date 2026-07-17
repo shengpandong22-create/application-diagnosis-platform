@@ -11,7 +11,7 @@
 | Phase 0A | 独立骨架与最小 Agent Loop | [框架图与说明](./01-architecture/phase0a-framework.md) · [SVG](./01-architecture/phase0a-framework.svg) · [Graphviz 源文件](./01-architecture/phase0a-framework.dot) | [Phase 0 实现规格](./02-specifications/Phase%200%20实现规格说明.md) | [验收记录](./04-validation/phase0a-acceptance.md) | 已完成 |
 | Phase 0B | Evidence、知识检索与人工确认 | [扩展图与说明](./01-architecture/phase0b-extension.md) · [SVG](./01-architecture/phase0b-extension.svg) · [Graphviz 源文件](./01-architecture/phase0b-extension.dot) | [平台设计文档](./02-specifications/独立应用诊断闭环平台设计文档.md) | [验收记录](./04-validation/phase0b-acceptance.md) | 已完成 |
 | Phase 0C | 评测、报告和极简界面 | [扩展图](./01-architecture/phase0c-extension.md) · [SVG](./01-architecture/phase0c-extension.svg) · [Graphviz](./01-architecture/phase0c-extension.dot) | [实现规格](./02-specifications/Phase%200C%20实现规格说明.md) | [验收记录](./04-validation/phase0c-acceptance.md) | 已完成 |
-| Phase 1 | 日志与授权源码联合诊断 | 待补充正式演进图 | [实现规格](./02-specifications/Phase%201%20实现规格说明.md) | [验收记录](./04-validation/phase1-acceptance.md) | 本地最小闭环完成 |
+| Phase 1 | 日志与授权源码联合诊断 | 待补充正式演进图 | [实现规格](./02-specifications/Phase%201%20实现规格说明.md) · [能力总结](./03-progress/2026-07-17-Phase1当前能力总结.md) | [验收记录](./04-validation/phase1-acceptance.md) | 本地最小闭环完成 |
 
 ## 按内容查找
 
@@ -24,6 +24,7 @@
 - [Phase 1 真实日志与源码联合诊断验收](./04-validation/phase1-real-log-acceptance.md)
 - [Phase 1 真实模型端到端诊断验收](./04-validation/phase1-real-model-acceptance.md)
 - [Phase 1 Java Lab 多故障评测](./04-validation/phase1-java-lab-evaluation.md)
+- [Phase 1 当前能力总结](./03-progress/2026-07-17-Phase1当前能力总结.md)
 - [简历与面试项目描述](./00-overview/简历项目描述.md)
 
 ### 1. 架构与演进图
@@ -49,6 +50,7 @@
 - [2026-07-16：Phase 0A 完成与 Phase 0B 计划](./03-progress/2026-07-16-Phase0A开发总结与Phase0B计划.md)
 - [2026-07-16：Phase 0B 完成情况与 Phase 0C 计划](./03-progress/2026-07-16-Phase0B开发总结与Phase0C计划.md)
 - [2026-07-17：Phase 0C 评测、报告与极简界面](./03-progress/2026-07-17-Phase0C开发总结.md)
+- [2026-07-17：Phase 1 日志与源码联合诊断能力总结](./03-progress/2026-07-17-Phase1当前能力总结.md)
 
 后续开发总结统一放入 `03-progress`，文件名使用 `YYYY-MM-DD-阶段-主题.md`。
 
