@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 from app_diagnosis.ports.log_reader import LogExcerpt
@@ -9,6 +10,7 @@ class InvalidLogRead(ValueError):
 
 class LocalLogFileReader:
     ALLOWED_SUFFIXES = frozenset({".log"})
+    _EVENT_START = re.compile(r"^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:[.,]\d+)?")
 
     def __init__(
         self,
@@ -56,11 +58,9 @@ class LocalLogFileReader:
             raise InvalidLogRead(f"keyword not found in the bounded log tail: {keyword}")
 
         match = matches[-1]
-        before = min(8, match)
-        start = match - before
-        end = min(len(lines), start + self._max_excerpt_lines)
-        if end - start < self._max_excerpt_lines:
-            start = max(0, end - self._max_excerpt_lines)
+        start = self._event_start(lines, match)
+        end = self._event_end(lines, start)
+        end = min(end, start + self._max_excerpt_lines)
         content = "\n".join(lines[start:end]).strip()
         relative = resolved.relative_to(self._root).as_posix()
         first_line = start + 1
@@ -70,3 +70,17 @@ class LocalLogFileReader:
             source_reference=f"{relative}:{first_line}-{last_line}",
             matched_line=match + 1,
         )
+
+    @classmethod
+    def _event_start(cls, lines: list[str], match: int) -> int:
+        for index in range(match, -1, -1):
+            if cls._EVENT_START.match(lines[index]):
+                return index
+        return max(0, match - 8)
+
+    @classmethod
+    def _event_end(cls, lines: list[str], start: int) -> int:
+        for index in range(start + 1, len(lines)):
+            if cls._EVENT_START.match(lines[index]):
+                return index
+        return len(lines)

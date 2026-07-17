@@ -202,6 +202,7 @@ async def test_invalid_citation_gets_one_policy_correction() -> None:
     )
     assert result.termination_reason is AgentTerminationReason.COMPLETED
     assert "evidence citation rules" in fake.calls[2].request.messages[-1].content
+    assert "existing evidence catalog or tool results" in fake.calls[2].request.messages[-1].content
 
 
 async def test_existing_evidence_ids_are_available_on_first_model_call() -> None:

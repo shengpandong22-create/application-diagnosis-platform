@@ -8,10 +8,9 @@ from app_diagnosis.adapters.redaction import LocalRuleRedactor
 
 def test_extracts_latest_matching_excerpt_with_bounds(tmp_path: Path) -> None:
     log = tmp_path / "application.log"
-    lines = [f"old line {index}" for index in range(140)]
-    lines += ["ERROR first NullPointerException", " first stack"]
-    lines += [f"middle {index}" for index in range(10)]
-    lines += ["ERROR latest NullPointerException", " latest stack"]
+    lines = ["2026-07-17 10:00:00.000 ERROR first NullPointerException", " first stack"]
+    lines += ["2026-07-17 10:00:01.000 INFO between events"]
+    lines += ["2026-07-17 10:00:02.000 ERROR latest NullPointerException", " latest stack"]
     log.write_text("\n".join(lines), encoding="utf-8")
 
     excerpt = LocalLogFileReader(tmp_path, max_excerpt_lines=12).read_latest(
@@ -22,6 +21,29 @@ def test_extracts_latest_matching_excerpt_with_bounds(tmp_path: Path) -> None:
     assert "first NullPointerException" not in excerpt.content
     assert len(excerpt.content.splitlines()) <= 12
     assert excerpt.source_reference.startswith("application.log:")
+
+
+def test_stops_at_next_timestamped_log_event(tmp_path: Path) -> None:
+    (tmp_path / "application.log").write_text(
+        "\n".join(
+            [
+                "2026-07-17 10:00:00.000 ERROR NPE happened",
+                "java.lang.NullPointerException",
+                "\tat app.OrderService.create(OrderService.java:8)",
+                "2026-07-17 10:00:01.000 ERROR connection refused",
+                "java.net.ConnectException: Connection refused",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    excerpt = LocalLogFileReader(tmp_path).read_latest(
+        relative_path="application.log", keyword="NullPointerException"
+    )
+
+    assert "OrderService.java:8" in excerpt.content
+    assert "connection refused" not in excerpt.content
+    assert excerpt.source_reference == "application.log:1-3"
 
 
 @pytest.mark.parametrize("path", ["../outside.log", "absolute.txt", "."])

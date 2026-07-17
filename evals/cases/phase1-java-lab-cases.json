@@ -1,0 +1,25 @@
+{
+  "cases": [
+    {
+      "id": "npe",
+      "title": "Null customer dereference",
+      "keyword": "NullPointerException",
+      "expected_code_paths": ["OrderService.java", "FailureController.java"],
+      "allowed_root_cause_keywords": ["null", "trim", "customer"]
+    },
+    {
+      "id": "connection-refused",
+      "title": "Downstream connection refused",
+      "keyword": "ConnectException",
+      "expected_code_paths": ["PaymentClient.java"],
+      "allowed_root_cause_keywords": ["connection refused", "downstream", "65534"]
+    },
+    {
+      "id": "timeout",
+      "title": "Inventory operation timeout",
+      "keyword": "TimeoutException",
+      "expected_code_paths": ["InventoryClient.java"],
+      "allowed_root_cause_keywords": ["timeout", "inventory", "50"]
+    }
+  ]
+}

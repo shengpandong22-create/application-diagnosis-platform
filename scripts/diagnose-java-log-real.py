@@ -3,6 +3,7 @@ import json
 import tempfile
 from pathlib import Path
 from time import perf_counter
+from typing import Any
 
 from alembic import command
 from alembic.config import Config
@@ -16,6 +17,18 @@ from app_diagnosis.bootstrap.settings import Settings
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_JAVA_LAB = PROJECT_ROOT.parent / "diagnosis-java-lab"
+DEFAULT_CASES = PROJECT_ROOT / "evals" / "cases" / "phase1-java-lab-cases.json"
+
+
+def load_case(path: Path, case_id: str) -> dict[str, Any]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    cases = payload.get("cases")
+    if not isinstance(cases, list):
+        raise ValueError("case file must contain a cases array")
+    for item in cases:
+        if isinstance(item, dict) and item.get("id") == case_id:
+            return item
+    raise ValueError(f"unknown evaluation case: {case_id}")
 
 
 def main() -> None:
@@ -24,16 +37,25 @@ def main() -> None:
     )
     parser.add_argument("--java-lab", type=Path, default=DEFAULT_JAVA_LAB)
     parser.add_argument("--log", default="diagnosis-java-lab.log")
-    parser.add_argument("--keyword", default="NullPointerException")
+    parser.add_argument("--keyword")
+    parser.add_argument("--case")
+    parser.add_argument("--cases", type=Path, default=DEFAULT_CASES)
     parser.add_argument(
         "--output", type=Path, default=PROJECT_ROOT / "demo-output" / "phase1-real-model"
     )
     args = parser.parse_args()
 
+    case = load_case(args.cases, args.case) if args.case else None
+    keyword = args.keyword or (case or {}).get("keyword")
+    if not isinstance(keyword, str) or not keyword.strip():
+        raise ValueError("provide --keyword or --case")
+    expected_paths = tuple((case or {}).get("expected_code_paths", ()))
+    expected_terms = tuple((case or {}).get("allowed_root_cause_keywords", ()))
+
     java_lab = args.java_lab.resolve(strict=True)
     excerpt = LocalLogFileReader(java_lab / "logs").read_latest(
         relative_path=args.log,
-        keyword=args.keyword,
+        keyword=keyword,
     )
     with tempfile.TemporaryDirectory(prefix="app-diagnosis-real-model-") as temporary:
         database_url = f"sqlite+aiosqlite:///{(Path(temporary) / 'demo.db').as_posix()}"
@@ -63,8 +85,8 @@ def main() -> None:
             created = api.post(
                 "/api/v1/diagnoses",
                 json={
-                    "title": f"Java Lab real-log diagnosis: {args.keyword}",
-                    "symptom": f"Java Lab HTTP 500 contains {args.keyword}",
+                    "title": f"Java Lab real-log diagnosis: {case['title'] if case else keyword}",
+                    "symptom": f"Java Lab HTTP 500 contains {keyword}",
                     "submitted_log": excerpt.content,
                 },
             )
@@ -99,12 +121,31 @@ def main() -> None:
             failures.append("model did not successfully search and read code")
         if not {"log_excerpt", "code_excerpt"}.issubset(cited_types):
             failures.append("conclusion did not cite both log and code evidence")
+        code_references = [
+            item["source_reference"] or "" for item in evidence if item["type"] == "code_excerpt"
+        ]
+        if expected_paths and not any(
+            reference.endswith(path) or f"{path}:" in reference
+            for reference in code_references
+            for path in expected_paths
+        ):
+            failures.append("expected source file was not captured as code evidence")
+        root_cause_text = " ".join(
+            item["statement"] for item in (result.get("conclusion") or {}).get("root_causes", [])
+        ).casefold()
+        if expected_terms and not any(
+            term.casefold() in root_cause_text for term in expected_terms
+        ):
+            failures.append("root cause does not match case vocabulary")
 
-        args.output.mkdir(parents=True, exist_ok=True)
-        report_path = args.output / "diagnosis-report.md"
+        output = args.output / (case["id"] if case else keyword.casefold().replace(" ", "-"))
+        output.mkdir(parents=True, exist_ok=True)
+        report_path = output / "diagnosis-report.md"
         report_path.write_text(report_response.text, encoding="utf-8")
         summary = {
             "diagnosis_id": diagnosis_id,
+            "case_id": case["id"] if case else None,
+            "keyword": keyword,
             "termination_reason": result["termination_reason"],
             "run_error_code": run["error_code"],
             "model": run["model"],
@@ -124,12 +165,15 @@ def main() -> None:
                 for item in tools
             ],
             "cited_evidence_types": sorted(cited_types),
+            "code_evidence_references": code_references,
+            "expected_code_paths": expected_paths,
+            "expected_root_cause_keywords": expected_terms,
             "log_source_reference": excerpt.source_reference,
             "external_model_called": True,
             "report": str(report_path.resolve()),
             "acceptance_failures": failures,
         }
-        (args.output / "demo-summary.json").write_text(
+        (output / "demo-summary.json").write_text(
             json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
         )
         print(json.dumps(summary, ensure_ascii=False, indent=2))

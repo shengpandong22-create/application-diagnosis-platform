@@ -200,8 +200,9 @@ class ToolLoopRunner:
                                 ChatMessage.user(
                                     "The conclusion violated evidence citation rules: "
                                     + "; ".join(citation_errors)
-                                    + ". Return a corrected conclusion using only evidence IDs "
-                                    "provided by tool results and the required JSON schema."
+                                    + ". Return a corrected conclusion using only Evidence IDs "
+                                    "from the existing evidence catalog or tool results, and the "
+                                    "required JSON schema."
                                 ),
                             ]
                         )
