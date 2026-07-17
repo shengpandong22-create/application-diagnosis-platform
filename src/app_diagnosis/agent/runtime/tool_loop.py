@@ -112,7 +112,8 @@ class ToolLoopRunner:
             ),
             ChatMessage.user(user_message),
         ]
-        correction_attempted = False
+        structure_correction_attempted = False
+        citation_correction_attempts = 0
         finalization_mode = False
         attempted_tools = 0
         successful_tools = 0
@@ -152,13 +153,16 @@ class ToolLoopRunner:
                 await self._executions.update_agent_run(run)
 
                 if not response.message.tool_calls:
-                    if response.finish_reason is FinishReason.LENGTH and not correction_attempted:
-                        correction_attempted = True
+                    if (
+                        response.finish_reason is FinishReason.LENGTH
+                        and not structure_correction_attempted
+                    ):
+                        structure_correction_attempted = True
                         finalization_mode = True
                         messages.extend(
                             [
                                 response.message,
-                                ChatMessage.user(self._concise_conclusion_instruction()),
+                                ChatMessage.user(await self._conclusion_instruction(diagnosis.id)),
                             ]
                         )
                         continue
@@ -169,15 +173,15 @@ class ToolLoopRunner:
                             error_code=f"model_finish_{response.finish_reason.value}",
                         )
                     conclusion = self._parse_conclusion(response.message.content)
-                    if conclusion is None and not correction_attempted:
-                        correction_attempted = True
+                    if conclusion is None and not structure_correction_attempted:
+                        structure_correction_attempted = True
                         finalization_mode = True
                         messages.extend(
                             [
                                 response.message,
                                 ChatMessage.user(
                                     "The previous response did not match the required JSON schema. "
-                                    + self._concise_conclusion_instruction()
+                                    + await self._conclusion_instruction(diagnosis.id)
                                     + " "
                                     f"{schema_instruction}"
                                 ),
@@ -191,18 +195,17 @@ class ToolLoopRunner:
                             error_code="invalid_structured_output",
                         )
                     citation_errors = await self._validate_citations(diagnosis.id, conclusion)
-                    if citation_errors and not correction_attempted:
-                        correction_attempted = True
+                    if citation_errors and citation_correction_attempts < 2:
+                        citation_correction_attempts += 1
                         finalization_mode = True
                         messages.extend(
                             [
                                 response.message,
                                 ChatMessage.user(
-                                    "The conclusion violated evidence citation rules: "
-                                    + "; ".join(citation_errors)
-                                    + ". Return a corrected conclusion using only Evidence IDs "
-                                    "from the existing evidence catalog or tool results, and the "
-                                    "required JSON schema."
+                                    await self._citation_correction_instruction(
+                                        diagnosis.id,
+                                        citation_errors,
+                                    )
                                 ),
                             ]
                         )
@@ -266,7 +269,9 @@ class ToolLoopRunner:
 
                 if should_finalize:
                     finalization_mode = True
-                    messages.append(ChatMessage.user(self._concise_conclusion_instruction()))
+                    messages.append(
+                        ChatMessage.user(await self._conclusion_instruction(diagnosis.id))
+                    )
 
             return await self._finish(run, AgentTerminationReason.MAX_ROUNDS_REACHED)
         except asyncio.CancelledError:
@@ -420,13 +425,33 @@ class ToolLoopRunner:
             separators=(",", ":"),
         )
 
-    @staticmethod
-    def _concise_conclusion_instruction() -> str:
-        return (
+    async def _conclusion_instruction(self, diagnosis_id: UUID) -> str:
+        instruction = (
             "Tool investigation is complete. Do not call more tools. Return only the final JSON "
             "object: at most 2 facts, 1 root cause, 3 recommendations, and 2 missing-information "
             "items. Keep every string under 300 characters. Cite the supplied runtime-log and "
             "code Evidence IDs for a source-based root cause."
+        )
+        evidence_catalog = await self._existing_evidence_catalog(diagnosis_id)
+        if evidence_catalog:
+            instruction += (
+                "\n\nCurrent authoritative Evidence catalog for citation:\n" + evidence_catalog
+            )
+        return instruction
+
+    async def _citation_correction_instruction(
+        self,
+        diagnosis_id: UUID,
+        citation_errors: tuple[str, ...],
+    ) -> str:
+        instruction = await self._conclusion_instruction(diagnosis_id)
+        return (
+            "The conclusion violated evidence citation rules: "
+            + "; ".join(citation_errors)
+            + ". Return a corrected final JSON object only. Every fact must cite at least one "
+            "Evidence ID. A probable root cause must cite user_statement or log_excerpt evidence; "
+            "for source-based diagnosis, cite both the runtime log_excerpt ID and the relevant "
+            "code_excerpt ID in the same root cause when both are available.\n\n" + instruction
         )
 
     async def _finish(

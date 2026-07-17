@@ -202,7 +202,48 @@ async def test_invalid_citation_gets_one_policy_correction() -> None:
     )
     assert result.termination_reason is AgentTerminationReason.COMPLETED
     assert "evidence citation rules" in fake.calls[2].request.messages[-1].content
-    assert "existing evidence catalog or tool results" in fake.calls[2].request.messages[-1].content
+    assert "Current authoritative Evidence catalog" in fake.calls[2].request.messages[-1].content
+    assert str(EVIDENCE_ID) in fake.calls[2].request.messages[-1].content
+    assert "probable root cause must cite" in fake.calls[2].request.messages[-1].content
+
+
+async def test_invalid_citation_gets_a_second_citation_specific_correction() -> None:
+    call = ToolCall(id="call-1", name="knowledge__search", arguments_json='{"query":"NPE"}')
+    fake = FakeLLMClient(
+        [
+            response(tool_calls=(call,)),
+            response(content=final(uuid4())),
+            response(content=final(uuid4())),
+            response(content=final(EVIDENCE_ID)),
+        ]
+    )
+    store = InMemoryEvidenceStore()
+    registry = DiagnosticToolRegistry()
+    registry.register(KnowledgeSearchTool(StubKnowledge()))
+    runner = ToolLoopRunner(
+        llm_client=fake,
+        registry=registry,
+        execution_repository=InMemoryAgentExecutionRepository(),
+        evidence_store=store,
+        citation_policy=EvidenceCitationPolicy(),
+        clock=lambda: NOW,
+    )
+    result = await runner.run(
+        diagnosis=diagnosis(),
+        strategy=GenericApplicationErrorStrategy(),
+        context=ToolLoopContext(
+            actor="test",
+            environment="test",
+            audit_correlation_id="citation-2b",
+            permissions=frozenset({"knowledge:read"}),
+            max_tool_output_bytes=4096,
+        ),
+        budget=AgentBudget(),
+    )
+
+    assert result.termination_reason is AgentTerminationReason.COMPLETED
+    assert "evidence citation rules" in fake.calls[2].request.messages[-1].content
+    assert "evidence citation rules" in fake.calls[3].request.messages[-1].content
 
 
 async def test_existing_evidence_ids_are_available_on_first_model_call() -> None:
@@ -283,7 +324,10 @@ async def test_successful_code_read_switches_next_request_to_finalization_mode()
 
     assert result.termination_reason is AgentTerminationReason.COMPLETED
     assert fake.calls[1].request.tools == ()
-    assert "Do not call more tools" in (fake.calls[1].request.messages[-1].content or "")
+    finalization_message = fake.calls[1].request.messages[-1].content or ""
+    assert "Do not call more tools" in finalization_message
+    assert "Current authoritative Evidence catalog" in finalization_message
+    assert str(EVIDENCE_ID) in finalization_message
 
 
 async def test_length_response_gets_one_concise_tool_free_retry() -> None:

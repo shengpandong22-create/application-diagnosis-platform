@@ -37,8 +37,12 @@ uv run python scripts/diagnose-java-log-real.py --case timeout
 | Case | 结果 | 说明 |
 |---|---|---|
 | `connection-refused` | 通过 | 4 轮、4 次工具；读取 `PaymentClient.java` 与 `FailureController.java`；日志与代码 Evidence 联合引用。 |
-| `timeout` | 待复验 | 已正确读取 `InventoryClient.java` 与 `FailureController.java`，但最终以 `invalid_evidence_citations` 结束。 |
+| `timeout` | 通过 | 第 3 次低频复验通过；5 轮、6 次工具；读取 `InventoryClient.java` 与 `FailureController.java`；最终结论同时引用 `log_excerpt` 与 `code_excerpt`。 |
 
-超时失败暴露了引用修正提示的矛盾：修正阶段此前只允许“工具结果”中的 ID，忽略了首轮
-已有的日志 Evidence ID。该提示已改为同时允许“已有 Evidence 目录”与“工具结果”中的 ID。
-修复先经过离线测试；不在同一轮连续重试真实模型。
+超时案例的收敛过程暴露了两个工程问题：
+
+- 修正阶段此前只允许“工具结果”中的 ID，忽略了首轮已有的日志 Evidence ID；
+- 单一纠错预算把结构化输出纠错和 Evidence 引用纠错混在一起，真实模型在复杂案例下容易用完机会。
+
+修复后，最终结论阶段会重新附带当前权威 Evidence 目录；Evidence 引用错误拥有独立的引用纠错预算，并明确要求 source-based root cause 同时引用运行日志和相关源码 Evidence。
+在第 3 次真实模型复验中，`timeout` 案例以 `completed` 收敛，`acceptance_failures` 为空。

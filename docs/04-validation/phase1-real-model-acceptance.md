@@ -73,3 +73,35 @@ uv run python scripts/diagnose-java-log-real.py --keyword NullPointerException
 
 后续优化：当前日志窗口可能包含紧随其后的另一段异常，应从固定前后行窗口升级为按
 “日志事件起始行 + 堆栈连续行”识别单个异常事件，减少无关 Token 和跨事件干扰。
+
+## 2026-07-17 多案例收敛记录
+
+完成 Java Lab 三类故障低频真实模型验收：
+
+| Case | 结果 | 关键证据 |
+|---|---|---|
+| `npe` | 通过 | `OrderService.java` + NPE 日志 |
+| `connection-refused` | 通过 | `PaymentClient.java` + ConnectException 日志 |
+| `timeout` | 通过 | `InventoryClient.java` + TimeoutException 日志 |
+
+`timeout` 案例前两次未通过，失败点不是日志读取或源码检索，而是最终结论没有正确引用已有日志 Evidence。
+收敛修复如下：
+
+- 最终结论阶段重新附带当前权威 Evidence 目录，避免模型从长上下文中遗漏日志 ID；
+- Evidence 引用纠错与结构化输出纠错拆分预算，引用错误最多允许两次专门修正；
+- 引用修正提示明确要求 source-based root cause 同时引用运行日志和相关源码 Evidence。
+
+第 3 次真实复验结果：
+
+| 指标 | 结果 |
+|---|---|
+| termination | completed |
+| model | deepseek-v4-pro |
+| rounds / tools | 5 / 6 |
+| input / output tokens | 22,884 / 2,368 |
+| elapsed | 33,832 ms |
+| code read | `InventoryClient.java:1-32`、`FailureController.java:1-37` |
+| cited evidence | `log_excerpt` + `code_excerpt` |
+| acceptance failures | 0 |
+
+这个结果说明当前 Phase 1 已具备稳定的“真实日志 + 受限源码读取 + Evidence 引用 + 结构化结论”闭环，但真实模型验收仍应保持低频、带失败分析地执行。
