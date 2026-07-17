@@ -84,7 +84,11 @@ async def test_serializes_complete_tool_history_and_parses_multiple_calls() -> N
             name="diagnosis",
             schema={"type": "object", "properties": {}},
         ),
-        options=LLMCallOptions(temperature=0.2, max_completion_tokens=500),
+        options=LLMCallOptions(
+            temperature=0.2,
+            max_completion_tokens=500,
+            parallel_tool_calls=False,
+        ),
     )
     http_client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
     client = OpenAICompatibleChatClient(
@@ -103,6 +107,7 @@ async def test_serializes_complete_tool_history_and_parses_multiple_calls() -> N
     assert captured["tools"][0]["function"]["name"] == "knowledge__search"
     assert captured["response_format"]["json_schema"]["strict"] is True
     assert captured["max_completion_tokens"] == 500
+    assert captured["parallel_tool_calls"] is False
     assert result.finish_reason is FinishReason.TOOL_CALLS
     assert [call.id for call in result.message.tool_calls] == ["call-2", "call-3"]
     assert result.usage.total_tokens == 15

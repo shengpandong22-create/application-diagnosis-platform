@@ -111,6 +111,7 @@ class ResponseFormat:
 class LLMCallOptions:
     temperature: float | None = None
     max_completion_tokens: int | None = None
+    parallel_tool_calls: bool | None = None
 
     def __post_init__(self) -> None:
         if self.temperature is not None and not 0 <= self.temperature <= 2:

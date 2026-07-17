@@ -97,6 +97,8 @@ class OpenAICompatibleChatClient(LLMClient):
                 }
                 for tool in request.tools
             ]
+            if request.options.parallel_tool_calls is not None:
+                payload["parallel_tool_calls"] = request.options.parallel_tool_calls
         if request.response_format and self._response_format_mode == "json_schema":
             payload["response_format"] = {
                 "type": "json_schema",

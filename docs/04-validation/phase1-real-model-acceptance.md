@@ -43,3 +43,33 @@ uv run python scripts/diagnose-java-log-real.py --keyword NullPointerException
 本次还暴露出验收摘要未记录 AgentRun `error_code` 的可观测性缺口，脚本已补充
 `run_error_code` 字段。下次真实调用前，应先针对具体错误码设计离线可测试的收敛策略，
 不应通过反复增加预算解决。
+
+## 2026-07-17 收敛修复后验收
+
+状态：**通过。**
+
+针对首次失败实施了两项机制修复：
+
+- 成功执行 `code__read` 后进入无工具结论阶段，防止模型无限调查；
+- OpenAI-compatible 请求显式发送 `parallel_tool_calls=false`，使工具预算可预测。
+
+最终结果：
+
+| 指标 | 结果 |
+|---|---|
+| termination | completed |
+| model | deepseek-v4-pro |
+| rounds / tools | 4 / 4 |
+| input / output tokens | 25,245 / 2,883 |
+| elapsed | 42,390 ms |
+| code search | `OrderService.createOrder`、`FailureController.npe` |
+| code read | `OrderService.java:1-20`、`FailureController.java:20-35` |
+| cited evidence | `log_excerpt` + `code_excerpt` |
+| acceptance failures | 0 |
+
+模型正确识别：`FailureController.npe` 构造 `OrderDraft(null)`，随后
+`OrderService.createOrder` 对空的 `customer` 调用 `trim()`，导致 NPE。结论保持为
+`probable`，没有绕过 Phase 0B 的人工确认边界。
+
+后续优化：当前日志窗口可能包含紧随其后的另一段异常，应从固定前后行窗口升级为按
+“日志事件起始行 + 堆栈连续行”识别单个异常事件，减少无关 Token 和跨事件干扰。

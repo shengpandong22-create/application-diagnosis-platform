@@ -22,6 +22,7 @@ from app_diagnosis.ports.execution_repository import AgentExecutionRepository
 from app_diagnosis.ports.llm import (
     ChatMessage,
     FinishReason,
+    LLMCallOptions,
     LLMClient,
     LLMError,
     LLMRequest,
@@ -112,6 +113,7 @@ class ToolLoopRunner:
             ChatMessage.user(user_message),
         ]
         correction_attempted = False
+        finalization_mode = False
         attempted_tools = 0
         successful_tools = 0
         started = perf_counter()
@@ -126,8 +128,9 @@ class ToolLoopRunner:
                         self._llm.complete(
                             LLMRequest(
                                 messages=tuple(messages),
-                                tools=definitions,
+                                tools=() if finalization_mode else definitions,
                                 response_format=response_format,
+                                options=LLMCallOptions(parallel_tool_calls=False),
                             )
                         ),
                         timeout=remaining,
@@ -149,10 +152,17 @@ class ToolLoopRunner:
                 await self._executions.update_agent_run(run)
 
                 if not response.message.tool_calls:
-                    if response.finish_reason in {
-                        FinishReason.LENGTH,
-                        FinishReason.CONTENT_FILTER,
-                    }:
+                    if response.finish_reason is FinishReason.LENGTH and not correction_attempted:
+                        correction_attempted = True
+                        finalization_mode = True
+                        messages.extend(
+                            [
+                                response.message,
+                                ChatMessage.user(self._concise_conclusion_instruction()),
+                            ]
+                        )
+                        continue
+                    if response.finish_reason in {FinishReason.LENGTH, FinishReason.CONTENT_FILTER}:
                         return await self._finish(
                             run,
                             AgentTerminationReason.INCONCLUSIVE,
@@ -161,12 +171,14 @@ class ToolLoopRunner:
                     conclusion = self._parse_conclusion(response.message.content)
                     if conclusion is None and not correction_attempted:
                         correction_attempted = True
+                        finalization_mode = True
                         messages.extend(
                             [
                                 response.message,
                                 ChatMessage.user(
                                     "The previous response did not match the required JSON schema. "
-                                    "Return only a valid diagnosis conclusion. "
+                                    + self._concise_conclusion_instruction()
+                                    + " "
                                     f"{schema_instruction}"
                                 ),
                             ]
@@ -181,6 +193,7 @@ class ToolLoopRunner:
                     citation_errors = await self._validate_citations(diagnosis.id, conclusion)
                     if citation_errors and not correction_attempted:
                         correction_attempted = True
+                        finalization_mode = True
                         messages.extend(
                             [
                                 response.message,
@@ -214,11 +227,18 @@ class ToolLoopRunner:
 
                 messages.append(response.message)
                 calls = response.message.tool_calls
+                if finalization_mode:
+                    return await self._finish(
+                        run,
+                        AgentTerminationReason.INCONCLUSIVE,
+                        error_code="tool_call_after_finalization",
+                    )
                 if run.tool_call_count + len(calls) > budget.max_tool_calls:
                     return await self._finish(run, AgentTerminationReason.TOOL_BUDGET_EXHAUSTED)
                 run.record_tool_calls(len(calls))
                 await self._executions.update_agent_run(run)
                 attempted_tools += len(calls)
+                should_finalize = False
 
                 for call in calls:
                     result, arguments = await self._execute_tool(
@@ -230,6 +250,8 @@ class ToolLoopRunner:
                     )
                     if result.status is ToolExecutionStatus.SUCCESS:
                         successful_tools += 1
+                        if call.name == "code__read":
+                            should_finalize = True
                     await self._record_tool_run(
                         run_id=run.id,
                         tool_call_id=call.id,
@@ -240,6 +262,10 @@ class ToolLoopRunner:
                     evidence_ids = await self._persist_evidence(diagnosis.id, result)
                     tool_message = self._tool_message(result.model_summary, evidence_ids)
                     messages.append(ChatMessage.tool(tool_message, tool_call_id=call.id))
+
+                if should_finalize:
+                    finalization_mode = True
+                    messages.append(ChatMessage.user(self._concise_conclusion_instruction()))
 
             return await self._finish(run, AgentTerminationReason.MAX_ROUNDS_REACHED)
         except asyncio.CancelledError:
@@ -391,6 +417,15 @@ class ToolLoopRunner:
             },
             ensure_ascii=False,
             separators=(",", ":"),
+        )
+
+    @staticmethod
+    def _concise_conclusion_instruction() -> str:
+        return (
+            "Tool investigation is complete. Do not call more tools. Return only the final JSON "
+            "object: at most 2 facts, 1 root cause, 3 recommendations, and 2 missing-information "
+            "items. Keep every string under 300 characters. Cite the supplied runtime-log and "
+            "code Evidence IDs for a source-based root cause."
         )
 
     async def _finish(

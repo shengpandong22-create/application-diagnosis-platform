@@ -349,7 +349,8 @@ async def test_incomplete_model_finish_reason_cannot_complete_diagnosis(
         model="fake-model",
         finish_reason=finish_reason,
     )
-    fake = FakeLLMClient([incomplete])
+    responses = [incomplete, incomplete] if finish_reason is FinishReason.LENGTH else [incomplete]
+    fake = FakeLLMClient(responses)
     loop, executions, _ = runner(fake)
 
     result = await loop.run(
