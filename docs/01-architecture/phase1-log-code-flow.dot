@@ -1,0 +1,71 @@
+digraph Phase1LogCodeFlow {
+  graph [rankdir=TB,bgcolor="#FFFFFF",pad="0.35",nodesep="0.35",ranksep="0.55",splines=polyline,fontname="Microsoft YaHei",fontsize=18,label="Phase 1 · Java Lab 真实日志与受限源码联合诊断链路",labelloc=t,labeljust=l];
+  node [shape=box,style="rounded,filled",fontname="Microsoft YaHei",fontsize=11,margin="0.15,0.1",color="#64748B"];
+  edge [fontname="Microsoft YaHei",fontsize=9,color="#64748B",arrowsize=0.7];
+
+  start [label="本地用户 / Postman\n触发 Java Lab 故障接口",fillcolor="#F8FAFC",color="#64748B"];
+
+  subgraph cluster_lab {
+    label="NEW · Java Lab 故障实验室";
+    style="rounded,filled";
+    color="#F59E0B";
+    fillcolor="#FFFBEB";
+    java_api [label="Spring Boot 故障接口\nNPE · ConnectException · Timeout",fillcolor="#FEF3C7",color="#D97706"];
+    java_log [label="真实异常日志\nlogs/diagnosis-java-lab.log",fillcolor="#FEF3C7",color="#D97706"];
+  }
+
+  subgraph cluster_log {
+    label="NEW · 真实日志接入";
+    style="rounded,filled";
+    color="#38BDF8";
+    fillcolor="#F0F9FF";
+    reader [label="LocalLogFileReader\n受限目录 · 关键词 · 事件边界",fillcolor="#E0F2FE",color="#0284C7"];
+    redaction [label="Redaction\n持久化前脱敏",fillcolor="#E0F2FE",color="#0284C7"];
+    log_evidence [label="Log Evidence\nlog_excerpt · source_reference",fillcolor="#E0F2FE",color="#0284C7"];
+  }
+
+  subgraph cluster_phase0 {
+    label="复用 · Phase 0A/0B/0C 诊断闭环";
+    style="rounded,filled";
+    color="#A78BFA";
+    fillcolor="#F5F3FF";
+    api [label="Diagnosis API\n创建 Diagnosis · 启动 AgentRun",fillcolor="#EDE9FE",color="#7C3AED"];
+    loop [label="ToolLoopRunner\nStrategy · Registry · Budget",fillcolor="#EDE9FE",color="#7C3AED"];
+    citation [label="Citation Policy\n校验 Evidence 归属与引用规则",fillcolor="#EDE9FE",color="#7C3AED"];
+    report [label="Diagnosis Report\nJSON · Markdown",fillcolor="#EDE9FE",color="#7C3AED"];
+  }
+
+  subgraph cluster_code {
+    label="NEW · 受限源码工具";
+    style="rounded,filled";
+    color="#22C55E";
+    fillcolor="#F0FDF4";
+    code_search [label="code__search\n模型自主选择搜索词",fillcolor="#DCFCE7",color="#16A34A"];
+    code_read [label="code__read\n受控行范围读取",fillcolor="#DCFCE7",color="#16A34A"];
+    code_evidence [label="Code Evidence\ncode_excerpt · source_reference",fillcolor="#DCFCE7",color="#16A34A"];
+  }
+
+  java_code [label="Java 源码工作区\nOrderService · PaymentClient · InventoryClient",fillcolor="#FEF3C7",color="#D97706"];
+  llm [label="DeepSeek / OpenAI-compatible\nTool Calling · parallel_tool_calls=false",style="rounded,filled,dashed",fillcolor="#CCFBF1",color="#0F766E"];
+
+  start -> java_api [label="1. 触发故障",color="#F59E0B",penwidth=2.2];
+  java_api -> java_log [label="2. 写入异常堆栈",color="#F59E0B",penwidth=2.2];
+  java_log -> reader [label="3. 读取最近一次相关异常",color="#F59E0B",penwidth=2.2];
+  reader -> redaction [label="4. 入库前脱敏",color="#F59E0B",penwidth=2.2];
+  redaction -> log_evidence [label="5. 创建 log_excerpt",color="#F59E0B",penwidth=2.2];
+  log_evidence -> api [label="6. 创建 Diagnosis",color="#F59E0B",penwidth=2.2];
+  api -> loop [label="7. 启动 AgentRun",color="#F59E0B",penwidth=2.2];
+  loop -> llm [label="8. 携带 Evidence 目录推理",color="#F59E0B",penwidth=2.2];
+  llm -> code_search [label="9. 调用搜索工具",color="#F59E0B",penwidth=2.2];
+  code_search -> java_code [label="受限检索",color="#64748B"];
+  code_search -> code_read [label="10. 选择源码片段",color="#F59E0B",penwidth=2.2];
+  code_read -> java_code [label="受限读取",color="#64748B"];
+  code_read -> code_evidence [label="11. 创建 code_excerpt",color="#F59E0B",penwidth=2.2];
+  code_evidence -> loop [label="12. Evidence ID 回传上下文",color="#F59E0B",penwidth=2.2];
+  loop -> citation [label="13. 生成结论并校验引用",color="#F59E0B",penwidth=2.2];
+  citation -> report [label="14. 生成报告",color="#F59E0B",penwidth=2.2];
+
+  log_evidence -> citation [label="必须引用日志事实",style=dashed,color="#64748B",constraint=false];
+  code_evidence -> citation [label="必须引用源码证据",style=dashed,color="#64748B",constraint=false];
+  report -> start [label="查看结论 · 人工确认 / 继续调查",style=dashed,color="#64748B",constraint=false];
+}

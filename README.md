@@ -21,7 +21,7 @@
 | Phase 0A | 独立骨架与最小 Agent Loop | 完成 | [架构与学习总结](./docs/01-architecture/phase0a-framework.md) |
 | Phase 0B | Evidence、知识检索与人工闭环 | 完成 | [扩展架构与学习总结](./docs/01-architecture/phase0b-extension.md) |
 | Phase 0C | 评测、报告和极简界面 | 完成 | [扩展架构](./docs/01-architecture/phase0c-extension.md) |
-| Phase 1 | 日志与授权源码联合诊断 | 完成（本地最小闭环） | [能力总结](./docs/03-progress/2026-07-17-Phase1当前能力总结.md) |
+| Phase 1 | 日志与授权源码联合诊断 | 完成（本地最小闭环） | [链路图](./docs/01-architecture/phase1-log-code-flow.md) · [能力总结](./docs/03-progress/2026-07-17-Phase1当前能力总结.md) |
 
 ## 技术栈
 
@@ -83,6 +83,7 @@ uv run pytest
 - [项目介绍](./docs/00-overview/项目介绍.md)
 - [完整文档导航](./docs/README.md)
 - [Phase 0C 实现规格](./docs/02-specifications/Phase%200C%20实现规格说明.md)
+- [Phase 1 链路图](./docs/01-architecture/phase1-log-code-flow.md)
 - [Phase 1 当前能力总结](./docs/03-progress/2026-07-17-Phase1当前能力总结.md)
 - [简历与面试描述](./docs/00-overview/简历项目描述.md)
 

@@ -11,7 +11,7 @@
 | Phase 0A | 独立骨架与最小 Agent Loop | [框架图与说明](./01-architecture/phase0a-framework.md) · [SVG](./01-architecture/phase0a-framework.svg) · [Graphviz 源文件](./01-architecture/phase0a-framework.dot) | [Phase 0 实现规格](./02-specifications/Phase%200%20实现规格说明.md) | [验收记录](./04-validation/phase0a-acceptance.md) | 已完成 |
 | Phase 0B | Evidence、知识检索与人工确认 | [扩展图与说明](./01-architecture/phase0b-extension.md) · [SVG](./01-architecture/phase0b-extension.svg) · [Graphviz 源文件](./01-architecture/phase0b-extension.dot) | [平台设计文档](./02-specifications/独立应用诊断闭环平台设计文档.md) | [验收记录](./04-validation/phase0b-acceptance.md) | 已完成 |
 | Phase 0C | 评测、报告和极简界面 | [扩展图](./01-architecture/phase0c-extension.md) · [SVG](./01-architecture/phase0c-extension.svg) · [Graphviz](./01-architecture/phase0c-extension.dot) | [实现规格](./02-specifications/Phase%200C%20实现规格说明.md) | [验收记录](./04-validation/phase0c-acceptance.md) | 已完成 |
-| Phase 1 | 日志与授权源码联合诊断 | 待补充正式演进图 | [实现规格](./02-specifications/Phase%201%20实现规格说明.md) · [能力总结](./03-progress/2026-07-17-Phase1当前能力总结.md) | [验收记录](./04-validation/phase1-acceptance.md) | 本地最小闭环完成 |
+| Phase 1 | 日志与授权源码联合诊断 | [链路图与说明](./01-architecture/phase1-log-code-flow.md) · [SVG](./01-architecture/phase1-log-code-flow.svg) · [Graphviz 源文件](./01-architecture/phase1-log-code-flow.dot) | [实现规格](./02-specifications/Phase%201%20实现规格说明.md) · [能力总结](./03-progress/2026-07-17-Phase1当前能力总结.md) | [验收记录](./04-validation/phase1-acceptance.md) | 本地最小闭环完成 |
 
 ## 按内容查找
 
@@ -38,6 +38,9 @@
 - [Phase 0C 扩展图：评测、报告与极简界面](./01-architecture/phase0c-extension.md)
 - [Phase 0C SVG 成品](./01-architecture/phase0c-extension.svg)
 - [Phase 0C Graphviz 源文件](./01-architecture/phase0c-extension.dot)
+- [Phase 1 链路图：真实日志与受限源码联合诊断](./01-architecture/phase1-log-code-flow.md)
+- [Phase 1 SVG 成品](./01-architecture/phase1-log-code-flow.svg)
+- [Phase 1 Graphviz 源文件](./01-architecture/phase1-log-code-flow.dot)
 
 ### 2. 设计与实现规格
 
