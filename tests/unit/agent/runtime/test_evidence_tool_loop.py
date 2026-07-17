@@ -41,8 +41,8 @@ class StubKnowledge:
 
 
 class InMemoryEvidenceStore:
-    def __init__(self) -> None:
-        self.items: list[Evidence] = []
+    def __init__(self, items: list[Evidence] | None = None) -> None:
+        self.items: list[Evidence] = items or []
 
     async def add_candidates(
         self, diagnosis_id: UUID, candidates: tuple[EvidenceCandidate, ...]
@@ -163,3 +163,46 @@ async def test_invalid_citation_gets_one_policy_correction() -> None:
     )
     assert result.termination_reason is AgentTerminationReason.COMPLETED
     assert "evidence citation rules" in fake.calls[2].request.messages[-1].content
+
+
+async def test_existing_evidence_ids_are_available_on_first_model_call() -> None:
+    existing_id = uuid4()
+    existing = Evidence.create(
+        evidence_id=existing_id,
+        diagnosis_id=DIAGNOSIS_ID,
+        type=EvidenceType.LOG_EXCERPT,
+        source=EvidenceSource.USER_INPUT,
+        source_reference="submitted_log:1/1",
+        content="NullPointerException at OrderService.java:8",
+        reliability=EvidenceReliability.HIGH,
+        now=NOW,
+    )
+    fake = FakeLLMClient([response(content=final(existing_id))])
+    registry = DiagnosticToolRegistry()
+    registry.register(KnowledgeSearchTool(StubKnowledge()))
+    runner = ToolLoopRunner(
+        llm_client=fake,
+        registry=registry,
+        execution_repository=InMemoryAgentExecutionRepository(),
+        evidence_store=InMemoryEvidenceStore([existing]),
+        citation_policy=EvidenceCitationPolicy(),
+        clock=lambda: NOW,
+    )
+
+    result = await runner.run(
+        diagnosis=diagnosis(),
+        strategy=GenericApplicationErrorStrategy(),
+        context=ToolLoopContext(
+            actor="test",
+            environment="test",
+            audit_correlation_id="existing-evidence",
+            permissions=frozenset({"knowledge:read"}),
+            max_tool_output_bytes=4096,
+        ),
+        budget=AgentBudget(),
+    )
+
+    assert result.termination_reason is AgentTerminationReason.COMPLETED
+    first_user_message = fake.calls[0].request.messages[1].content or ""
+    assert str(existing_id) in first_user_message
+    assert '"type":"log_excerpt"' in first_user_message

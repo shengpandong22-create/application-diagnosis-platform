@@ -22,6 +22,7 @@
 - [Phase 1 实现规格](./02-specifications/Phase%201%20实现规格说明.md)
 - [Phase 1 验收记录](./04-validation/phase1-acceptance.md)
 - [Phase 1 真实日志与源码联合诊断验收](./04-validation/phase1-real-log-acceptance.md)
+- [Phase 1 真实模型端到端诊断验收](./04-validation/phase1-real-model-acceptance.md)
 - [简历与面试项目描述](./00-overview/简历项目描述.md)
 
 ### 1. 架构与演进图
