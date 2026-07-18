@@ -8,8 +8,18 @@ class GenericApplicationErrorStrategy:
     name = "generic_application_error_v1"
     problem_type = ProblemType.GENERIC_APPLICATION_ERROR
 
-    def __init__(self, *, code_tools_enabled: bool = False) -> None:
+    def __init__(
+        self,
+        *,
+        code_tools_enabled: bool = False,
+        config_tools_enabled: bool = False,
+        log_tools_enabled: bool = False,
+        health_tools_enabled: bool = False,
+    ) -> None:
         self._code_tools_enabled = code_tools_enabled
+        self._config_tools_enabled = config_tools_enabled
+        self._log_tools_enabled = log_tools_enabled
+        self._health_tools_enabled = health_tools_enabled
 
     def system_prompt(self, context: DiagnosisStrategyContext) -> str:
         code_instruction = (
@@ -48,6 +58,12 @@ class GenericApplicationErrorStrategy:
         names = {"knowledge__search"}
         if self._code_tools_enabled:
             names.update({"code__search", "code__read"})
+        if self._config_tools_enabled:
+            names.add("config__read")
+        if self._log_tools_enabled:
+            names.add("log__search")
+        if self._health_tools_enabled:
+            names.add("health__check")
         return frozenset(names)
 
     def response_format(self) -> ResponseFormat:

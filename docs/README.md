@@ -10,8 +10,9 @@
 |---|---|---|---|---|---|
 | Phase 0A | 独立骨架与最小 Agent Loop | [框架图与说明](./01-architecture/phase0a-framework.md) · [SVG](./01-architecture/phase0a-framework.svg) · [Graphviz 源文件](./01-architecture/phase0a-framework.dot) | [Phase 0 实现规格](./02-specifications/Phase%200%20实现规格说明.md) | [验收记录](./04-validation/phase0a-acceptance.md) | 已完成 |
 | Phase 0B | Evidence、知识检索与人工确认 | [扩展图与说明](./01-architecture/phase0b-extension.md) · [SVG](./01-architecture/phase0b-extension.svg) · [Graphviz 源文件](./01-architecture/phase0b-extension.dot) | [平台设计文档](./02-specifications/独立应用诊断闭环平台设计文档.md) | [验收记录](./04-validation/phase0b-acceptance.md) | 已完成 |
-| Phase 0C | 评测、报告和极简界面 | [扩展图](./01-architecture/phase0c-extension.md) · [SVG](./01-architecture/phase0c-extension.svg) · [Graphviz](./01-architecture/phase0c-extension.dot) | [实现规格](./02-specifications/Phase%200C%20实现规格说明.md) | [验收记录](./04-validation/phase0c-acceptance.md) | 已完成 |
-| Phase 1 | 日志与授权源码联合诊断 | [链路图与说明](./01-architecture/phase1-log-code-flow.md) · [SVG](./01-architecture/phase1-log-code-flow.svg) · [Graphviz 源文件](./01-architecture/phase1-log-code-flow.dot) | [实现规格](./02-specifications/Phase%201%20实现规格说明.md) · [能力总结](./03-progress/2026-07-17-Phase1当前能力总结.md) | [验收记录](./04-validation/phase1-acceptance.md) | 本地最小闭环完成 |
+| Phase 0C | 评测、报告和极简界面 | [扩展架构与学习总结](./01-architecture/phase0c-extension.md) · [SVG](./01-architecture/phase0c-extension.svg) · [Graphviz](./01-architecture/phase0c-extension.dot) | [实现规格](./02-specifications/Phase%200C%20实现规格说明.md) | [验收记录](./04-validation/phase0c-acceptance.md) | 已完成 |
+| Phase 1 | 日志与授权源码联合诊断 | [扩展架构与学习总结](./01-architecture/phase1-extension.md) · [端到端链路图](./01-architecture/phase1-log-code-flow.md) | [实现规格](./02-specifications/Phase%201%20实现规格说明.md) · [能力总结](./03-progress/2026-07-17-Phase1当前能力总结.md) | [验收记录](./04-validation/phase1-acceptance.md) | 本地最小闭环完成 |
+| Phase 2 | 可观测、多策略、现场感知 | [扩展架构与学习总结](./01-architecture/phase2-extension.md) · [SVG](./01-architecture/phase2-extension.svg) · [Graphviz](./01-architecture/phase2-extension.dot) | [实现规格](./02-specifications/Phase%202%20实现规格说明.md) · [开发总结](./03-progress/2026-07-18-Phase2开发总结.md) | [验收记录](./04-validation/phase2-acceptance.md) | 已完成 |
 
 ## 按内容查找
 
@@ -20,6 +21,7 @@
 - [项目介绍](./00-overview/项目介绍.md)
 - [Phase 0 离线演示指南](./00-overview/演示指南.md)
 - [Phase 1 实现规格](./02-specifications/Phase%201%20实现规格说明.md)
+- [Phase 2 实现规格与验收标准](./02-specifications/Phase%202%20实现规格说明.md)
 - [Phase 1 验收记录](./04-validation/phase1-acceptance.md)
 - [Phase 1 真实日志与源码联合诊断验收](./04-validation/phase1-real-log-acceptance.md)
 - [Phase 1 真实模型端到端诊断验收](./04-validation/phase1-real-model-acceptance.md)
@@ -38,9 +40,15 @@
 - [Phase 0C 扩展图：评测、报告与极简界面](./01-architecture/phase0c-extension.md)
 - [Phase 0C SVG 成品](./01-architecture/phase0c-extension.svg)
 - [Phase 0C Graphviz 源文件](./01-architecture/phase0c-extension.dot)
-- [Phase 1 链路图：真实日志与受限源码联合诊断](./01-architecture/phase1-log-code-flow.md)
-- [Phase 1 SVG 成品](./01-architecture/phase1-log-code-flow.svg)
-- [Phase 1 Graphviz 源文件](./01-architecture/phase1-log-code-flow.dot)
+- [Phase 1 扩展架构：真实日志与受限源码联合诊断](./01-architecture/phase1-extension.md)
+- [Phase 1 扩展架构 SVG 成品](./01-architecture/phase1-extension.svg)
+- [Phase 1 扩展架构 Graphviz 源文件](./01-architecture/phase1-extension.dot)
+- [Phase 1 端到端链路图](./01-architecture/phase1-log-code-flow.md)
+- [Phase 1 端到端链路 SVG](./01-architecture/phase1-log-code-flow.svg)
+- [Phase 1 端到端链路 Graphviz 源文件](./01-architecture/phase1-log-code-flow.dot)
+- [Phase 2 扩展架构：可观测、多策略、现场感知](./01-architecture/phase2-extension.md)
+- [Phase 2 SVG 成品](./01-architecture/phase2-extension.svg)
+- [Phase 2 Graphviz 源文件](./01-architecture/phase2-extension.dot)
 
 ### 2. 设计与实现规格
 
@@ -54,6 +62,7 @@
 - [2026-07-16：Phase 0B 完成情况与 Phase 0C 计划](./03-progress/2026-07-16-Phase0B开发总结与Phase0C计划.md)
 - [2026-07-17：Phase 0C 评测、报告与极简界面](./03-progress/2026-07-17-Phase0C开发总结.md)
 - [2026-07-17：Phase 1 日志与源码联合诊断能力总结](./03-progress/2026-07-17-Phase1当前能力总结.md)
+- [2026-07-18：Phase 2 可观测、多策略、现场感知](./03-progress/2026-07-18-Phase2开发总结.md)
 
 后续开发总结统一放入 `03-progress`，文件名使用 `YYYY-MM-DD-阶段-主题.md`。
 
@@ -62,6 +71,7 @@
 - [Phase 0A 验收记录](./04-validation/phase0a-acceptance.md)
 - [Phase 0B 验收记录](./04-validation/phase0b-acceptance.md)
 - [Phase 0C 验收记录](./04-validation/phase0c-acceptance.md)
+- [Phase 2 验收记录](./04-validation/phase2-acceptance.md)
 
 ### 5. 架构决策 ADR
 

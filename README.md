@@ -2,7 +2,7 @@
 
 证据驱动的应用诊断 Agent 平台：让模型结论可引用、可校验、可人工确认、可离线评测。
 
-![Phase 0C 架构图](./docs/01-architecture/phase0c-extension.svg)
+![Phase 2 架构图](./docs/01-architecture/phase2-extension.svg)
 
 ## 为什么不是普通 Agent Demo
 
@@ -20,8 +20,9 @@
 |---|---|---|---|
 | Phase 0A | 独立骨架与最小 Agent Loop | 完成 | [架构与学习总结](./docs/01-architecture/phase0a-framework.md) |
 | Phase 0B | Evidence、知识检索与人工闭环 | 完成 | [扩展架构与学习总结](./docs/01-architecture/phase0b-extension.md) |
-| Phase 0C | 评测、报告和极简界面 | 完成 | [扩展架构](./docs/01-architecture/phase0c-extension.md) |
-| Phase 1 | 日志与授权源码联合诊断 | 完成（本地最小闭环） | [链路图](./docs/01-architecture/phase1-log-code-flow.md) · [能力总结](./docs/03-progress/2026-07-17-Phase1当前能力总结.md) |
+| Phase 0C | 评测、报告和极简界面 | 完成 | [扩展架构与学习总结](./docs/01-architecture/phase0c-extension.md) |
+| Phase 1 | 日志与授权源码联合诊断 | 完成（本地最小闭环） | [扩展架构与学习总结](./docs/01-architecture/phase1-extension.md) · [端到端链路图](./docs/01-architecture/phase1-log-code-flow.md) |
+| Phase 2 | 可观测、多策略、现场感知 | 完成 | [扩展架构与学习总结](./docs/01-architecture/phase2-extension.md) · [开发总结](./docs/03-progress/2026-07-18-Phase2开发总结.md) |
 
 ## 技术栈
 
@@ -52,9 +53,10 @@ uv run python scripts/demo-phase0.py
 uv run python scripts/demo-phase1-code.py
 uv run python scripts/demo-phase1-log-code.py --keyword NullPointerException
 uv run python scripts/diagnose-java-log-real.py --keyword NullPointerException
+uv run python scripts/demo-phase2.py
 ```
 
-前三个脚本使用 Fake LLM，不访问外部网络；`diagnose-java-log-real.py` 会调用 `.env` 中配置的真实模型并可能产生费用。演示覆盖脱敏、知识工具、Evidence ID、引用校验、人工确认、受限源码读取和 Markdown 报告。详见[演示指南](./docs/00-overview/演示指南.md)。
+`demo-phase0.py`、两个 Phase 1 demo 和 `demo-phase2.py` 使用 Fake LLM，不访问外部模型；`diagnose-java-log-real.py` 会调用 `.env` 中配置的真实模型并可能产生费用。演示覆盖脱敏、Evidence ID、引用校验、受限源码与配置读取、Strategy Router、Trace 和报告。详见[演示指南](./docs/00-overview/演示指南.md)。
 
 ## 测试与验收
 
@@ -62,9 +64,10 @@ uv run python scripts/diagnose-java-log-real.py --keyword NullPointerException
 uv run ruff check .
 uv run pytest
 .\scripts\verify-phase0c.ps1 -SkipSync
+.\scripts\verify-phase2.ps1 -SkipSync
 ```
 
-当前基线：`166 passed`，Phase 0C 固定评测 `2/2 passed`，Phase 0A/0B/0C 一键验收通过，Phase 1 Java Lab 三类真实模型案例通过。
+当前基线：`187 passed`，Phase 0C 固定评测 `2/2 passed`，Phase 0A/0B/0C/2 一键验收通过，Phase 1 Java Lab 三类真实模型案例通过。
 
 ## 主要 API
 
@@ -75,6 +78,7 @@ uv run pytest
 - `POST /api/v1/diagnoses/{id}/confirmation`
 - `GET /api/v1/diagnoses/{id}/report`
 - `GET /api/v1/diagnoses/{id}/report.md`
+- `GET /api/v1/diagnoses/{id}/trace`
 - `GET/POST /api/v1/knowledge`
 - `PATCH /api/v1/knowledge/{id}/status`
 
@@ -83,8 +87,11 @@ uv run pytest
 - [项目介绍](./docs/00-overview/项目介绍.md)
 - [完整文档导航](./docs/README.md)
 - [Phase 0C 实现规格](./docs/02-specifications/Phase%200C%20实现规格说明.md)
-- [Phase 1 链路图](./docs/01-architecture/phase1-log-code-flow.md)
+- [Phase 1 扩展架构与学习总结](./docs/01-architecture/phase1-extension.md)
+- [Phase 1 端到端链路图](./docs/01-architecture/phase1-log-code-flow.md)
 - [Phase 1 当前能力总结](./docs/03-progress/2026-07-17-Phase1当前能力总结.md)
+- [Phase 2 扩展架构与学习总结](./docs/01-architecture/phase2-extension.md)
+- [Phase 2 验收记录](./docs/04-validation/phase2-acceptance.md)
 - [简历与面试描述](./docs/00-overview/简历项目描述.md)
 
 ## 当前边界

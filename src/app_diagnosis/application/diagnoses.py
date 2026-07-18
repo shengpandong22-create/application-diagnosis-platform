@@ -8,6 +8,7 @@ from app_diagnosis.adapters.persistence import SqlAlchemyDiagnosisRepository
 from app_diagnosis.adapters.persistence.audit_repository import SqlAlchemyAuditRepository
 from app_diagnosis.agent.runtime import AgentBudget, ToolLoopContext, ToolLoopResult, ToolLoopRunner
 from app_diagnosis.agent.strategies.base import DiagnosisStrategy
+from app_diagnosis.agent.strategies.router import DiagnosisStrategyRouter
 from app_diagnosis.domain.audit import AuditEvent
 from app_diagnosis.domain.diagnosis import (
     AgentTerminationReason,
@@ -43,11 +44,13 @@ class DiagnosisApplicationService:
         strategy: DiagnosisStrategy,
         budget: AgentBudget,
         max_input_log_bytes: int,
+        strategy_router: DiagnosisStrategyRouter | None = None,
     ) -> None:
         self._sessions = session_factory
         self._runner = runner
         self._executions = executions
         self._strategy = strategy
+        self._strategy_router = strategy_router
         self._budget = budget
         self._max_input_log_bytes = max_input_log_bytes
         self._active_tasks: dict[UUID, asyncio.Task] = {}
@@ -98,14 +101,27 @@ class DiagnosisApplicationService:
             diagnosis = await self._start_investigation(
                 diagnosis_id, actor=actor, correlation_id=correlation_id
             )
+            strategy = (
+                self._strategy_router.select(diagnosis)
+                if self._strategy_router is not None
+                else self._strategy
+            )
             result = await self._runner.run(
                 diagnosis=diagnosis,
-                strategy=self._strategy,
+                strategy=strategy,
                 context=ToolLoopContext(
                     actor=actor,
                     environment=environment,
                     audit_correlation_id=correlation_id,
-                    permissions=frozenset({"knowledge:read", "code:read"}),
+                    permissions=frozenset(
+                        {
+                            "knowledge:read",
+                            "code:read",
+                            "config:read",
+                            "log:read",
+                            "health:read",
+                        }
+                    ),
                     max_tool_output_bytes=max_tool_output_bytes,
                 ),
                 budget=self._budget,

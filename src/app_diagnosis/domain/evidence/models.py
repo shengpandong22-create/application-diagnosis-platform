@@ -16,12 +16,17 @@ class EvidenceType(StrEnum):
     LOG_EXCERPT = "log_excerpt"
     KNOWLEDGE_ENTRY = "knowledge_entry"
     CODE_EXCERPT = "code_excerpt"
+    CONFIG_EXCERPT = "config_excerpt"
+    HEALTH_CHECK = "health_check"
 
 
 class EvidenceSource(StrEnum):
     USER_INPUT = "user_input"
     LOCAL_KNOWLEDGE = "local_knowledge"
     LOCAL_CODE = "local_code"
+    LOCAL_CONFIG = "local_config"
+    LOCAL_LOG = "local_log"
+    LOCAL_SERVICE = "local_service"
 
 
 class EvidenceReliability(StrEnum):

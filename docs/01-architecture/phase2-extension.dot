@@ -1,0 +1,40 @@
+digraph Phase2 {
+  graph [rankdir=LR,bgcolor="#FFFFFF",pad="0.35",nodesep="0.34",ranksep="0.68",splines=ortho,fontname="Microsoft YaHei",fontsize=18,fontcolor="#0F172A",label="Phase 2 · 可观测、多策略、现场感知的诊断 Agent",labelloc=t,labeljust=l,compound=true,newrank=true];
+  node [shape=plain,fontname="Microsoft YaHei",fontsize=10,fontcolor="#0F172A"];
+  edge [color="#64748B",penwidth=1.25,arrowsize=0.68,fontname="Microsoft YaHei",fontsize=8.5,fontcolor="#475569"];
+
+  user [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#64748B" BGCOLOR="#F8FAFC"><TR><TD><B>本地用户</B></TD></TR><TR><TD><FONT POINT-SIZE="8">创建 · 运行 · 查看 Trace</FONT></TD></TR></TABLE>>];
+
+  subgraph cluster_access {
+    label="① 接入与展示"; color="#93C5FD"; fillcolor="#EFF6FF"; style="rounded,filled"; margin=16;
+    api [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#3B82F6" BGCOLOR="#DBEAFE"><TR><TD><B>复用 · Diagnosis API</B></TD></TR><TR><TD><FONT POINT-SIZE="8">创建 · 运行 · Evidence · Report</FONT></TD></TR></TABLE>>];
+    trace_api [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7"><TR><TD><FONT COLOR="#166534"><B>NEW · Trace API / UI</B></FONT></TD></TR><TR><TD><FONT POINT-SIZE="8">Run 概览 · Tool 时间线 · Evidence ID</FONT></TD></TR></TABLE>>];
+  }
+
+  subgraph cluster_application {
+    label="② 应用编排"; color="#7DD3FC"; fillcolor="#F0F9FF"; style="rounded,filled"; margin=16;
+    service [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#0284C7" BGCOLOR="#E0F2FE"><TR><TD><B>EXTEND · Application Service</B></TD></TR><TR><TD><FONT POINT-SIZE="8">每次 Run 重新路由 Strategy</FONT></TD></TR></TABLE>>];
+    trace_service [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7"><TR><TD><FONT COLOR="#166534"><B>NEW · Trace Projection</B></FONT></TD></TR><TR><TD><FONT POINT-SIZE="8">AgentRun + ToolRun + Evidence 关联</FONT></TD></TR></TABLE>>];
+  }
+
+  subgraph cluster_runtime {
+    label="③ Agent Runtime 与策略"; color="#C4B5FD"; fillcolor="#FAF8FF"; style="rounded,filled"; margin=18;
+    router [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7"><TR><TD><FONT COLOR="#166534"><B>NEW · Strategy Router</B></FONT></TD></TR><TR><TD><FONT POINT-SIZE="8">规则评分 · 并列回退 · 零 LLM 调用</FONT></TD></TR></TABLE>>];
+    strategies [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7"><TR><TD><FONT COLOR="#166534"><B>NEW · 专用 Strategies</B></FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">Application Error<BR/>Network · Configuration · Generic</FONT></TD></TR></TABLE>>];
+    loop [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#7C3AED"><TR><TD CELLPADDING="8" BGCOLOR="#7C3AED"><FONT COLOR="#FFFFFF"><B>EXTEND · ToolLoopRunner</B></FONT></TD></TR><TR><TD CELLPADDING="6">先落 Evidence，再记录 ToolRun 关联</TD></TR><TR><TD CELLPADDING="6"><FONT POINT-SIZE="8">预算 · Registry · Citation Policy</FONT></TD></TR></TABLE>>];
+  }
+
+  subgraph cluster_ports {
+    label="④ Stable Ports"; color="#D8B4FE"; fillcolor="#FDF4FF"; style="rounded,dashed,filled"; margin=16;
+    ports [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7"><TR><TD><FONT COLOR="#166534"><B>NEW · Phase 2 Ports</B></FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">ConfigRepository<BR/>LogReader（复用扩展）<BR/>HealthCheckClient</FONT></TD></TR></TABLE>>];
+    existing [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#A855F7" BGCOLOR="#FAE8FF"><TR><TD><B>复用 · 既有 Ports</B></TD></TR><TR><TD><FONT POINT-SIZE="8">LLM · Execution · Evidence · Tool</FONT></TD></TR></TABLE>>];
+  }
+
+  subgraph cluster_adapters {
+    label="⑤ Replaceable Adapters"; color="#5EEAD4"; fillcolor="#F0FDFA"; style="rounded,filled"; margin=16;
+    adapters [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7"><TR><TD><FONT COLOR="#166534"><B>NEW · 受限现场 Adapters</B></FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">LocalConfigRepository<BR/>LocalLogFileReader<BR/>HttpHealthCheckClient</FONT></TD></TR></TABLE>>];
+    tools [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7"><TR><TD><FONT COLOR="#166534"><B>NEW · READ_ONLY Tools</B></FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">config__read<BR/>log__search<BR/>health__check</FONT></TD></TR></TABLE>>];
+  }
+
+  user -> api [color="#F59E0B",penwidth=2.5]; api -> service [color="#F59E0B",penwidth=2.5]; service -> router [color="#16A34A",penwidth=2.3]; router -> strategies [color="#16A34A",penwidth=2.3]; strategies -> loop [color="#F59E0B",penwidth=2.5]; loop -> existing; loop -> ports [color="#16A34A",penwidth=2.2]; ports -> adapters [color="#16A34A",penwidth=2.2]; adapters -> tools [color="#16A34A",penwidth=2.2]; tools -> loop [color="#16A34A",penwidth=2.2,constraint=false]; loop -> trace_service [style=dashed,color="#16A34A",constraint=false]; trace_service -> trace_api [color="#16A34A",penwidth=2.2]; trace_api -> user [style=dashed,color="#F59E0B",penwidth=2.0,constraint=false];
+}

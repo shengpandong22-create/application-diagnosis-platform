@@ -1,0 +1,190 @@
+digraph Phase1 {
+  graph [
+    rankdir=LR,
+    bgcolor="#FFFFFF",
+    pad="0.35",
+    nodesep="0.34",
+    ranksep="0.68",
+    splines=ortho,
+    fontname="Microsoft YaHei",
+    fontsize=18,
+    fontcolor="#0F172A",
+    label="Phase 1 · 在证据闭环上扩展真实日志与受限源码联合诊断",
+    labelloc=t,
+    labeljust=l,
+    compound=true,
+    newrank=true
+  ];
+
+  node [shape=plain, fontname="Microsoft YaHei", fontsize=10, fontcolor="#0F172A"];
+  edge [color="#64748B", penwidth=1.25, arrowsize=0.68, fontname="Microsoft YaHei", fontsize=8.5, fontcolor="#475569"];
+
+  user [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#64748B" BGCOLOR="#F8FAFC">
+      <TR><TD><B>本地用户</B></TD></TR>
+      <TR><TD><FONT POINT-SIZE="8">触发故障 · 启动诊断 · 人工确认</FONT></TD></TR>
+    </TABLE>
+  >];
+
+  subgraph cluster_lab {
+    label="NEW · Java 故障实验室";
+    color="#F59E0B"; fillcolor="#FFFBEB"; penwidth=1.5; style="rounded,filled"; margin=16;
+
+    java_api [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#D97706" BGCOLOR="#FEF3C7">
+        <TR><TD><B>Spring Boot 故障接口</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">NPE · 连接拒绝 · 超时</FONT></TD></TR>
+      </TABLE>
+    >];
+    java_assets [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#D97706" BGCOLOR="#FEF3C7">
+        <TR><TD><B>可重复诊断资产</B></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">真实异常日志<BR/>受控 Java 源码工作区</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_access {
+    label="① 接入与输入治理";
+    color="#93C5FD"; fillcolor="#EFF6FF"; penwidth=1.3; style="rounded,filled"; margin=16;
+
+    api [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#3B82F6" BGCOLOR="#DBEAFE">
+        <TR><TD><B>诊断 API / 演示脚本</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">创建 Diagnosis · 启动 AgentRun</FONT></TD></TR>
+      </TABLE>
+    >];
+    log_reader [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>NEW · LocalLogFileReader</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">配置目录限制 · 文件大小限制<BR/>关键词定位 · 单事件边界</FONT></TD></TR>
+      </TABLE>
+    >];
+    redaction [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#60A5FA" BGCOLOR="#FFFFFF">
+        <TR><TD><B>复用 · Redaction</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">日志持久化前脱敏</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_application {
+    label="② 应用编排与证据生命周期";
+    color="#7DD3FC"; fillcolor="#F0F9FF"; penwidth=1.3; style="rounded,filled"; margin=16;
+
+    service [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#0284C7" BGCOLOR="#E0F2FE">
+        <TR><TD><B>DiagnosisApplicationService</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">复用用例 · 事务 · 状态收敛</FONT></TD></TR>
+      </TABLE>
+    >];
+    evidence [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>EXTEND · Evidence</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">复用 log_excerpt<BR/>新增 code_excerpt + source_reference</FONT></TD></TR>
+      </TABLE>
+    >];
+    report [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#0284C7" BGCOLOR="#E0F2FE">
+        <TR><TD><B>复用 · Report / Human Loop</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">JSON · Markdown · 确认 · 继续调查</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_runtime {
+    label="③ Agent Runtime";
+    color="#C4B5FD"; fillcolor="#FAF8FF"; penwidth=1.5; style="rounded,filled"; margin=18;
+
+    strategy [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#8B5CF6" BGCOLOR="#F5F3FF">
+        <TR><TD><B>EXTEND · DiagnosisStrategy</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">暴露 code__search / code__read</FONT></TD></TR>
+      </TABLE>
+    >];
+    loop [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#7C3AED" BGCOLOR="#FFFFFF">
+        <TR><TD CELLPADDING="8" BGCOLOR="#7C3AED"><FONT COLOR="#FFFFFF"><B>EXTEND · ToolLoopRunner</B></FONT></TD></TR>
+        <TR><TD CELLPADDING="6">日志上下文 ⇄ 受限源码工具</TD></TR>
+        <TR><TD CELLPADDING="6"><FONT POINT-SIZE="8">Evidence 目录 · 纠错预算 · 读取后收敛</FONT></TD></TR>
+      </TABLE>
+    >];
+    registry [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#8B5CF6" BGCOLOR="#F5F3FF">
+        <TR><TD><B>复用 · Tool Registry</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">白名单 · Schema · 预算 · 超时</FONT></TD></TR>
+      </TABLE>
+    >];
+    citation [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>EXTEND · Citation Policy</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">源码型根因同时引用<BR/>log_excerpt + code_excerpt</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_ports {
+    label="④ Stable Ports";
+    color="#D8B4FE"; fillcolor="#FDF4FF"; penwidth=1.3; style="rounded,dashed,filled"; margin=16;
+
+    existing_ports [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#A855F7" BGCOLOR="#FAE8FF">
+        <TR><TD><B>复用 · 既有 Ports</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">LLM · Evidence · Repository · Tool</FONT></TD></TR>
+      </TABLE>
+    >];
+    phase1_ports [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>NEW · Phase 1 Ports</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">LogReader Port<BR/>CodeRepository Port</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  subgraph cluster_adapters {
+    label="⑤ Replaceable Adapters";
+    color="#5EEAD4"; fillcolor="#F0FDFA"; penwidth=1.3; style="rounded,filled"; margin=16;
+
+    existing_adapters [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#0F766E" BGCOLOR="#CCFBF1">
+        <TR><TD><B>复用 · 既有 Adapters</B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="8">DeepSeek / Fake LLM<BR/>SQLite + SQLAlchemy</FONT></TD></TR>
+      </TABLE>
+    >];
+    phase1_adapters [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#16A34A" BGCOLOR="#DCFCE7">
+        <TR><TD><FONT COLOR="#166534"><B>NEW · Phase 1 Adapters</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">LocalLogFileReader<BR/>LocalCodeWorkspace</FONT></TD></TR>
+      </TABLE>
+    >];
+  }
+
+  user -> java_api [color="#F59E0B", penwidth=2.5];
+  java_api -> java_assets [color="#F59E0B", penwidth=2.5];
+  java_assets -> log_reader [color="#F59E0B", penwidth=2.5];
+  log_reader -> redaction [color="#F59E0B", penwidth=2.5];
+  redaction -> evidence [color="#F59E0B", penwidth=2.5];
+  user -> api [color="#F59E0B", penwidth=2.5];
+  api -> service [color="#F59E0B", penwidth=2.5];
+  service -> loop [color="#F59E0B", penwidth=2.5];
+  evidence -> loop [color="#16A34A", penwidth=2.2];
+  strategy -> loop;
+  loop -> registry [color="#F59E0B", penwidth=2.5];
+  registry -> existing_ports;
+  registry -> phase1_ports [color="#16A34A", penwidth=2.1];
+  existing_ports -> existing_adapters;
+  phase1_ports -> phase1_adapters [color="#16A34A", penwidth=2.1];
+  phase1_adapters -> java_assets [color="#16A34A", penwidth=2.1, constraint=false];
+  phase1_adapters -> evidence [color="#16A34A", penwidth=2.1, constraint=false];
+  loop -> citation [color="#16A34A", penwidth=2.3];
+  citation -> service [color="#16A34A", penwidth=2.1, constraint=false];
+  service -> report [color="#F59E0B", penwidth=2.2];
+  report -> user [style=dashed, color="#F59E0B", penwidth=2.0, constraint=false];
+
+  { rank=same; java_api; java_assets; }
+  { rank=same; api; log_reader; redaction; }
+  { rank=same; service; evidence; report; }
+  { rank=same; strategy; loop; registry; citation; }
+  { rank=same; existing_ports; phase1_ports; }
+  { rank=same; existing_adapters; phase1_adapters; }
+}

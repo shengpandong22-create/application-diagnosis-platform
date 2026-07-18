@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     knowledge_directory: str = "samples/knowledge"
     code_workspace_path: str = ""
     code_workspace_name: str = "local-application"
+    config_workspace_path: str = ""
+    log_directory: str = ""
+    health_targets: dict[str, str] = Field(default_factory=dict)
     llm_base_url: str = "https://example.invalid/v1"
     llm_api_key: SecretStr = SecretStr("")
     llm_model: str = ""

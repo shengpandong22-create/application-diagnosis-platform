@@ -27,4 +27,4 @@ def test_execution_tables_are_created_by_migrations(tmp_path: Path) -> None:
         "audit_events",
         "alembic_version",
     } <= tables
-    assert revision == "0007"
+    assert revision == "0008"

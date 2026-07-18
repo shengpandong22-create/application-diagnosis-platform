@@ -2,6 +2,8 @@
 
 > [返回文档导航](../README.md)
 
+> 本文侧重一次诊断的执行顺序。若要理解 Phase 1 在 Phase 0A/0B/0C 上新增和修改了哪些架构边界，请先阅读[Phase 1 扩展架构与深度学习总结](./phase1-extension.md)。
+
 ![Phase 1 链路图](./phase1-log-code-flow.svg)
 
 ## 这张图表达什么

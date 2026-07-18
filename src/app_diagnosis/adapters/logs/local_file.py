@@ -9,7 +9,7 @@ class InvalidLogRead(ValueError):
 
 
 class LocalLogFileReader:
-    ALLOWED_SUFFIXES = frozenset({".log"})
+    ALLOWED_SUFFIXES = frozenset({".log", ".txt"})
     _EVENT_START = re.compile(r"^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:[.,]\d+)?")
 
     def __init__(
@@ -34,7 +34,7 @@ class LocalLogFileReader:
             raise InvalidLogRead("keyword must not be blank")
         requested = Path(relative_path)
         if requested.is_absolute() or requested.suffix.casefold() not in self.ALLOWED_SUFFIXES:
-            raise InvalidLogRead("only relative .log files are allowed")
+            raise InvalidLogRead("only relative .log or .txt files are allowed")
         try:
             resolved = (self._root / requested).resolve(strict=True)
             resolved.relative_to(self._root)

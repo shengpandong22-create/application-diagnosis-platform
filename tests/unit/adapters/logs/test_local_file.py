@@ -46,9 +46,9 @@ def test_stops_at_next_timestamped_log_event(tmp_path: Path) -> None:
     assert excerpt.source_reference == "application.log:1-3"
 
 
-@pytest.mark.parametrize("path", ["../outside.log", "absolute.txt", "."])
+@pytest.mark.parametrize("path", ["../outside.log", "absolute.json", "."])
 def test_rejects_unsafe_or_unsupported_paths(tmp_path: Path, path: str) -> None:
-    (tmp_path / "absolute.txt").write_text("error", encoding="utf-8")
+    (tmp_path / "absolute.json").write_text("error", encoding="utf-8")
     with pytest.raises(InvalidLogRead):
         LocalLogFileReader(tmp_path).read_latest(relative_path=path, keyword="error")
 

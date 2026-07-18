@@ -256,14 +256,15 @@ class ToolLoopRunner:
                         successful_tools += 1
                         if call.name == "code__read":
                             should_finalize = True
+                    evidence_ids = await self._persist_evidence(diagnosis.id, result)
                     await self._record_tool_run(
                         run_id=run.id,
                         tool_call_id=call.id,
                         tool_name=call.name,
                         arguments=arguments,
                         result=result,
+                        evidence_ids=evidence_ids,
                     )
-                    evidence_ids = await self._persist_evidence(diagnosis.id, result)
                     tool_message = self._tool_message(result.model_summary, evidence_ids)
                     messages.append(ChatMessage.tool(tool_message, tool_call_id=call.id))
 
@@ -343,6 +344,7 @@ class ToolLoopRunner:
         tool_name: str,
         arguments: dict | None,
         result: ToolExecutionResult,
+        evidence_ids: tuple[UUID, ...],
     ) -> None:
         status = ToolRunStatus(result.status.value)
         await self._executions.add_tool_run(
@@ -353,7 +355,14 @@ class ToolLoopRunner:
                 tool_name=tool_name[:64],
                 arguments_json=arguments,
                 status=status,
-                result_json=result.data.model_dump(mode="json") if result.data else None,
+                result_json=(
+                    {
+                        **result.data.model_dump(mode="json"),
+                        "evidence_ids": [str(item) for item in evidence_ids],
+                    }
+                    if result.data
+                    else None
+                ),
                 duration_ms=result.duration_ms,
                 error_code=result.error_code,
                 created_at=self._clock(),

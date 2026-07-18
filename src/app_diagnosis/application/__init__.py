@@ -13,6 +13,7 @@ from app_diagnosis.application.knowledge import (
     KnowledgeStatusConflict,
 )
 from app_diagnosis.application.reports import DiagnosisReportService, render_markdown
+from app_diagnosis.application.traces import DiagnosisTraceService
 
 __all__ = [
     "DiagnosisApplicationService",
@@ -24,5 +25,6 @@ __all__ = [
     "KnowledgeNotFound",
     "KnowledgeStatusConflict",
     "DiagnosisReportService",
+    "DiagnosisTraceService",
     "render_markdown",
 ]

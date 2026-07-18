@@ -29,6 +29,13 @@ def test_report_api_and_minimal_ui_do_not_require_model(tmp_path: Path) -> None:
         assert report.json()["evidence"][0]["content"] == "password=[REDACTED]"
         markdown = api.get(f"/api/v1/diagnoses/{diagnosis_id}/report.md")
         assert markdown.status_code == 200 and "## Evidence" in markdown.text
+        trace = api.get(f"/api/v1/diagnoses/{diagnosis_id}/trace")
+        assert trace.status_code == 200
+        assert trace.json() == {
+            "diagnosis_id": diagnosis_id,
+            "diagnosis_status": "created",
+            "runs": [],
+        }
         ui = api.get("/ui")
         assert ui.status_code == 200
-        assert "启动 Run" in ui.text and "/report.md" in ui.text
+        assert "启动 Run" in ui.text and "/report.md" in ui.text and "/trace" in ui.text
