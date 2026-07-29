@@ -38,7 +38,7 @@ class ConfigReadTool:
     required_permissions = frozenset({"config:read"})
     supported_problem_types = frozenset({ProblemType.GENERIC_APPLICATION_ERROR})
 
-    def __init__(self, repository: ConfigRepository, redactor: Redactor) -> None:
+    def __init__(self, repository: ConfigRepository | None, redactor: Redactor) -> None:
         self._repository = repository
         self._redactor = redactor
 
@@ -49,7 +49,10 @@ class ConfigReadTool:
         try:
             if not isinstance(arguments, ConfigReadInput):
                 raise TypeError("config__read requires ConfigReadInput")
-            excerpt = await self._repository.read(
+            repository = context.config_repository or self._repository
+            if repository is None:
+                raise PermissionError("config workspace is not configured for this diagnosis")
+            excerpt = await repository.read(
                 arguments.path,
                 start_line=arguments.start_line,
                 end_line=arguments.end_line,

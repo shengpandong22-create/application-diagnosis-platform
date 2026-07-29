@@ -22,6 +22,11 @@ class GenericApplicationErrorStrategy:
         self._health_tools_enabled = health_tools_enabled
 
     def system_prompt(self, context: DiagnosisStrategyContext) -> str:
+        available_tool_names = context.available_tool_names if context is not None else frozenset()
+        code_tools_available = self._code_tools_enabled or {
+            "code__search",
+            "code__read",
+        }.issubset(available_tool_names)
         code_instruction = (
             " A submitted stack trace must be investigated with code__search followed by "
             "code__read when relevant application frames are present. Choose the search query, "
@@ -30,7 +35,7 @@ class GenericApplicationErrorStrategy:
             "Minimize tool calls: start with one focused application-frame search, read only the "
             "most relevant file ranges, and return the conclusion as soon as evidence is "
             "sufficient."
-            if self._code_tools_enabled
+            if code_tools_available
             else ""
         )
         return (
@@ -56,13 +61,13 @@ class GenericApplicationErrorStrategy:
 
     def allowed_tool_names(self, context: DiagnosisStrategyContext) -> frozenset[str]:
         names = {"knowledge__search"}
-        if self._code_tools_enabled:
+        if self._code_tools_enabled or "code__search" in context.available_tool_names:
             names.update({"code__search", "code__read"})
-        if self._config_tools_enabled:
+        if self._config_tools_enabled or "config__read" in context.available_tool_names:
             names.add("config__read")
-        if self._log_tools_enabled:
+        if self._log_tools_enabled or "log__search" in context.available_tool_names:
             names.add("log__search")
-        if self._health_tools_enabled:
+        if self._health_tools_enabled or "health__check" in context.available_tool_names:
             names.add("health__check")
         return frozenset(names)
 

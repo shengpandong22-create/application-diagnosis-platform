@@ -94,7 +94,10 @@ class ToolLoopRunner:
             now=self._clock(),
         )
         await self._executions.add_agent_run(run)
-        strategy_context = DiagnosisStrategyContext(diagnosis=diagnosis)
+        strategy_context = DiagnosisStrategyContext(
+            diagnosis=diagnosis,
+            available_tool_names=context.resources.available_tool_names,
+        )
         allowed_names = strategy.allowed_tool_names(strategy_context)
         await self._create_plan(
             diagnosis=diagnosis,
@@ -113,6 +116,10 @@ class ToolLoopRunner:
             permissions=context.permissions,
             problem_type=diagnosis.problem_type,
             max_output_bytes=context.max_tool_output_bytes,
+            code_repository=context.resources.code_repository,
+            log_reader=context.resources.log_reader,
+            config_repository=context.resources.config_repository,
+            health_check_client=context.resources.health_check_client,
         )
         definitions = self._registry.definitions(
             allowed_names=allowed_names,

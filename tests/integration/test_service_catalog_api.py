@@ -11,10 +11,38 @@ from app_diagnosis.adapters.persistence import Database
 from app_diagnosis.api.app import create_app
 from app_diagnosis.bootstrap.container import build_diagnosis_service
 from app_diagnosis.bootstrap.settings import Settings
+from app_diagnosis.ports.llm import (
+    ChatMessage,
+    FinishReason,
+    LLMResponse,
+    LLMUsage,
+    ToolCall,
+)
+
+
+def response(*, content: str | None = None, tool_calls: tuple[ToolCall, ...] = ()) -> LLMResponse:
+    return LLMResponse(
+        message=ChatMessage.assistant(content, tool_calls=tool_calls),
+        model="fake-model",
+        finish_reason=FinishReason.TOOL_CALLS if tool_calls else FinishReason.STOP,
+        usage=LLMUsage(input_tokens=12, output_tokens=6, total_tokens=18),
+    )
+
+
+def conclusion_without_citations() -> str:
+    return (
+        '{"symptom_summary":"Service scoped source was inspected.","facts":[],"root_causes":['
+        '{"statement":"Source evidence was read from the registered service workspace.",'
+        '"status":"possible","evidence_ids":[]}],'
+        '"recommendations":["Ask a human to verify the final runtime value."],'
+        '"missing_information":[]}'
+    )
 
 
 @contextmanager
-def migrated_client(tmp_path: Path) -> Iterator[TestClient]:
+def migrated_client(
+    tmp_path: Path, fake: FakeLLMClient | None = None
+) -> Iterator[TestClient]:
     database_path = tmp_path / "services.db"
     database_url = f"sqlite+aiosqlite:///{database_path.as_posix()}"
     config = Config("alembic.ini")
@@ -30,7 +58,7 @@ def migrated_client(tmp_path: Path) -> Iterator[TestClient]:
     service, _ = build_diagnosis_service(
         settings=settings,
         database=database,
-        llm_client=FakeLLMClient([]),
+        llm_client=fake or FakeLLMClient([]),
     )
     with TestClient(
         create_app(settings=settings, database=database, diagnosis_service=service)
@@ -97,3 +125,57 @@ def test_duplicate_service_name_environment_conflicts(tmp_path: Path) -> None:
         repeated = client.post("/api/v1/services", json=payload)
         assert repeated.status_code == 409
         assert repeated.json()["error"]["code"] == "service_profile_conflict"
+
+
+def test_service_scoped_code_workspace_feeds_agent_tools(tmp_path: Path) -> None:
+    code_root = tmp_path / "java-lab"
+    code_root.mkdir()
+    (code_root / "OrderService.java").write_text(
+        "class OrderService {\n  String create() { return customer.trim(); }\n}\n",
+        encoding="utf-8",
+    )
+    fake = FakeLLMClient(
+        [
+            response(
+                tool_calls=(
+                    ToolCall(
+                        id="call-code-read",
+                        name="code__read",
+                        arguments_json=(
+                            '{"path":"OrderService.java","start_line":1,"end_line":3}'
+                        ),
+                    ),
+                )
+            ),
+            response(content=conclusion_without_citations()),
+            response(content=conclusion_without_citations()),
+            response(content=conclusion_without_citations()),
+        ]
+    )
+
+    with migrated_client(tmp_path, fake) as client:
+        service = client.post(
+            "/api/v1/services",
+            json={
+                "name": "service-scoped-java-lab",
+                "environment": "local",
+                "code_workspace_path": str(code_root),
+            },
+        ).json()
+        diagnosis = client.post(
+            f"/api/v1/services/{service['id']}/diagnoses",
+            json={"title": "Service scoped code", "symptom": "NullPointerException"},
+        ).json()
+
+        executed = client.post(f"/api/v1/diagnoses/{diagnosis['id']}/runs")
+        assert executed.status_code == 200
+
+        runs = client.get(f"/api/v1/diagnoses/{diagnosis['id']}/runs").json()
+        tool_run = runs[0]["tool_runs"][0]
+        assert tool_run["tool_name"] == "code__read"
+        assert tool_run["status"] == "success"
+
+        evidence = client.get(f"/api/v1/diagnoses/{diagnosis['id']}/evidence").json()
+        code_evidence = [item for item in evidence if item["type"] == "code_excerpt"]
+        assert code_evidence
+        assert code_evidence[0]["metadata"]["workspace"] == "service-scoped-java-lab"

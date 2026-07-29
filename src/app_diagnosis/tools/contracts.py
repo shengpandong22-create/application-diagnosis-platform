@@ -7,6 +7,10 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from app_diagnosis.domain.diagnosis import ProblemType
+from app_diagnosis.ports.code_repository import CodeRepository
+from app_diagnosis.ports.config_repository import ConfigRepository
+from app_diagnosis.ports.health_check import HealthCheckClient
+from app_diagnosis.ports.log_reader import LogReader
 
 
 class ToolRiskLevel(StrEnum):
@@ -42,6 +46,10 @@ class ToolExecutionContext:
     permissions: frozenset[str]
     problem_type: ProblemType
     max_output_bytes: int
+    code_repository: CodeRepository | None = None
+    log_reader: LogReader | None = None
+    config_repository: ConfigRepository | None = None
+    health_check_client: HealthCheckClient | None = None
 
     def __post_init__(self) -> None:
         if not self.actor.strip():

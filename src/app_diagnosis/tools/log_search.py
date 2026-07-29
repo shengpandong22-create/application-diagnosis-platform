@@ -36,7 +36,7 @@ class LogSearchTool:
     required_permissions = frozenset({"log:read"})
     supported_problem_types = frozenset({ProblemType.GENERIC_APPLICATION_ERROR})
 
-    def __init__(self, reader: LogReader, redactor: Redactor) -> None:
+    def __init__(self, reader: LogReader | None, redactor: Redactor) -> None:
         self._reader = reader
         self._redactor = redactor
 
@@ -47,7 +47,10 @@ class LogSearchTool:
         try:
             if not isinstance(arguments, LogSearchInput):
                 raise TypeError("log__search requires LogSearchInput")
-            excerpt = self._reader.read_latest(
+            reader = context.log_reader or self._reader
+            if reader is None:
+                raise PermissionError("log directory is not configured for this diagnosis")
+            excerpt = reader.read_latest(
                 relative_path=arguments.path,
                 keyword=arguments.keyword,
             )

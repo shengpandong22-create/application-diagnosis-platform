@@ -39,6 +39,7 @@ from app_diagnosis.application import (
     KnowledgeApplicationService,
     ServiceCatalogApplicationService,
 )
+from app_diagnosis.application.diagnoses import build_service_tool_resource_resolver
 from app_diagnosis.bootstrap.settings import Settings
 from app_diagnosis.domain.code_workspace import CodeWorkspace
 from app_diagnosis.ports.llm import LLMClient, LLMTransportError
@@ -91,8 +92,10 @@ def build_diagnosis_service(
                 root=Path(settings.code_workspace_path),
             )
         )
-        registry.register(CodeSearchTool(code))
-        registry.register(CodeReadTool(code))
+    else:
+        code = None
+    registry.register(CodeSearchTool(code))
+    registry.register(CodeReadTool(code))
     redactor = LocalRuleRedactor()
     config_tools_enabled = bool(settings.config_workspace_path.strip())
     if config_tools_enabled:
@@ -102,13 +105,19 @@ def build_diagnosis_service(
                 redactor,
             )
         )
+    else:
+        registry.register(ConfigReadTool(None, redactor))
     log_tools_enabled = bool(settings.log_directory.strip())
     if log_tools_enabled:
         # 日志工具只读取配置目录内的日志文件，避免 Agent 任意读取本机文件。
         registry.register(LogSearchTool(LocalLogFileReader(Path(settings.log_directory)), redactor))
+    else:
+        registry.register(LogSearchTool(None, redactor))
     health_tools_enabled = bool(settings.health_targets)
     if health_tools_enabled:
         registry.register(HealthCheckTool(HttpHealthCheckClient(settings.health_targets, redactor)))
+    else:
+        registry.register(HealthCheckTool(None))
     runner = ToolLoopRunner(
         llm_client=resolved_llm,
         registry=registry,
@@ -142,6 +151,15 @@ def build_diagnosis_service(
         ),
         max_input_log_bytes=settings.input_log_max_bytes,
         redactor=redactor,
+        tool_resource_resolver=build_service_tool_resource_resolver(
+            session_factory=database.session_factory,
+            redactor=redactor,
+            default_code_workspace_name=settings.code_workspace_name,
+            default_code_workspace_path=settings.code_workspace_path,
+            default_log_directory=settings.log_directory,
+            default_config_workspace_path=settings.config_workspace_path,
+            default_health_targets=settings.health_targets,
+        ),
     )
     return service, resolved_llm
 

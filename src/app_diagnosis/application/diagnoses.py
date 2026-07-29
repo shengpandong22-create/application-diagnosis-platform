@@ -7,17 +7,28 @@ Strategy 选择，以及把 ToolLoopRunner 的结果回写到 DiagnosisCase 状�
 """
 
 import asyncio
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
+from pathlib import Path
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from app_diagnosis.adapters.code import LocalCodeRepository
+from app_diagnosis.adapters.config import LocalConfigRepository
+from app_diagnosis.adapters.health import HttpHealthCheckClient
+from app_diagnosis.adapters.logs import LocalLogFileReader
 from app_diagnosis.adapters.persistence import SqlAlchemyDiagnosisRepository
 from app_diagnosis.adapters.persistence.audit_repository import SqlAlchemyAuditRepository
+from app_diagnosis.adapters.persistence.service_profile_repository import (
+    SqlAlchemyServiceProfileRepository,
+)
 from app_diagnosis.agent.runtime import AgentBudget, ToolLoopContext, ToolLoopResult, ToolLoopRunner
+from app_diagnosis.agent.runtime.models import ToolResourceContext
 from app_diagnosis.agent.strategies.base import DiagnosisStrategy
 from app_diagnosis.agent.strategies.router import DiagnosisStrategyRouter
 from app_diagnosis.domain.audit import AuditEvent
+from app_diagnosis.domain.code_workspace import CodeWorkspace
 from app_diagnosis.domain.diagnosis import (
     AgentTerminationReason,
     DiagnosisCase,
@@ -26,6 +37,7 @@ from app_diagnosis.domain.diagnosis import (
 )
 from app_diagnosis.domain.execution import AgentRun, ToolRun
 from app_diagnosis.ports.execution_repository import AgentExecutionRepository
+from app_diagnosis.ports.redaction import Redactor
 
 
 class DiagnosisNotFound(LookupError):
@@ -36,10 +48,100 @@ class DiagnosisRunConflict(RuntimeError):
     pass
 
 
+ToolResourceResolver = Callable[[DiagnosisCase], Awaitable[ToolResourceContext]]
+
+
 @dataclass(frozen=True, slots=True)
 class DiagnosisRunDetails:
     run: AgentRun
     tool_runs: tuple[ToolRun, ...]
+
+
+def build_service_tool_resource_resolver(
+    *,
+    session_factory: async_sessionmaker[AsyncSession],
+    redactor: Redactor,
+    default_code_workspace_name: str,
+    default_code_workspace_path: str,
+    default_log_directory: str,
+    default_config_workspace_path: str,
+    default_health_targets: dict[str, str],
+) -> ToolResourceResolver:
+    """构建“全局默认 + 服务覆盖”的工具资源解析器。
+
+    解析器只根据 Diagnosis 绑定的 ServiceProfile 创建受限 Adapter，不做目录扫描。
+    当 Diagnosis 没有关联服务时，继续使用 Settings 中的全局工具资源，保证旧演示链路不被破坏。
+    """
+
+    default_resources = _build_tool_resources(
+        code_workspace_name=default_code_workspace_name,
+        code_workspace_path=default_code_workspace_path,
+        log_directory=default_log_directory,
+        config_workspace_path=default_config_workspace_path,
+        health_targets=default_health_targets,
+        redactor=redactor,
+    )
+    services = SqlAlchemyServiceProfileRepository(session_factory)
+
+    async def resolve(diagnosis: DiagnosisCase) -> ToolResourceContext:
+        if diagnosis.service_id is None:
+            return default_resources
+        service = await services.get(diagnosis.service_id)
+        if service is None:
+            return default_resources
+        return _build_tool_resources(
+            code_workspace_name=service.name,
+            code_workspace_path=service.code_workspace_path or "",
+            log_directory=service.log_directory or "",
+            config_workspace_path=service.config_workspace_path or "",
+            health_targets=_parse_health_targets(service.health_targets),
+            redactor=redactor,
+        )
+
+    return resolve
+
+
+def _build_tool_resources(
+    *,
+    code_workspace_name: str,
+    code_workspace_path: str,
+    log_directory: str,
+    config_workspace_path: str,
+    health_targets: dict[str, str],
+    redactor: Redactor,
+) -> ToolResourceContext:
+    return ToolResourceContext(
+        code_repository=(
+            LocalCodeRepository(
+                CodeWorkspace(
+                    name=code_workspace_name,
+                    root=Path(code_workspace_path),
+                )
+            )
+            if code_workspace_path.strip()
+            else None
+        ),
+        log_reader=LocalLogFileReader(Path(log_directory)) if log_directory.strip() else None,
+        config_repository=(
+            LocalConfigRepository(Path(config_workspace_path))
+            if config_workspace_path.strip()
+            else None
+        ),
+        health_check_client=(
+            HttpHealthCheckClient(health_targets, redactor) if health_targets else None
+        ),
+    )
+
+
+def _parse_health_targets(values: tuple[str, ...]) -> dict[str, str]:
+    targets: dict[str, str] = {}
+    for index, item in enumerate(values, 1):
+        if "=" in item:
+            name, url = item.split("=", 1)
+            targets[name.strip() or f"target_{index}"] = url.strip()
+        else:
+            targets[f"target_{index}"] = item.strip()
+    return {name: url for name, url in targets.items() if url}
 
 
 class DiagnosisApplicationService:
@@ -53,12 +155,14 @@ class DiagnosisApplicationService:
         budget: AgentBudget,
         max_input_log_bytes: int,
         strategy_router: DiagnosisStrategyRouter | None = None,
+        tool_resource_resolver: ToolResourceResolver | None = None,
     ) -> None:
         self._sessions = session_factory
         self._runner = runner
         self._executions = executions
         self._strategy = strategy
         self._strategy_router = strategy_router
+        self._tool_resource_resolver = tool_resource_resolver
         self._budget = budget
         self._max_input_log_bytes = max_input_log_bytes
         self._active_tasks: dict[UUID, asyncio.Task] = {}
@@ -130,6 +234,11 @@ class DiagnosisApplicationService:
                 if self._strategy_router is not None
                 else self._strategy
             )
+            resources = (
+                await self._tool_resource_resolver(diagnosis)
+                if self._tool_resource_resolver is not None
+                else ToolResourceContext()
+            )
             # LLM 运行只拿到 Strategy、权限和预算；它不能直接修改 DiagnosisCase。
             # 这条边界很关键，后续增加更多 Agent 能力时也不应绕过。
             result = await self._runner.run(
@@ -149,6 +258,7 @@ class DiagnosisApplicationService:
                         }
                     ),
                     max_tool_output_bytes=max_tool_output_bytes,
+                    resources=resources,
                 ),
                 budget=self._budget,
             )

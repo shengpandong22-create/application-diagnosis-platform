@@ -55,7 +55,7 @@ class CodeSearchTool:
     required_permissions = frozenset({"code:read"})
     supported_problem_types = frozenset({ProblemType.GENERIC_APPLICATION_ERROR})
 
-    def __init__(self, repository: CodeRepository) -> None:
+    def __init__(self, repository: CodeRepository | None = None) -> None:
         self._repository = repository
 
     async def execute(
@@ -65,7 +65,10 @@ class CodeSearchTool:
         try:
             if not isinstance(arguments, CodeSearchInput):
                 raise TypeError("code__search requires CodeSearchInput")
-            found = await self._repository.search(arguments.query, limit=arguments.limit)
+            repository = context.code_repository or self._repository
+            if repository is None:
+                raise PermissionError("code workspace is not configured for this diagnosis")
+            found = await repository.search(arguments.query, limit=arguments.limit)
             output = CodeSearchOutput(
                 matches=[
                     CodeMatchOutput(path=item.path, line=item.line, preview=item.preview)
@@ -99,7 +102,7 @@ class CodeReadTool:
     required_permissions = frozenset({"code:read"})
     supported_problem_types = frozenset({ProblemType.GENERIC_APPLICATION_ERROR})
 
-    def __init__(self, repository: CodeRepository) -> None:
+    def __init__(self, repository: CodeRepository | None = None) -> None:
         self._repository = repository
 
     async def execute(
@@ -109,7 +112,10 @@ class CodeReadTool:
         try:
             if not isinstance(arguments, CodeReadInput):
                 raise TypeError("code__read requires CodeReadInput")
-            excerpt = await self._repository.read(
+            repository = context.code_repository or self._repository
+            if repository is None:
+                raise PermissionError("code workspace is not configured for this diagnosis")
+            excerpt = await repository.read(
                 arguments.path, start_line=arguments.start_line, end_line=arguments.end_line
             )
             output = CodeReadOutput(

@@ -35,7 +35,7 @@ class HealthCheckTool:
     required_permissions = frozenset({"health:read"})
     supported_problem_types = frozenset({ProblemType.GENERIC_APPLICATION_ERROR})
 
-    def __init__(self, client: HealthCheckClient) -> None:
+    def __init__(self, client: HealthCheckClient | None = None) -> None:
         self._client = client
 
     async def execute(
@@ -44,7 +44,10 @@ class HealthCheckTool:
         try:
             if not isinstance(arguments, HealthCheckInput):
                 raise TypeError("health__check requires HealthCheckInput")
-            result = await self._client.check(arguments.target)
+            client = context.health_check_client or self._client
+            if client is None:
+                raise PermissionError("health targets are not configured for this diagnosis")
+            result = await client.check(arguments.target)
             output = HealthCheckOutput(
                 target=result.target,
                 reachable=result.reachable,

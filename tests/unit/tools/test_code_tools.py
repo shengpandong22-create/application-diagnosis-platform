@@ -3,13 +3,14 @@ from pathlib import Path
 from uuid import uuid4
 
 from app_diagnosis.adapters.code import LocalCodeRepository
+from app_diagnosis.agent.runtime.models import ToolResourceContext
 from app_diagnosis.domain.code_workspace import CodeWorkspace
 from app_diagnosis.domain.diagnosis import ProblemType
 from app_diagnosis.tools.code import CodeReadInput, CodeReadTool, CodeSearchInput, CodeSearchTool
 from app_diagnosis.tools.contracts import ToolExecutionContext, ToolExecutionStatus
 
 
-def context() -> ToolExecutionContext:
+def context(resources: ToolResourceContext | None = None) -> ToolExecutionContext:
     return ToolExecutionContext(
         diagnosis_id=uuid4(),
         agent_run_id=uuid4(),
@@ -20,6 +21,7 @@ def context() -> ToolExecutionContext:
         permissions=frozenset({"code:read"}),
         problem_type=ProblemType.GENERIC_APPLICATION_ERROR,
         max_output_bytes=4096,
+        code_repository=resources.code_repository if resources else None,
     )
 
 
@@ -43,3 +45,20 @@ async def test_code_read_creates_citable_evidence(tmp_path: Path) -> None:
     assert result.status is ToolExecutionStatus.SUCCESS
     assert result.evidence_drafts[0].type == "code_excerpt"
     assert result.evidence_drafts[0].metadata["revision"] == "abc123"
+
+
+async def test_code_tool_can_use_service_scoped_repository(tmp_path: Path) -> None:
+    source = tmp_path / "InventoryClient.java"
+    source.write_text("class InventoryClient { void call() {} }\n", encoding="utf-8")
+    repository = LocalCodeRepository(
+        CodeWorkspace(name="service-java-lab", root=tmp_path, revision="svc")
+    )
+    resources = ToolResourceContext(code_repository=repository)
+
+    result = await CodeReadTool().execute(
+        CodeReadInput(path="InventoryClient.java", start_line=1, end_line=1),
+        context(resources),
+    )
+
+    assert result.status is ToolExecutionStatus.SUCCESS
+    assert result.evidence_drafts[0].metadata["workspace"] == "service-java-lab"

@@ -8,6 +8,7 @@ from app_diagnosis.ports.llm import ResponseFormat
 @dataclass(frozen=True, slots=True)
 class DiagnosisStrategyContext:
     diagnosis: DiagnosisCase
+    available_tool_names: frozenset[str] = frozenset({"knowledge__search"})
 
 
 class DiagnosisStrategy(Protocol):
