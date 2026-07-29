@@ -112,6 +112,21 @@ def test_create_run_query_and_audit_tool_call(tmp_path: Path) -> None:
             "limit": 2,
         }
 
+        plan = client.get(f"/api/v1/diagnoses/{diagnosis_id}/plan")
+        assert plan.status_code == 200
+        plan_payload = plan.json()
+        assert plan_payload["agent_run_id"] == payload[0]["id"]
+        assert "knowledge__search" in plan_payload["allowed_tools"]
+        assert plan_payload["steps"][0]["title"] == "整理用户事实与初始日志"
+
+        report = client.get(f"/api/v1/diagnoses/{diagnosis_id}/report")
+        assert report.status_code == 200
+        assert report.json()["plans"][0]["id"] == plan_payload["id"]
+
+        trace = client.get(f"/api/v1/diagnoses/{diagnosis_id}/trace")
+        assert trace.status_code == 200
+        assert trace.json()["runs"][0]["plan"]["id"] == plan_payload["id"]
+
         repeated = client.post(f"/api/v1/diagnoses/{diagnosis_id}/runs")
         assert repeated.status_code == 409
 
@@ -128,3 +143,15 @@ def test_cancel_created_diagnosis_and_missing_case(tmp_path: Path) -> None:
         assert cancelled.json()["status"] == "cancelled"
         missing = client.get("/api/v1/diagnoses/00000000-0000-0000-0000-000000000000")
         assert missing.status_code == 404
+
+
+def test_plan_endpoint_returns_404_before_first_run(tmp_path: Path) -> None:
+    with migrated_client(tmp_path, FakeLLMClient([])) as client:
+        created = client.post(
+            "/api/v1/diagnoses",
+            json={"title": "No plan yet", "symptom": "Created only"},
+        )
+        diagnosis_id = created.json()["id"]
+        plan = client.get(f"/api/v1/diagnoses/{diagnosis_id}/plan")
+        assert plan.status_code == 404
+        assert plan.json()["error"]["code"] == "diagnosis_plan_not_found"

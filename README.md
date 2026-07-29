@@ -85,6 +85,8 @@ uv run pytest
 ## 文档入口
 
 - [项目介绍](./docs/00-overview/项目介绍.md)
+- [Phase 0～2 项目掌握与面试准备指南](./docs/00-overview/Phase%200-2%20项目掌握与面试准备指南.md)
+- [Phase 0～2 源码学习路线图](./docs/00-overview/Phase%200-2%20源码学习路线图.md)
 - [完整文档导航](./docs/README.md)
 - [Phase 0C 实现规格](./docs/02-specifications/Phase%200C%20实现规格说明.md)
 - [Phase 1 扩展架构与学习总结](./docs/01-architecture/phase1-extension.md)

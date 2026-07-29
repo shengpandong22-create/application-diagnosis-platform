@@ -98,3 +98,27 @@ class ToolRunRecord(Base):
     duration_ms: Mapped[int] = mapped_column(Integer, nullable=False)
     error_code: Mapped[str | None] = mapped_column(String(100))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class DiagnosisPlanRecord(Base):
+    __tablename__ = "diagnosis_plans"
+    __table_args__ = (
+        CheckConstraint("status IN ('planned')", name="ck_diagnosis_plans_status"),
+        UniqueConstraint("agent_run_id", name="uq_diagnosis_plans_agent_run"),
+        Index("ix_diagnosis_plans_diagnosis_created", "diagnosis_id", "created_at"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    diagnosis_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("diagnoses.id", ondelete="CASCADE"), nullable=False
+    )
+    agent_run_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("agent_runs.id", ondelete="CASCADE"), nullable=False
+    )
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    hypotheses_json: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    steps_json: Mapped[list[dict[str, Any]]] = mapped_column(JSON, nullable=False)
+    expected_evidence_json: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    allowed_tools_json: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

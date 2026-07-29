@@ -1,3 +1,11 @@
+"""诊断用例的确定性编排层。
+
+这个模块站在 API 和 Agent Runtime 之间，负责并发保护、事务边界、
+Strategy 选择，以及把 ToolLoopRunner 的结果回写到 DiagnosisCase 状态机。
+后续改造时应继续保持这个边界：LLM 可以产生 ToolLoopResult，
+但不能直接修改诊断聚合根状态。
+"""
+
 import asyncio
 from dataclasses import dataclass
 from uuid import UUID
@@ -63,6 +71,11 @@ class DiagnosisApplicationService:
         symptom: str,
         submitted_log: str | None,
     ) -> DiagnosisCase:
+        """创建诊断聚合根，但不启动 Agent 运行。
+
+        这个基础实现只负责创建 DiagnosisCase。Phase 0B 之后的脱敏和
+        初始 Evidence 创建由 EvidenceAwareDiagnosisApplicationService 覆盖。
+        """
         if submitted_log and len(submitted_log.encode("utf-8")) > self._max_input_log_bytes:
             raise InvalidDiagnosisValue("submitted_log exceeds configured byte limit")
         diagnosis = DiagnosisCase.create(
@@ -75,6 +88,11 @@ class DiagnosisApplicationService:
         return diagnosis
 
     async def get(self, diagnosis_id: UUID) -> DiagnosisCase:
+        """读取单个诊断，不存在时抛出应用层 NotFound。
+
+        API 层不直接接触 Repository，因此统一通过这里把持久化返回值
+        转换成应用层异常，方便全局异常处理返回一致响应。
+        """
         async with self._sessions() as session:
             diagnosis = await SqlAlchemyDiagnosisRepository(session).get(diagnosis_id)
         if diagnosis is None:
@@ -90,6 +108,12 @@ class DiagnosisApplicationService:
         correlation_id: str,
         max_tool_output_bytes: int,
     ) -> ToolLoopResult:
+        """启动一次有界诊断运行，并把结果应用回领域状态机。
+
+        这是主调用链的核心入口：先登记当前诊断的活动任务，避免同一个
+        Diagnosis 并发运行；再进入 INVESTIGATING；随后选择 Strategy 并调用
+        ToolLoopRunner。Runner 返回后，只能通过 _apply_result 推动状态收敛。
+        """
         task = asyncio.current_task()
         if task is None:
             raise RuntimeError("diagnosis run requires an asyncio task")
@@ -106,6 +130,8 @@ class DiagnosisApplicationService:
                 if self._strategy_router is not None
                 else self._strategy
             )
+            # LLM 运行只拿到 Strategy、权限和预算；它不能直接修改 DiagnosisCase。
+            # 这条边界很关键，后续增加更多 Agent 能力时也不应绕过。
             result = await self._runner.run(
                 diagnosis=diagnosis,
                 strategy=strategy,
@@ -136,6 +162,11 @@ class DiagnosisApplicationService:
                 self._active_tasks.pop(diagnosis_id, None)
 
     async def cancel(self, diagnosis_id: UUID) -> DiagnosisCase:
+        """取消正在运行的内存任务，并持久化领域取消状态。
+
+        asyncio.Task.cancel 只负责中断当前进程内的执行；真正对外可见的状态
+        仍然要通过 _mark_cancelled 写回 DiagnosisCase。
+        """
         async with self._active_lock:
             task = self._active_tasks.get(diagnosis_id)
             if task is not None:
@@ -143,6 +174,11 @@ class DiagnosisApplicationService:
         return await self._mark_cancelled(diagnosis_id)
 
     async def list_runs(self, diagnosis_id: UUID) -> tuple[DiagnosisRunDetails, ...]:
+        """查询一次诊断下的 AgentRun 及其 ToolRun 明细。
+
+        这是一条只读链路，用于 Trace 和调试展示，不应该在这里触发
+        Agent 继续运行或改变 DiagnosisCase 状态。
+        """
         await self.get(diagnosis_id)
         runs = await self._executions.list_agent_runs(diagnosis_id)
         details: list[DiagnosisRunDetails] = []
@@ -158,6 +194,11 @@ class DiagnosisApplicationService:
     async def _start_investigation(
         self, diagnosis_id: UUID, *, actor: str, correlation_id: str
     ) -> DiagnosisCase:
+        """将诊断推进到 INVESTIGATING，并记录运行开始审计事件。
+
+        只允许 CREATED 或已经 INVESTIGATING 的诊断进入运行流程。
+        这里也是运行开始审计的集中位置，避免 API 层和 Runner 分散记录。
+        """
         async with self._sessions.begin() as session:
             repository = SqlAlchemyDiagnosisRepository(session)
             diagnosis = await repository.get(diagnosis_id)
@@ -187,6 +228,12 @@ class DiagnosisApplicationService:
             return diagnosis
 
     async def _apply_result(self, diagnosis_id: UUID, result: ToolLoopResult) -> None:
+        """把 ToolLoopResult 转换成 DiagnosisCase 的状态机结果。
+
+        这里是 Agent Runtime 结果进入领域状态的唯一收口。模型完成且有结论时，
+        根据 missing_information 决定等待用户补充还是等待人工确认；其他终止原因
+        收敛为 INCONCLUSIVE。后续改造时不要让 Runner 直接写状态。
+        """
         async with self._sessions.begin() as session:
             repository = SqlAlchemyDiagnosisRepository(session)
             diagnosis = await repository.get(diagnosis_id)
@@ -209,6 +256,11 @@ class DiagnosisApplicationService:
             await repository.save(diagnosis, expected_version=expected_version)
 
     async def _mark_cancelled(self, diagnosis_id: UUID) -> DiagnosisCase:
+        """在当前状态允许时持久化取消结果。
+
+        取消不是任意状态都允许。已经终结的诊断不能再被取消，
+        这样可以保护人工确认、驳回和 inconclusive 等最终状态不被覆盖。
+        """
         async with self._sessions.begin() as session:
             repository = SqlAlchemyDiagnosisRepository(session)
             diagnosis = await repository.get(diagnosis_id)

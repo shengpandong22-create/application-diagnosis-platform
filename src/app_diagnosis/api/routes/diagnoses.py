@@ -1,3 +1,9 @@
+"""诊断用例的 HTTP 路由层。
+
+路由层刻意保持很薄：只负责 API schema 与 ApplicationService 的转换，
+不承载 Agent Loop、Evidence 创建或状态机逻辑。后续加接口时也应遵守这个边界。
+"""
+
 from uuid import UUID
 
 from fastapi import APIRouter, Request, status
@@ -21,6 +27,7 @@ router = APIRouter(prefix="/api/v1/diagnoses", tags=["diagnoses"])
 
 
 def _service(request: Request) -> DiagnosisApplicationService:
+    """从 FastAPI app.state 取出 bootstrap 装配好的应用服务。"""
     return request.app.state.diagnosis_service
 
 
@@ -29,6 +36,7 @@ async def create_diagnosis(
     payload: CreateDiagnosisRequest,
     request: Request,
 ) -> DiagnosisResponse:
+    """创建诊断；脱敏和初始 Evidence 创建由应用服务完成。"""
     diagnosis = await _service(request).create(
         title=payload.title,
         symptom=payload.symptom,
@@ -39,6 +47,7 @@ async def create_diagnosis(
 
 @router.get("/{diagnosis_id}", response_model=DiagnosisResponse)
 async def get_diagnosis(diagnosis_id: UUID, request: Request) -> DiagnosisResponse:
+    """返回当前持久化的诊断状态。"""
     diagnosis = await _service(request).get(diagnosis_id)
     return DiagnosisResponse.from_domain(diagnosis)
 
@@ -48,6 +57,7 @@ async def run_diagnosis(
     diagnosis_id: UUID,
     request: Request,
 ) -> RunResultResponse:
+    """为已有诊断启动一次有界 Agent 运行。"""
     settings: Settings = request.app.state.settings
     result = await _service(request).run(
         diagnosis_id,
@@ -61,18 +71,21 @@ async def run_diagnosis(
 
 @router.get("/{diagnosis_id}/runs", response_model=list[AgentRunResponse])
 async def list_runs(diagnosis_id: UUID, request: Request) -> list[AgentRunResponse]:
+    """返回该诊断的 AgentRun/ToolRun 持久化轨迹。"""
     details = await _service(request).list_runs(diagnosis_id)
     return [AgentRunResponse.from_details(item) for item in details]
 
 
 @router.post("/{diagnosis_id}/cancel", response_model=DiagnosisResponse)
 async def cancel_diagnosis(diagnosis_id: UUID, request: Request) -> DiagnosisResponse:
+    """在当前状态允许时取消诊断运行。"""
     diagnosis = await _service(request).cancel(diagnosis_id)
     return DiagnosisResponse.from_domain(diagnosis)
 
 
 @router.get("/{diagnosis_id}/evidence", response_model=list[EvidenceResponse])
 async def list_evidence(diagnosis_id: UUID, request: Request) -> list[EvidenceResponse]:
+    """返回当前诊断关联的全部 Evidence。"""
     evidence = await _service(request).list_evidence(diagnosis_id)
     return [EvidenceResponse.from_domain(item) for item in evidence]
 
@@ -83,6 +96,7 @@ async def supplement_diagnosis(
     payload: SupplementRequest,
     request: Request,
 ) -> SupplementResponse:
+    """接收用户补充事实或日志，并重新打开调查。"""
     diagnosis, evidence = await _service(request).supplement(
         diagnosis_id,
         content=payload.content,
@@ -100,6 +114,7 @@ async def confirm_diagnosis(
     payload: ConfirmationRequest,
     request: Request,
 ) -> ConfirmationResponse:
+    """记录人工确认、驳回或继续调查动作，不覆盖模型原始结论。"""
     diagnosis, confirmation = await _service(request).confirm_action(
         diagnosis_id,
         action=payload.action,

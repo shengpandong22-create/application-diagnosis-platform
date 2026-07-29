@@ -35,7 +35,7 @@ class OfflineCodeDemoLLM:
                 FinishReason.TOOL_CALLS,
             )
         if self.calls == 2:
-            payload = json.loads(request.messages[-1].content or "{}")
+            payload = _latest_tool_payload(request)
             search_result = payload.get("tool_result", payload)
             path = next(
                 item["path"]
@@ -55,7 +55,7 @@ class OfflineCodeDemoLLM:
                 "offline-code-demo",
                 FinishReason.TOOL_CALLS,
             )
-        payload = json.loads(request.messages[-1].content or "{}")
+        payload = _latest_tool_payload(request)
         conclusion = {
             "symptom_summary": "Order endpoint returns HTTP 500 with NullPointerException",
             "facts": [],
@@ -79,6 +79,20 @@ class OfflineCodeDemoLLM:
             "offline-code-demo",
             FinishReason.STOP,
         )
+
+
+def _latest_tool_payload(request: LLMRequest) -> dict:
+    for message in reversed(request.messages):
+        content = message.content or ""
+        try:
+            payload = json.loads(content)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(payload, dict) and (
+            "tool_result" in payload or "matches" in payload or "evidence_ids" in payload
+        ):
+            return payload
+    raise ValueError("no tool payload found in model request")
 
 
 def main() -> None:

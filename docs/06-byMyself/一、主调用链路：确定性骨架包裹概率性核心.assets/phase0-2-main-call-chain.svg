@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 1120" width="100%" role="img">
+  <title>诊断系统主调用链路</title>
+  <desc>展示从 FastAPI 到应用服务、受控 Agent Runtime、状态收敛、持久化事实、查询视图和人工确认命令的完整结构。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M2 1 L8 5 L2 9" fill="none" stroke="context-stroke" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      text{font-family:"Microsoft YaHei","Segoe UI",Arial,sans-serif}
+      .title{font-size:18px;font-weight:700}
+      .sub{font-size:13px}
+      .small{font-size:12px}
+      .tiny{font-size:11px}
+      .blue{fill:#e8f3ff;stroke:#2368ad;stroke-width:1.2}
+      .purple{fill:#f0edff;stroke:#6656c7;stroke-width:1.2}
+      .green{fill:#e2f6ef;stroke:#14715a;stroke-width:1.2}
+      .coral{fill:#fff0eb;stroke:#d85a30;stroke-width:1.2}
+      .amber{fill:#fff1dd;stroke:#be7718;stroke-width:1.2}
+      .view{fill:#edf7e5;stroke:#4b7d24;stroke-width:1.2}
+      .line{stroke:#60605d;stroke-width:2;fill:none;marker-end:url(#arrow)}
+      .plain{stroke:#60605d;stroke-width:2;fill:none}
+    </style>
+  </defs>
+
+  <rect x="270" y="32" width="380" height="62" rx="13" class="blue"/>
+  <text x="460" y="64" text-anchor="middle" dominant-baseline="central" class="title" fill="#0c477f">FastAPI Route</text>
+  <text x="460" y="83" text-anchor="middle" dominant-baseline="central" class="small" fill="#2368ad">HTTP 入口 / 请求治理 / DTO 转换</text>
+  <line x1="460" y1="94" x2="460" y2="126" class="line"/>
+
+  <rect x="220" y="130" width="480" height="76" rx="13" class="blue"/>
+  <text x="460" y="157" text-anchor="middle" dominant-baseline="central" class="title" fill="#0c477f">DiagnosisApplicationService</text>
+  <text x="460" y="183" text-anchor="middle" dominant-baseline="central" class="sub" fill="#2368ad">推动 INVESTIGATING / 选择 Strategy / 调用 ToolLoopRunner / 应用结果</text>
+  <line x1="460" y1="206" x2="460" y2="238" class="line"/>
+
+  <rect x="70" y="242" width="780" height="310" rx="24" class="purple"/>
+  <text x="95" y="278" class="title" fill="#3e358d">受控 Agent Runtime</text>
+  <text x="825" y="278" text-anchor="end" class="sub" fill="#5b4fc3">概率性推理 + 确定性约束</text>
+
+  <rect x="100" y="326" width="130" height="150" rx="14" class="coral"/>
+  <text x="165" y="357" text-anchor="middle" class="sub" font-weight="700" fill="#733016">LLMClient Port</text>
+  <text x="165" y="386" text-anchor="middle" class="small" fill="#9b3f20">OpenAI / DeepSeek</text>
+  <text x="165" y="411" text-anchor="middle" class="small" fill="#9b3f20">Fake LLM</text>
+  <text x="165" y="446" text-anchor="middle" class="small" fill="#9b3f20">概率性推理</text>
+
+  <rect x="260" y="326" width="130" height="150" rx="14" class="green"/>
+  <text x="325" y="357" text-anchor="middle" class="sub" font-weight="700" fill="#075141">Tool Registry</text>
+  <text x="325" y="386" text-anchor="middle" class="small" fill="#14715a">工具可见性</text>
+  <text x="325" y="411" text-anchor="middle" class="small" fill="#14715a">契约 / 风险 / 预算</text>
+  <text x="325" y="446" text-anchor="middle" class="small" fill="#14715a">Tool → Port → Adapter</text>
+
+  <rect x="420" y="326" width="130" height="150" rx="14" class="green"/>
+  <text x="485" y="357" text-anchor="middle" class="sub" font-weight="700" fill="#075141">Evidence Store</text>
+  <text x="485" y="386" text-anchor="middle" class="small" fill="#14715a">Evidence 创建与留存</text>
+  <text x="485" y="411" text-anchor="middle" class="small" fill="#14715a">脱敏后入库</text>
+  <text x="485" y="446" text-anchor="middle" class="small" fill="#14715a">正式 Evidence ID</text>
+
+  <rect x="580" y="326" width="130" height="150" rx="14" class="green"/>
+  <text x="645" y="357" text-anchor="middle" class="sub" font-weight="700" fill="#075141">Execution Repo</text>
+  <text x="645" y="386" text-anchor="middle" class="small" fill="#14715a">AgentRun</text>
+  <text x="645" y="411" text-anchor="middle" class="small" fill="#14715a">ToolRun</text>
+  <text x="645" y="446" text-anchor="middle" class="small" fill="#14715a">执行轨迹</text>
+
+  <rect x="720" y="326" width="100" height="150" rx="14" class="green"/>
+  <text x="770" y="357" text-anchor="middle" class="sub" font-weight="700" fill="#075141">Citation</text>
+  <text x="770" y="379" text-anchor="middle" class="sub" font-weight="700" fill="#075141">Policy</text>
+  <text x="770" y="411" text-anchor="middle" class="small" fill="#14715a">最终结论</text>
+  <text x="770" y="434" text-anchor="middle" class="small" fill="#14715a">引用校验</text>
+  <text x="770" y="457" text-anchor="middle" class="small" fill="#14715a">禁止伪造 ID</text>
+
+  <line x1="460" y1="552" x2="460" y2="588" class="line"/>
+  <rect x="310" y="592" width="300" height="58" rx="13" class="purple"/>
+  <text x="460" y="622" text-anchor="middle" dominant-baseline="central" class="title" fill="#3e358d">ToolLoopResult</text>
+  <line x1="460" y1="650" x2="460" y2="688" class="line"/>
+  <text x="477" y="674" class="small" fill="#5b4fc3" font-style="italic">_apply_result()</text>
+
+  <rect x="270" y="692" width="380" height="62" rx="13" class="blue"/>
+  <text x="460" y="724" text-anchor="middle" dominant-baseline="central" class="title" fill="#0c477f">DiagnosisCase 状态收敛</text>
+
+  <path d="M460 754 L460 782 M190 782 L730 782" class="plain"/>
+  <line x1="190" y1="782" x2="190" y2="812" class="line"/>
+  <line x1="460" y1="782" x2="460" y2="812" class="line"/>
+  <line x1="730" y1="782" x2="730" y2="812" class="line"/>
+
+  <rect x="80" y="816" width="220" height="58" rx="13" class="amber"/>
+  <text x="190" y="848" text-anchor="middle" dominant-baseline="central" class="sub" font-weight="700" fill="#684006">WAITING_FOR_INPUT</text>
+  <rect x="350" y="816" width="220" height="58" rx="13" class="amber"/>
+  <text x="460" y="848" text-anchor="middle" dominant-baseline="central" class="small" font-weight="700" fill="#684006">WAITING_FOR_CONFIRMATION</text>
+  <rect x="620" y="816" width="220" height="58" rx="13" class="amber"/>
+  <text x="730" y="848" text-anchor="middle" dominant-baseline="central" class="sub" font-weight="700" fill="#684006">INCONCLUSIVE</text>
+
+  <path d="M190 874 L190 902 M460 874 L460 902 M730 874 L730 902 M190 902 L730 902" class="plain"/>
+  <line x1="460" y1="902" x2="460" y2="932" class="line"/>
+  <rect x="270" y="936" width="380" height="58" rx="13" class="blue"/>
+  <text x="460" y="966" text-anchor="middle" dominant-baseline="central" class="title" fill="#0c477f">持久化事实</text>
+
+  <path d="M460 994 L460 1020 M190 1020 L730 1020" class="plain"/>
+  <line x1="190" y1="1020" x2="190" y2="1048" class="line"/>
+  <line x1="460" y1="1020" x2="460" y2="1048" class="line"/>
+  <line x1="730" y1="1020" x2="730" y2="1048" class="line"/>
+
+  <rect x="90" y="1050" width="200" height="54" rx="13" class="view"/>
+  <text x="190" y="1074" text-anchor="middle" class="sub" font-weight="700" fill="#2f5a12">Trace Query</text>
+  <text x="190" y="1093" text-anchor="middle" class="tiny" fill="#4b7d24">只读视图</text>
+  <rect x="360" y="1050" width="200" height="54" rx="13" class="view"/>
+  <text x="460" y="1074" text-anchor="middle" class="sub" font-weight="700" fill="#2f5a12">Report Query</text>
+  <text x="460" y="1093" text-anchor="middle" class="tiny" fill="#4b7d24">只读视图</text>
+  <rect x="630" y="1050" width="200" height="54" rx="13" class="view"/>
+  <text x="730" y="1074" text-anchor="middle" class="sub" font-weight="700" fill="#2f5a12">Confirmation</text>
+  <text x="730" y="1093" text-anchor="middle" class="tiny" fill="#4b7d24">人工状态变更命令</text>
+</svg>

@@ -1,6 +1,9 @@
 """SQLAlchemy persistence adapters."""
 
 from app_diagnosis.adapters.persistence.database import Database
+from app_diagnosis.adapters.persistence.diagnosis_plan_repository import (
+    SqlAlchemyDiagnosisPlanRepository,
+)
 from app_diagnosis.adapters.persistence.diagnosis_repository import (
     SqlAlchemyDiagnosisRepository,
 )
@@ -12,4 +15,5 @@ __all__ = [
     "Database",
     "SqlAlchemyAgentExecutionRepository",
     "SqlAlchemyDiagnosisRepository",
+    "SqlAlchemyDiagnosisPlanRepository",
 ]

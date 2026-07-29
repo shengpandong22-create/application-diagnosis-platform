@@ -1,3 +1,10 @@
+"""诊断运行开始前的确定性 Strategy 路由。
+
+Router 根据 title、symptom、submitted_log 中的关键词选择 Strategy。
+它不调用 LLM，也不执行工具，只决定后续 ToolLoopRunner 使用哪套 prompt
+和工具白名单。信号缺失或多条路线打平时会回退到 fallback，避免不确定路由。
+"""
+
 import re
 from dataclasses import dataclass
 
@@ -68,6 +75,11 @@ class DiagnosisStrategyRouter:
         self._fallback = fallback
 
     def select(self, diagnosis: DiagnosisCase) -> DiagnosisStrategy:
+        """选择唯一 Strategy；没有明确胜者时使用 fallback。
+
+        当前实现是规则路由，优点是稳定、便宜、可测试。后续如果引入 LLM 分类，
+        也建议保留“规则优先，低置信度再问模型”的边界。
+        """
         text = "\n".join(
             part for part in (diagnosis.title, diagnosis.symptom, diagnosis.submitted_log) if part
         ).casefold()
@@ -81,4 +93,5 @@ class DiagnosisStrategyRouter:
 
 
 def _patterns(expressions: tuple[str, ...]) -> tuple[re.Pattern[str], ...]:
+    """把关键词表达式编译为大小写不敏感的正则模式。"""
     return tuple(re.compile(item, re.IGNORECASE) for item in expressions)

@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 560" width="100%" role="img">
+  <title>受控失败机制</title>
+  <desc>展示 LLM 输出经过工具、参数、预算、Evidence 和状态权限等确定性关卡，失败时进入可追溯的受控失败分支。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M2 1 L8 5 L2 9" fill="none" stroke="context-stroke" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      text{font-family:"Microsoft YaHei","Segoe UI",Arial,sans-serif}
+      .title{font-size:19px;font-weight:700}
+      .sub{font-size:14px}
+      .small{font-size:12px}
+      .coral{fill:#fff0eb;stroke:#d85a30;stroke-width:1.3}
+      .blue{fill:#e8f3ff;stroke:#2368ad;stroke-width:1.3}
+      .green{fill:#e2f6ef;stroke:#14715a;stroke-width:1.3}
+      .red{fill:#fff0f0;stroke:#b23b3b;stroke-width:1.3}
+      .line{stroke:#5f5e5a;stroke-width:2.2;fill:none;marker-end:url(#arrow)}
+      .fail{stroke:#b23b3b;stroke-width:2;fill:none;stroke-dasharray:7 7;marker-end:url(#arrow)}
+    </style>
+  </defs>
+
+  <text x="560" y="38" text-anchor="middle" class="title" fill="#8a2f2f">受控失败：错误不绕过边界污染最终结论</text>
+
+  <rect x="40" y="96" width="150" height="112" rx="16" class="coral"/>
+  <text x="115" y="132" text-anchor="middle" class="title" fill="#733016">LLM 输出</text>
+  <text x="115" y="166" text-anchor="middle" class="sub" fill="#9b3f20">工具调用</text>
+  <text x="115" y="190" text-anchor="middle" class="sub" fill="#9b3f20">或最终结论</text>
+
+  <line x1="190" y1="152" x2="250" y2="152" class="line"/>
+  <rect x="254" y="96" width="160" height="112" rx="16" class="blue"/>
+  <text x="334" y="128" text-anchor="middle" class="sub" font-weight="700" fill="#0c477f">关卡 1</text>
+  <text x="334" y="158" text-anchor="middle" class="sub" fill="#2368ad">状态合法性</text>
+  <text x="334" y="184" text-anchor="middle" class="small" fill="#2368ad">是否允许继续运行</text>
+
+  <line x1="414" y1="152" x2="474" y2="152" class="line"/>
+  <rect x="478" y="96" width="160" height="112" rx="16" class="blue"/>
+  <text x="558" y="128" text-anchor="middle" class="sub" font-weight="700" fill="#0c477f">关卡 2</text>
+  <text x="558" y="158" text-anchor="middle" class="sub" fill="#2368ad">工具 / 参数</text>
+  <text x="558" y="184" text-anchor="middle" class="small" fill="#2368ad">白名单、契约、越界</text>
+
+  <line x1="638" y1="152" x2="698" y2="152" class="line"/>
+  <rect x="702" y="96" width="160" height="112" rx="16" class="blue"/>
+  <text x="782" y="128" text-anchor="middle" class="sub" font-weight="700" fill="#0c477f">关卡 3</text>
+  <text x="782" y="158" text-anchor="middle" class="sub" fill="#2368ad">预算 / 轮次</text>
+  <text x="782" y="184" text-anchor="middle" class="small" fill="#2368ad">费用、时间、次数</text>
+
+  <line x1="862" y1="152" x2="922" y2="152" class="line"/>
+  <rect x="926" y="96" width="160" height="112" rx="16" class="blue"/>
+  <text x="1006" y="128" text-anchor="middle" class="sub" font-weight="700" fill="#0c477f">关卡 4</text>
+  <text x="1006" y="158" text-anchor="middle" class="sub" fill="#2368ad">Evidence / 权限</text>
+  <text x="1006" y="184" text-anchor="middle" class="small" fill="#2368ad">引用存在且归属正确</text>
+
+  <line x1="1006" y1="208" x2="1006" y2="250" class="line"/>
+  <rect x="906" y="254" width="200" height="58" rx="16" class="green"/>
+  <text x="1006" y="287" text-anchor="middle" class="title" fill="#2f5a12">通过正常流程</text>
+
+  <path d="M334 208 L334 352 L560 352" class="fail"/>
+  <path d="M558 208 L558 352" class="fail"/>
+  <path d="M782 208 L782 352 L560 352" class="fail"/>
+  <path d="M1006 208 L1006 352 L560 352" class="fail"/>
+  <text x="560" y="334" text-anchor="middle" class="sub" fill="#9b2f2f">任一关卡失败</text>
+
+  <rect x="230" y="356" width="660" height="128" rx="22" class="red"/>
+  <text x="560" y="393" text-anchor="middle" class="title" fill="#8a2f2f">受控失败 + 可追溯记录</text>
+  <text x="560" y="426" text-anchor="middle" class="sub" fill="#9b2f2f">错误不传播到最终结论 / 不伪造 Evidence / 不越权 confirmed</text>
+  <text x="560" y="454" text-anchor="middle" class="sub" fill="#9b2f2f">记录 ToolRun、Trace、Audit；必要时反馈修正或收敛为 inconclusive</text>
+
+  <rect x="132" y="508" width="210" height="36" rx="12" fill="#fff7ee" stroke="#be7718" stroke-width="1.2"/>
+  <text x="237" y="531" text-anchor="middle" class="small" fill="#684006">参数非法：不产生伪 Evidence</text>
+  <rect x="455" y="508" width="210" height="36" rx="12" fill="#fff7ee" stroke="#be7718" stroke-width="1.2"/>
+  <text x="560" y="531" text-anchor="middle" class="small" fill="#684006">工具失败：记录并可反馈模型</text>
+  <rect x="778" y="508" width="210" height="36" rx="12" fill="#fff7ee" stroke="#be7718" stroke-width="1.2"/>
+  <text x="883" y="531" text-anchor="middle" class="small" fill="#684006">证据不足：降级或等待补充</text>
+</svg>

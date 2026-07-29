@@ -5,6 +5,7 @@ from uuid import UUID
 from app_diagnosis.agent.schemas import DiagnosisConclusion
 from app_diagnosis.domain.confirmation import Confirmation
 from app_diagnosis.domain.diagnosis import DiagnosisCase
+from app_diagnosis.domain.diagnosis_plan import DiagnosisPlan
 from app_diagnosis.domain.evidence import Evidence
 
 
@@ -25,6 +26,7 @@ class DiagnosisReport:
     diagnosis: DiagnosisCase
     conclusion: DiagnosisConclusion | None
     evidence: tuple[Evidence, ...]
+    plans: tuple[DiagnosisPlan, ...]
     runs: tuple[ReportRun, ...]
     confirmations: tuple[Confirmation, ...]
     generated_at: datetime
@@ -32,6 +34,8 @@ class DiagnosisReport:
     def __post_init__(self) -> None:
         if any(item.diagnosis_id != self.diagnosis.id for item in self.evidence):
             raise ValueError("report evidence must belong to the diagnosis")
+        if any(item.diagnosis_id != self.diagnosis.id for item in self.plans):
+            raise ValueError("report plans must belong to the diagnosis")
         if self.conclusion:
             available = {item.id for item in self.evidence}
             cited = {

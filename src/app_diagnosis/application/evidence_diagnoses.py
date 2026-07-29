@@ -1,3 +1,11 @@
+"""带 Evidence、脱敏和人工反馈的诊断用例层。
+
+这个模块扩展基础 DiagnosisApplicationService，承接 Phase 0B 的闭环能力：
+入库前脱敏、创建用户/日志 Evidence、接受补充信息、记录人工确认。
+后续改造时要守住一条原则：原始敏感文本不能先入库再脱敏，人工反馈也不能
+覆盖模型原始结论，只能追加 Confirmation 和 Audit。
+"""
+
 from datetime import timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -44,9 +52,15 @@ class EvidenceAwareDiagnosisApplicationService(BaseService):
         symptom: str,
         submitted_log: str | None,
     ) -> DiagnosisCase:
+        """创建诊断，并把初始用户输入转换为已脱敏 Evidence。
+
+        symptom 和 submitted_log 都先经过 Redactor，再写入 DiagnosisCase 和 Evidence。
+        submitted_log 会按 Evidence 最大字节数切片，避免单条证据过大。
+        """
         if submitted_log and len(submitted_log.encode("utf-8")) > self._max_input_log_bytes:
             raise InvalidDiagnosisValue("submitted_log exceeds configured byte limit")
 
+        # 敏感文本必须在持久化和进入模型前完成脱敏，不能依赖事后清理。
         safe_symptom = self._redactor.redact(symptom)
         safe_log = self._redactor.redact(submitted_log) if submitted_log else None
         diagnosis = DiagnosisCase.create(
@@ -113,6 +127,10 @@ class EvidenceAwareDiagnosisApplicationService(BaseService):
         return diagnosis
 
     async def list_evidence(self, diagnosis_id):
+        """查询诊断下的 Evidence，并先确认父 Diagnosis 存在。
+
+        这是只读查询，不改变状态，也不触发 Agent 重新运行。
+        """
         await self.get(diagnosis_id)
         async with self._sessions() as session:
             return tuple(
@@ -120,6 +138,11 @@ class EvidenceAwareDiagnosisApplicationService(BaseService):
             )
 
     async def supplement(self, diagnosis_id, *, content: str, evidence_type: EvidenceType):
+        """追加已脱敏补充 Evidence，并把诊断重新打开到 INVESTIGATING。
+
+        只有 WAITING_FOR_INPUT 状态可以补充信息。相同 Diagnosis 下会按 content_hash
+        去重，避免用户重复提交相同日志片段导致证据膨胀。
+        """
         safe = self._redactor.redact(content)
         evidence = Evidence.create(
             diagnosis_id=diagnosis_id,
@@ -188,6 +211,11 @@ class EvidenceAwareDiagnosisApplicationService(BaseService):
         actor: str,
         comment: str | None,
     ):
+        """记录人工决策，并推动确认、驳回或继续调查状态。
+
+        人工确认是独立事实：它追加 Confirmation 和 AuditEvent，不覆盖
+        DiagnosisCase.conclusion 中保存的模型初始结论。
+        """
         safe_comment = self._redactor.redact(comment).content if comment else None
         confirmation = Confirmation.create(
             diagnosis_id=diagnosis_id,
@@ -231,6 +259,11 @@ class EvidenceAwareDiagnosisApplicationService(BaseService):
 
 
 def _split_utf8(content: str, max_bytes: int) -> list[str]:
+    """按字节上限切分文本，且不截断中文等多字节字符。
+
+        Evidence 的大小限制按 UTF-8 字节计算；逐字符累加可以避免把一个字符
+        切成非法字节序列。
+        """
     chunks: list[str] = []
     current: list[str] = []
     current_bytes = 0

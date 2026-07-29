@@ -32,6 +32,29 @@ async def get_report(diagnosis_id: UUID, request: Request) -> dict[str, Any]:
             }
             for x in report.evidence
         ],
+        "plans": [
+            {
+                "id": str(x.id),
+                "agent_run_id": str(x.agent_run_id),
+                "summary": x.summary,
+                "hypotheses": list(x.hypotheses),
+                "steps": [
+                    {
+                        "order": step.order,
+                        "title": step.title,
+                        "description": step.description,
+                        "tool_name": step.tool_name,
+                        "expected_evidence": list(step.expected_evidence),
+                    }
+                    for step in x.steps
+                ],
+                "expected_evidence": list(x.expected_evidence),
+                "allowed_tools": list(x.allowed_tools),
+                "status": x.status.value,
+                "created_at": x.created_at.isoformat(),
+            }
+            for x in report.plans
+        ],
         "runs": [
             {
                 "id": str(x.id),

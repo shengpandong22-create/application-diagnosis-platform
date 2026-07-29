@@ -1,3 +1,10 @@
+"""应用依赖装配入口。
+
+这个模块把 Settings、数据库、LLM Client、工具、Strategy、ApplicationService
+组装起来。业务规则不应该写在这里；这里只决定“使用哪些实现”和“如何接线”。
+后续替换模型、数据库、工具 Adapter 或 Strategy 时，优先从这里调整装配关系。
+"""
+
 from pathlib import Path
 
 from app_diagnosis.adapters.code import LocalCodeRepository
@@ -7,6 +14,9 @@ from app_diagnosis.adapters.knowledge import JsonKnowledgeSeedLoader, SqliteKnow
 from app_diagnosis.adapters.llm import OpenAICompatibleChatClient
 from app_diagnosis.adapters.logs import LocalLogFileReader
 from app_diagnosis.adapters.persistence import Database, SqlAlchemyAgentExecutionRepository
+from app_diagnosis.adapters.persistence.diagnosis_plan_repository import (
+    SqlAlchemyDiagnosisPlanRepository,
+)
 from app_diagnosis.adapters.persistence.evidence_store import SqlAlchemyEvidenceStore
 from app_diagnosis.adapters.redaction import LocalRuleRedactor
 from app_diagnosis.agent.policies import EvidenceCitationPolicy
@@ -20,6 +30,7 @@ from app_diagnosis.agent.strategies import (
 )
 from app_diagnosis.application import (
     DiagnosisApplicationService,
+    DiagnosisPlanService,
     DiagnosisReportService,
     DiagnosisTraceService,
     KnowledgeApplicationService,
@@ -36,6 +47,12 @@ from app_diagnosis.tools.log_search import LogSearchTool
 
 
 class UnconfiguredLLMClient(LLMClient):
+    """未配置真实模型时的占位 LLM。
+
+    这样应用可以正常启动，自动测试仍然可以通过注入 Fake LLM 运行；
+    但如果误触发真实模型调用，会得到明确的配置错误。
+    """
+
     async def complete(self, request):
         raise LLMTransportError("APP_LLM_MODEL is not configured")
 
@@ -46,6 +63,13 @@ def build_diagnosis_service(
     database: Database,
     llm_client: LLMClient | None = None,
 ) -> tuple[DiagnosisApplicationService, LLMClient]:
+    """构建诊断主服务，并返回服务本身和最终使用的 LLM Client。
+
+    这里集中完成三件事：注册当前环境启用的工具，组装 ToolLoopRunner，
+    再把 Runner、StrategyRouter、预算和脱敏器交给 ApplicationService。
+    后续新增工具时，通常需要在这里接入 Adapter、注册 Tool，并把启用状态
+    传给 Strategy options。
+    """
     resolved_llm = llm_client or _build_llm(settings)
     executions = SqlAlchemyAgentExecutionRepository(database.session_factory)
     registry = DiagnosticToolRegistry()
@@ -56,6 +80,7 @@ def build_diagnosis_service(
     registry.register(KnowledgeSearchTool(knowledge))
     code_tools_enabled = bool(settings.code_workspace_path.strip())
     if code_tools_enabled:
+        # 源码工具只允许访问配置的 workspace，不扫描用户电脑上的任意目录。
         code = LocalCodeRepository(
             CodeWorkspace(
                 name=settings.code_workspace_name,
@@ -75,6 +100,7 @@ def build_diagnosis_service(
         )
     log_tools_enabled = bool(settings.log_directory.strip())
     if log_tools_enabled:
+        # 日志工具只读取配置目录内的日志文件，避免 Agent 任意读取本机文件。
         registry.register(LogSearchTool(LocalLogFileReader(Path(settings.log_directory)), redactor))
     health_tools_enabled = bool(settings.health_targets)
     if health_tools_enabled:
@@ -85,6 +111,7 @@ def build_diagnosis_service(
         execution_repository=executions,
         evidence_store=SqlAlchemyEvidenceStore(database.session_factory, redactor),
         citation_policy=EvidenceCitationPolicy(),
+        plan_repository=SqlAlchemyDiagnosisPlanRepository(database.session_factory),
     )
     strategy_options = {
         "code_tools_enabled": code_tools_enabled,
@@ -116,6 +143,7 @@ def build_diagnosis_service(
 
 
 def _build_llm(settings: Settings) -> LLMClient:
+    """根据 Settings 创建真实 LLM Client；未配置模型时返回占位实现。"""
     if not settings.llm_model.strip():
         return UnconfiguredLLMClient()
     return OpenAICompatibleChatClient(
@@ -128,10 +156,17 @@ def _build_llm(settings: Settings) -> LLMClient:
 
 
 def build_knowledge_service(database: Database) -> KnowledgeApplicationService:
+    """构建知识库管理用例服务。"""
     return KnowledgeApplicationService(database.session_factory, LocalRuleRedactor())
 
 
+def build_plan_service(database: Database) -> DiagnosisPlanService:
+    """构建诊断计划只读服务。"""
+    return DiagnosisPlanService(database.session_factory)
+
+
 def build_report_service(database: Database) -> DiagnosisReportService:
+    """构建诊断报告只读服务。"""
     return DiagnosisReportService(
         database.session_factory,
         SqlAlchemyAgentExecutionRepository(database.session_factory),
@@ -139,6 +174,7 @@ def build_report_service(database: Database) -> DiagnosisReportService:
 
 
 def build_trace_service(database: Database) -> DiagnosisTraceService:
+    """构建 Agent Trace 只读服务。"""
     return DiagnosisTraceService(
         database.session_factory,
         SqlAlchemyAgentExecutionRepository(database.session_factory),

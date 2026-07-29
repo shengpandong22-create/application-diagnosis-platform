@@ -3,6 +3,8 @@ from datetime import datetime
 from enum import StrEnum
 from uuid import UUID
 
+from app_diagnosis.domain.diagnosis_plan import DiagnosisPlan
+
 
 class TraceEventType(StrEnum):
     RUN_STARTED = "run_started"
@@ -37,6 +39,7 @@ class AgentRunTrace:
     started_at: datetime
     finished_at: datetime | None
     duration_ms: int | None
+    plan: DiagnosisPlan | None
     events: tuple[TraceEvent, ...]
 
 

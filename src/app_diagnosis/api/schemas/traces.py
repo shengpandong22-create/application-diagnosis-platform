@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from app_diagnosis.api.schemas.plans import DiagnosisPlanResponse
 from app_diagnosis.domain.trace import DiagnosisTrace
 
 
@@ -31,6 +32,7 @@ class AgentRunTraceResponse(BaseModel):
     started_at: datetime
     finished_at: datetime | None
     duration_ms: int | None
+    plan: DiagnosisPlanResponse | None
     events: list[TraceEventResponse]
 
 

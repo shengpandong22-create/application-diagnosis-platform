@@ -1,3 +1,10 @@
+"""Diagnosis 聚合根与状态机。
+
+领域对象拥有合法状态流转规则。ApplicationService 可以编排用例，
+LLM 可以提出候选结论，但状态变化必须经过这个聚合根。
+这让“模型输出”和“业务状态”保持隔离。
+"""
+
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -85,6 +92,7 @@ class DiagnosisCase:
         diagnosis_id: UUID | None = None,
         now: datetime | None = None,
     ) -> Self:
+        """创建处于 CREATED 状态的新诊断。"""
         occurred_at = now or datetime.now(UTC)
         _require_utc(occurred_at, "now")
         return cls(
@@ -102,30 +110,39 @@ class DiagnosisCase:
 
     @property
     def is_terminal(self) -> bool:
+        """判断诊断是否已经进入不可再流转的终态。"""
         return self.status.is_terminal
 
     def start_investigation(self, *, at: datetime | None = None) -> None:
+        """Agent 运行开始时，从 CREATED 进入 INVESTIGATING。"""
         self._transition_to(DiagnosisStatus.INVESTIGATING, at=at)
 
     def wait_for_input(self, *, at: datetime | None = None) -> None:
+        """模型认为证据不足时，进入等待用户补充信息状态。"""
         self._transition_to(DiagnosisStatus.WAITING_FOR_INPUT, at=at)
 
     def request_confirmation(self, *, at: datetime | None = None) -> None:
+        """模型产出可审核结论后，进入等待人工确认状态。"""
         self._transition_to(DiagnosisStatus.WAITING_FOR_CONFIRMATION, at=at)
 
     def mark_inconclusive(self, *, at: datetime | None = None) -> None:
+        """运行无法产出有证据支撑的结论时，进入 INCONCLUSIVE。"""
         self._transition_to(DiagnosisStatus.INCONCLUSIVE, at=at)
 
     def confirm(self, *, at: datetime | None = None) -> None:
+        """记录人工接受模型初始结论的最终状态。"""
         self._transition_to(DiagnosisStatus.CONFIRMED, at=at)
 
     def reject(self, *, at: datetime | None = None) -> None:
+        """记录人工驳回模型初始结论的最终状态。"""
         self._transition_to(DiagnosisStatus.REJECTED, at=at)
 
     def reopen_investigation(self, *, at: datetime | None = None) -> None:
+        """补充信息或要求继续调查后，重新进入 INVESTIGATING。"""
         self._transition_to(DiagnosisStatus.INVESTIGATING, at=at)
 
     def cancel(self, *, at: datetime | None = None) -> None:
+        """在仍可取消时进入 CANCELLED。"""
         self._transition_to(DiagnosisStatus.CANCELLED, at=at)
 
     def record_initial_conclusion(
@@ -135,6 +152,11 @@ class DiagnosisCase:
         needs_input: bool,
         at: datetime | None = None,
     ) -> None:
+        """保存模型初始结论，并选择下一个面向人的状态。
+
+        如果结论还缺少关键信息，则等待用户补充；否则等待人工确认。
+        注意这里保存的是“模型初始结论”，后续人工反馈通过 Confirmation 追加。
+        """
         if not conclusion:
             raise InvalidDiagnosisValue("conclusion must not be empty")
         target = (
@@ -146,6 +168,10 @@ class DiagnosisCase:
         self.conclusion = dict(conclusion)
 
     def _transition_to(self, target: DiagnosisStatus, *, at: datetime | None) -> None:
+        """执行一次合法状态流转，并递增乐观锁版本号。
+
+        所有公开状态方法最终都收敛到这里，便于集中维护状态机合法性。
+        """
         if target not in self._ALLOWED_TRANSITIONS[self.status]:
             raise InvalidDiagnosisStateTransition(self.status, target)
 

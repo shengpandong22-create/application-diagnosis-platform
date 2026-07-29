@@ -3,6 +3,9 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app_diagnosis.adapters.persistence import SqlAlchemyDiagnosisRepository
+from app_diagnosis.adapters.persistence.diagnosis_plan_repository import (
+    SqlAlchemyDiagnosisPlanRepository,
+)
 from app_diagnosis.application.diagnoses import DiagnosisNotFound
 from app_diagnosis.domain.execution import AgentRun, ToolRun
 from app_diagnosis.domain.trace import AgentRunTrace, DiagnosisTrace, TraceEvent
@@ -34,6 +37,7 @@ class DiagnosisTraceService:
     async def _run_trace(self, run: AgentRun) -> AgentRunTrace:
         tool_runs = await self._executions.list_tool_runs(run.id)
         events = _events(run, tool_runs)
+        plan = await SqlAlchemyDiagnosisPlanRepository(self._sessions).get_by_agent_run(run.id)
         duration_ms = None
         if run.finished_at is not None:
             duration_ms = max(0, int((run.finished_at - run.started_at).total_seconds() * 1000))
@@ -50,6 +54,7 @@ class DiagnosisTraceService:
             started_at=run.started_at,
             finished_at=run.finished_at,
             duration_ms=duration_ms,
+            plan=plan,
             events=events,
         )
 

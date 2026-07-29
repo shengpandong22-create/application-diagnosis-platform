@@ -96,14 +96,17 @@ def main() -> None:
             run_response.raise_for_status()
             evidence_response = api.get(f"/api/v1/diagnoses/{diagnosis_id}/evidence")
             runs_response = api.get(f"/api/v1/diagnoses/{diagnosis_id}/runs")
+            plan_response = api.get(f"/api/v1/diagnoses/{diagnosis_id}/plan")
             report_response = api.get(f"/api/v1/diagnoses/{diagnosis_id}/report.md")
             evidence_response.raise_for_status()
             runs_response.raise_for_status()
+            plan_response.raise_for_status()
             report_response.raise_for_status()
         elapsed_ms = int((perf_counter() - started) * 1000)
         result = run_response.json()
         evidence = evidence_response.json()
         run = runs_response.json()[0]
+        plan = plan_response.json()
         by_id = {item["id"]: item for item in evidence}
         cited_ids = {
             evidence_id
@@ -117,6 +120,10 @@ def main() -> None:
         failures: list[str] = []
         if result["termination_reason"] != "completed":
             failures.append(f"termination={result['termination_reason']}")
+        if plan["agent_run_id"] != run["id"]:
+            failures.append("diagnosis plan is not linked to the agent run")
+        if "## 诊断计划" not in report_response.text:
+            failures.append("markdown report does not include diagnosis plan")
         if not {"code__search", "code__read"}.issubset(successful_tools):
             failures.append("model did not successfully search and read code")
         if not {"log_excerpt", "code_excerpt"}.issubset(cited_types):
@@ -151,6 +158,9 @@ def main() -> None:
             "model": run["model"],
             "round_count": run["round_count"],
             "tool_call_count": run["tool_call_count"],
+            "plan_id": plan["id"],
+            "plan_steps": [item["title"] for item in plan["steps"]],
+            "plan_allowed_tools": plan["allowed_tools"],
             "input_tokens": run["input_tokens"],
             "output_tokens": run["output_tokens"],
             "elapsed_ms": elapsed_ms,

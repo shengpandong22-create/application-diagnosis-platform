@@ -1,3 +1,5 @@
+"""判断模型结论是否可以采信 Evidence 引用的确定性策略。"""
+
 from dataclasses import dataclass
 from uuid import UUID
 
@@ -17,6 +19,11 @@ class EvidenceCitationPolicy:
         conclusion: DiagnosisConclusion,
         evidence: tuple[Evidence, ...],
     ) -> tuple[CitationViolation, ...]:
+        """校验一份模型结论，并返回所有引用违规项。
+
+        Policy 只做判断，不修改 conclusion 或 Evidence。这样 Runner 可以根据
+        违规结果决定让模型修正、降级为 inconclusive，或继续完成。
+        """
         by_id = {item.id: item for item in evidence}
         violations: list[CitationViolation] = []
         findings = [*conclusion.facts, *conclusion.root_causes]
@@ -40,6 +47,11 @@ class EvidenceCitationPolicy:
         *,
         require_evidence: bool,
     ) -> list[CitationViolation]:
+        """校验单条 fact/root-cause 是否满足 Evidence 规则。
+
+        probable 需要用户事实或日志证据；insufficient_evidence 不能伪造引用；
+        confirmed 只能来自人工确认，模型不能直接声明。
+        """
         violations: list[CitationViolation] = []
         referenced = [by_id.get(item) for item in finding.evidence_ids]
         if any(item is None for item in referenced):

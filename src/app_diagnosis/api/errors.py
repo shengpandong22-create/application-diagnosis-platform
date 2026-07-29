@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 
 from app_diagnosis.application import (
     DiagnosisNotFound,
+    DiagnosisPlanNotFound,
     DiagnosisRunConflict,
     KnowledgeConflict,
     KnowledgeNotFound,
@@ -25,6 +26,17 @@ def install_exception_handlers(app: FastAPI) -> None:
             status.HTTP_404_NOT_FOUND,
             "diagnosis_not_found",
             "Diagnosis not found",
+        )
+
+    @app.exception_handler(DiagnosisPlanNotFound)
+    async def diagnosis_plan_not_found(
+        request: Request, error: DiagnosisPlanNotFound
+    ) -> JSONResponse:
+        return _response(
+            request,
+            status.HTTP_404_NOT_FOUND,
+            "diagnosis_plan_not_found",
+            "Diagnosis plan not found",
         )
 
     @app.exception_handler(DiagnosisRunConflict)

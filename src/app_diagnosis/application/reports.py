@@ -7,6 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from app_diagnosis.adapters.persistence.confirmation_repository import (
     SqlAlchemyConfirmationRepository,
 )
+from app_diagnosis.adapters.persistence.diagnosis_plan_repository import (
+    SqlAlchemyDiagnosisPlanRepository,
+)
 from app_diagnosis.adapters.persistence.diagnosis_repository import SqlAlchemyDiagnosisRepository
 from app_diagnosis.adapters.persistence.evidence_repository import SqlAlchemyEvidenceRepository
 from app_diagnosis.agent.schemas import DiagnosisConclusion
@@ -31,6 +34,9 @@ class DiagnosisReportService:
             confirmations = await SqlAlchemyConfirmationRepository(session).list_by_diagnosis(
                 diagnosis_id
             )
+        plans = await SqlAlchemyDiagnosisPlanRepository(self._sessions).list_by_diagnosis(
+            diagnosis_id
+        )
         conclusion = None
         if diagnosis.conclusion:
             try:
@@ -42,6 +48,7 @@ class DiagnosisReportService:
             diagnosis=diagnosis,
             conclusion=conclusion,
             evidence=evidence,
+            plans=plans,
             runs=tuple(
                 ReportRun(
                     id=item.id,
@@ -88,6 +95,26 @@ def render_markdown(report: DiagnosisReport) -> str:
         f"- `{x.id}` · {x.type.value} · reliability={x.reliability.value}: {x.content}"
         for x in report.evidence
     ] or ["- 无"]
+    lines += ["", "## 诊断计划", ""]
+    if report.plans:
+        latest = report.plans[-1]
+        lines += [
+            f"- Plan ID: `{latest.id}`",
+            f"- AgentRun ID: `{latest.agent_run_id}`",
+            f"- 状态: `{latest.status.value}`",
+            f"- 摘要: {latest.summary}",
+            f"- 允许工具: {', '.join(f'`{x}`' for x in latest.allowed_tools) or '无'}",
+            "",
+            "### 计划步骤",
+            "",
+        ]
+        lines += [
+            f"{step.order}. {step.title}：{step.description}"
+            + (f"（工具: `{step.tool_name}`）" if step.tool_name else "")
+            for step in latest.steps
+        ]
+    else:
+        lines += ["- 尚无 DiagnosisPlan"]
     lines += ["", "## 人工决定", ""]
     lines += [
         f"- {x.created_at.isoformat()} · {x.actor} · `{x.action.value}`"

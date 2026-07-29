@@ -9,6 +9,7 @@ from app_diagnosis.api.middleware import install_request_context_middleware
 from app_diagnosis.api.routes.diagnoses import router as diagnoses_router
 from app_diagnosis.api.routes.health import router as health_router
 from app_diagnosis.api.routes.knowledge import router as knowledge_router
+from app_diagnosis.api.routes.plans import router as plans_router
 from app_diagnosis.api.routes.reports import router as reports_router
 from app_diagnosis.api.routes.traces import router as traces_router
 from app_diagnosis.api.routes.ui import router as ui_router
@@ -16,6 +17,7 @@ from app_diagnosis.application import DiagnosisApplicationService
 from app_diagnosis.bootstrap.container import (
     build_diagnosis_service,
     build_knowledge_service,
+    build_plan_service,
     build_report_service,
     build_trace_service,
 )
@@ -62,6 +64,7 @@ def create_app(
     app.state.settings = resolved_settings
     app.state.diagnosis_service = diagnosis_service
     app.state.knowledge_service = build_knowledge_service(resolved_database)
+    app.state.plan_service = build_plan_service(resolved_database)
     app.state.report_service = build_report_service(resolved_database)
     app.state.trace_service = build_trace_service(resolved_database)
     install_request_context_middleware(app)
@@ -69,6 +72,7 @@ def create_app(
     app.include_router(health_router)
     app.include_router(diagnoses_router)
     app.include_router(knowledge_router)
+    app.include_router(plans_router)
     app.include_router(reports_router)
     app.include_router(traces_router)
     app.include_router(ui_router)
