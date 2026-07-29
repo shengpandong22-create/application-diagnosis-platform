@@ -40,6 +40,8 @@ Phase 3C-2 的目标是把这些元数据真正接入 Agent 运行链路，使�
   - `uv run ruff check .`
 - 全量自动测试通过：
   - `199 passed, 1 warning`
+- Phase 3C 服务驱动离线演示通过：
+  - `uv run python scripts/demo-phase3-service.py`
 
 ## 仍然坚持的安全约束
 

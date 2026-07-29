@@ -1,0 +1,67 @@
+digraph Phase3C {
+  graph [rankdir=LR,bgcolor="#FFFFFF",pad="0.35",nodesep="0.34",ranksep="0.68",splines=ortho,fontname="Microsoft YaHei",fontsize=18,fontcolor="#0F172A",label="Phase 3C · 服务目录驱动的受限工具上下文",labelloc=t,labeljust=l,compound=true,newrank=true];
+  node [shape=plain,fontname="Microsoft YaHei",fontsize=10,fontcolor="#0F172A"];
+  edge [color="#64748B",penwidth=1.25,arrowsize=0.68,fontname="Microsoft YaHei",fontsize=8.5,fontcolor="#475569"];
+
+  user [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#64748B" BGCOLOR="#F8FAFC"><TR><TD><B>本地用户 / 演示脚本</B></TD></TR><TR><TD><FONT POINT-SIZE="8">创建服务 · 创建诊断 · 运行 Agent</FONT></TD></TR></TABLE>>];
+
+  subgraph cluster_access {
+    label="① 接入层"; color="#93C5FD"; fillcolor="#EFF6FF"; style="rounded,filled"; margin=16;
+    service_api [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7"><TR><TD><FONT COLOR="#166534"><B>NEW · Service API</B></FONT></TD></TR><TR><TD><FONT POINT-SIZE="8">POST /services<BR/>POST /services/{id}/diagnoses</FONT></TD></TR></TABLE>>];
+    diagnosis_api [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#3B82F6" BGCOLOR="#DBEAFE"><TR><TD><B>复用 · Diagnosis API</B></TD></TR><TR><TD><FONT POINT-SIZE="8">Run · Evidence · Trace · Report</FONT></TD></TR></TABLE>>];
+  }
+
+  subgraph cluster_catalog {
+    label="② 服务目录"; color="#86EFAC"; fillcolor="#F0FDF4"; style="rounded,filled"; margin=16;
+    profile [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7"><TR><TD><FONT COLOR="#166534"><B>NEW · ServiceProfile</B></FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">service_id<BR/>code_workspace_path<BR/>log_directory<BR/>config_workspace_path<BR/>health_targets</FONT></TD></TR></TABLE>>];
+    diagnosis [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#0284C7" BGCOLOR="#E0F2FE"><TR><TD><B>EXTEND · DiagnosisCase</B></TD></TR><TR><TD><FONT POINT-SIZE="8">关联 service_id</FONT></TD></TR></TABLE>>];
+  }
+
+  subgraph cluster_application {
+    label="③ 应用编排"; color="#7DD3FC"; fillcolor="#F0F9FF"; style="rounded,filled"; margin=16;
+    catalog_service [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7"><TR><TD><FONT COLOR="#166534"><B>NEW · ServiceCatalogService</B></FONT></TD></TR><TR><TD><FONT POINT-SIZE="8">保存服务 · 通过服务创建诊断</FONT></TD></TR></TABLE>>];
+    resolver [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7"><TR><TD><FONT COLOR="#166534"><B>NEW · ToolResourceResolver</B></FONT></TD></TR><TR><TD><FONT POINT-SIZE="8">按 service_id 解析受限 Adapter</FONT></TD></TR></TABLE>>];
+  }
+
+  subgraph cluster_runtime {
+    label="④ Agent Runtime"; color="#C4B5FD"; fillcolor="#FAF8FF"; style="rounded,filled"; margin=18;
+    resource_context [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7"><TR><TD><FONT COLOR="#166534"><B>NEW · ToolResourceContext</B></FONT></TD></TR><TR><TD><FONT POINT-SIZE="8">本次 Run 可用资源清单</FONT></TD></TR></TABLE>>];
+    strategy [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#7C3AED" BGCOLOR="#F3E8FF"><TR><TD><B>EXTEND · Strategy</B></TD></TR><TR><TD><FONT POINT-SIZE="8">根据 available tools 暴露白名单</FONT></TD></TR></TABLE>>];
+    loop [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#7C3AED"><TR><TD CELLPADDING="8" BGCOLOR="#7C3AED"><FONT COLOR="#FFFFFF"><B>复用 · ToolLoopRunner</B></FONT></TD></TR><TR><TD CELLPADDING="6">模型提议 · Registry 校验 · 工具执行</TD></TR><TR><TD CELLPADDING="6"><FONT POINT-SIZE="8">预算 · Evidence · Citation · Trace</FONT></TD></TR></TABLE>>];
+    execution_context [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#16A34A" BGCOLOR="#DCFCE7"><TR><TD><FONT COLOR="#166534"><B>EXTEND · ToolExecutionContext</B></FONT></TD></TR><TR><TD><FONT POINT-SIZE="8">携带本次服务级 Adapter</FONT></TD></TR></TABLE>>];
+  }
+
+  subgraph cluster_adapters {
+    label="⑤ 受限工具与 Adapter"; color="#5EEAD4"; fillcolor="#F0FDFA"; style="rounded,filled"; margin=16;
+    tools [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#0D9488" BGCOLOR="#CCFBF1"><TR><TD><B>复用 · READ_ONLY Tools</B></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">code__search / code__read<BR/>log__search<BR/>config__read<BR/>health__check</FONT></TD></TR></TABLE>>];
+    adapters [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#0D9488" BGCOLOR="#CCFBF1"><TR><TD><B>复用 · 受限 Adapters</B></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">LocalCodeRepository<BR/>LocalLogFileReader<BR/>LocalConfigRepository<BR/>HttpHealthCheckClient</FONT></TD></TR></TABLE>>];
+  }
+
+  subgraph cluster_outputs {
+    label="⑥ 可解释输出"; color="#FCD34D"; fillcolor="#FFFBEB"; style="rounded,filled"; margin=16;
+    evidence [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#D97706" BGCOLOR="#FEF3C7"><TR><TD><B>Evidence</B></TD></TR><TR><TD><FONT POINT-SIZE="8">服务级源码 / 日志 / 配置证据</FONT></TD></TR></TABLE>>];
+    trace [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#D97706" BGCOLOR="#FEF3C7"><TR><TD><B>Trace</B></TD></TR><TR><TD><FONT POINT-SIZE="8">工具调用轨迹与 Evidence ID</FONT></TD></TR></TABLE>>];
+    report [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#D97706" BGCOLOR="#FEF3C7"><TR><TD><B>Report</B></TD></TR><TR><TD><FONT POINT-SIZE="8">服务信息 + 诊断结论</FONT></TD></TR></TABLE>>];
+  }
+
+  user -> service_api [color="#F59E0B",penwidth=2.5];
+  service_api -> catalog_service [color="#F59E0B",penwidth=2.5];
+  catalog_service -> profile [color="#16A34A",penwidth=2.3];
+  catalog_service -> diagnosis [color="#F59E0B",penwidth=2.5];
+  user -> diagnosis_api [color="#F59E0B",penwidth=2.5];
+  diagnosis_api -> diagnosis [color="#F59E0B",penwidth=2.5];
+  diagnosis -> resolver [color="#16A34A",penwidth=2.3];
+  profile -> resolver [color="#16A34A",penwidth=2.3];
+  resolver -> resource_context [color="#16A34A",penwidth=2.3];
+  resource_context -> strategy [color="#16A34A",penwidth=2.3];
+  strategy -> loop [color="#F59E0B",penwidth=2.5];
+  resource_context -> execution_context [color="#16A34A",penwidth=2.3];
+  loop -> execution_context [color="#64748B"];
+  execution_context -> tools [color="#16A34A",penwidth=2.3];
+  tools -> adapters [color="#16A34A",penwidth=2.3];
+  adapters -> tools [style=dashed,color="#16A34A",constraint=false];
+  tools -> loop [style=dashed,color="#16A34A",penwidth=2.0,constraint=false];
+  loop -> evidence [color="#F59E0B",penwidth=2.5];
+  loop -> trace [color="#F59E0B",penwidth=2.5];
+  diagnosis_api -> report [color="#F59E0B",penwidth=2.5];
+}

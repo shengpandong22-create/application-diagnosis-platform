@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1480 820" role="img">
+  <title>Phase 3C 服务目录驱动的受限工具上下文</title>
+  <defs>
+    <style>
+      .title{font:700 26px "Microsoft YaHei",Arial,sans-serif;fill:#0f172a}
+      .cluster-title{font:700 16px "Microsoft YaHei",Arial,sans-serif;fill:#334155}
+      .box-title{font:700 18px "Microsoft YaHei",Arial,sans-serif;fill:#0f172a}
+      .box-sub{font:13px "Microsoft YaHei",Arial,sans-serif;fill:#334155}
+      .new{fill:#dcfce7;stroke:#16a34a;stroke-width:2}
+      .reuse{fill:#dbeafe;stroke:#3b82f6;stroke-width:2}
+      .runtime{fill:#f3e8ff;stroke:#7c3aed;stroke-width:2}
+      .adapter{fill:#ccfbf1;stroke:#0d9488;stroke-width:2}
+      .output{fill:#fef3c7;stroke:#d97706;stroke-width:2}
+      .cluster-blue{fill:#eff6ff;stroke:#93c5fd;stroke-width:2}
+      .cluster-green{fill:#f0fdf4;stroke:#86efac;stroke-width:2}
+      .cluster-purple{fill:#faf8ff;stroke:#c4b5fd;stroke-width:2}
+      .cluster-teal{fill:#f0fdfa;stroke:#5eead4;stroke-width:2}
+      .cluster-yellow{fill:#fffbeb;stroke:#fcd34d;stroke-width:2}
+      .arrow{stroke:#f59e0b;stroke-width:3;fill:none;marker-end:url(#arrow)}
+      .green-arrow{stroke:#16a34a;stroke-width:3;fill:none;marker-end:url(#greenArrow)}
+      .gray-arrow{stroke:#64748b;stroke-width:2;fill:none;marker-end:url(#grayArrow)}
+      .dash{stroke-dasharray:8 7}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b"/>
+    </marker>
+    <marker id="greenArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#16a34a"/>
+    </marker>
+    <marker id="grayArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="44" class="title">Phase 3C · 服务目录驱动的受限工具上下文</text>
+
+  <rect x="40" y="92" width="210" height="105" rx="16" class="reuse"/>
+  <text x="145" y="130" text-anchor="middle" class="box-title">本地用户 / Demo</text>
+  <text x="145" y="160" text-anchor="middle" class="box-sub">创建服务 · 创建诊断</text>
+
+  <rect x="300" y="80" width="280" height="155" rx="18" class="cluster-blue"/>
+  <text x="320" y="108" class="cluster-title">① 接入层</text>
+  <rect x="330" y="125" width="220" height="42" rx="10" class="new"/>
+  <text x="440" y="152" text-anchor="middle" class="box-title">Service API</text>
+  <rect x="330" y="178" width="220" height="42" rx="10" class="reuse"/>
+  <text x="440" y="205" text-anchor="middle" class="box-title">Diagnosis API</text>
+
+  <rect x="635" y="70" width="310" height="185" rx="18" class="cluster-green"/>
+  <text x="655" y="98" class="cluster-title">② 服务目录</text>
+  <rect x="665" y="115" width="250" height="82" rx="12" class="new"/>
+  <text x="790" y="145" text-anchor="middle" class="box-title">ServiceProfile</text>
+  <text x="790" y="172" text-anchor="middle" class="box-sub">源码 · 日志 · 配置 · 健康目标</text>
+  <rect x="665" y="207" width="250" height="34" rx="10" class="reuse"/>
+  <text x="790" y="230" text-anchor="middle" class="box-title">Diagnosis.service_id</text>
+
+  <rect x="1000" y="92" width="330" height="150" rx="18" class="cluster-blue"/>
+  <text x="1020" y="120" class="cluster-title">③ 应用编排</text>
+  <rect x="1030" y="137" width="270" height="40" rx="10" class="new"/>
+  <text x="1165" y="163" text-anchor="middle" class="box-title">ServiceCatalogService</text>
+  <rect x="1030" y="188" width="270" height="40" rx="10" class="new"/>
+  <text x="1165" y="214" text-anchor="middle" class="box-title">ToolResourceResolver</text>
+
+  <rect x="165" y="330" width="600" height="235" rx="20" class="cluster-purple"/>
+  <text x="190" y="362" class="cluster-title">④ Agent Runtime</text>
+  <rect x="200" y="390" width="165" height="80" rx="12" class="new"/>
+  <text x="282" y="422" text-anchor="middle" class="box-title">ToolResourceContext</text>
+  <text x="282" y="449" text-anchor="middle" class="box-sub">本次 Run 可用资源</text>
+  <rect x="400" y="390" width="150" height="80" rx="12" class="runtime"/>
+  <text x="475" y="422" text-anchor="middle" class="box-title">Strategy</text>
+  <text x="475" y="449" text-anchor="middle" class="box-sub">动态工具白名单</text>
+  <rect x="585" y="390" width="150" height="80" rx="12" class="runtime"/>
+  <text x="660" y="422" text-anchor="middle" class="box-title">ToolLoopRunner</text>
+  <text x="660" y="449" text-anchor="middle" class="box-sub">预算 · Evidence · Trace</text>
+  <rect x="400" y="490" width="250" height="50" rx="12" class="new"/>
+  <text x="525" y="522" text-anchor="middle" class="box-title">ToolExecutionContext</text>
+
+  <rect x="835" y="330" width="360" height="235" rx="20" class="cluster-teal"/>
+  <text x="860" y="362" class="cluster-title">⑤ 受限工具与 Adapter</text>
+  <rect x="875" y="390" width="280" height="64" rx="12" class="adapter"/>
+  <text x="1015" y="420" text-anchor="middle" class="box-title">READ_ONLY Tools</text>
+  <text x="1015" y="445" text-anchor="middle" class="box-sub">code / log / config / health</text>
+  <rect x="875" y="474" width="280" height="64" rx="12" class="adapter"/>
+  <text x="1015" y="504" text-anchor="middle" class="box-title">Bounded Adapters</text>
+  <text x="1015" y="529" text-anchor="middle" class="box-sub">只读显式授权目录 / loopback</text>
+
+  <rect x="1250" y="330" width="190" height="235" rx="20" class="cluster-yellow"/>
+  <text x="1270" y="362" class="cluster-title">⑥ 可解释输出</text>
+  <rect x="1280" y="390" width="130" height="42" rx="10" class="output"/>
+  <text x="1345" y="417" text-anchor="middle" class="box-title">Evidence</text>
+  <rect x="1280" y="448" width="130" height="42" rx="10" class="output"/>
+  <text x="1345" y="475" text-anchor="middle" class="box-title">Trace</text>
+  <rect x="1280" y="506" width="130" height="42" rx="10" class="output"/>
+  <text x="1345" y="533" text-anchor="middle" class="box-title">Report</text>
+
+  <path d="M250 145 H330" class="arrow"/>
+  <path d="M550 146 H665" class="arrow"/>
+  <path d="M550 199 H665" class="arrow"/>
+  <path d="M915 156 H1030" class="green-arrow"/>
+  <path d="M790 241 V300 H1165 V188" class="green-arrow"/>
+  <path d="M1165 228 V300 H282 V390" class="green-arrow"/>
+  <path d="M365 430 H400" class="green-arrow"/>
+  <path d="M550 430 H585" class="arrow"/>
+  <path d="M660 470 V515 H650" class="gray-arrow"/>
+  <path d="M650 515 H875" class="green-arrow"/>
+  <path d="M1015 454 V474" class="green-arrow"/>
+  <path d="M1155 422 H1280" class="arrow"/>
+  <path d="M1155 422 C1200 422 1200 469 1280 469" class="arrow"/>
+  <path d="M550 199 C720 270 1080 280 1345 506" class="arrow"/>
+  <path d="M875 430 C805 430 805 430 735 430" class="green-arrow dash"/>
+</svg>
