@@ -37,6 +37,9 @@ class DiagnosisRecord(Base):
     )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    service_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("service_profiles.id", ondelete="SET NULL")
+    )
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     problem_type: Mapped[str] = mapped_column(String(64), nullable=False)
     status: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -122,3 +125,23 @@ class DiagnosisPlanRecord(Base):
     allowed_tools_json: Mapped[list[str]] = mapped_column(JSON, nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ServiceProfileRecord(Base):
+    __tablename__ = "service_profiles"
+    __table_args__ = (
+        UniqueConstraint("name", "environment", name="uq_service_profiles_name_env"),
+        Index("ix_service_profiles_environment_name", "environment", "name"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    environment: Mapped[str] = mapped_column(String(64), nullable=False)
+    code_workspace_path: Mapped[str | None] = mapped_column(Text)
+    log_directory: Mapped[str | None] = mapped_column(Text)
+    config_workspace_path: Mapped[str | None] = mapped_column(Text)
+    health_targets_json: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    tags_json: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

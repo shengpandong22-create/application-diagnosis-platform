@@ -27,6 +27,7 @@ def _require_utc(value: datetime, field_name: str) -> None:
 @dataclass(slots=True)
 class DiagnosisCase:
     id: UUID
+    service_id: UUID | None
     title: str
     problem_type: ProblemType
     status: DiagnosisStatus
@@ -89,6 +90,7 @@ class DiagnosisCase:
         symptom: str,
         submitted_log: str | None = None,
         problem_type: ProblemType = ProblemType.GENERIC_APPLICATION_ERROR,
+        service_id: UUID | None = None,
         diagnosis_id: UUID | None = None,
         now: datetime | None = None,
     ) -> Self:
@@ -97,6 +99,7 @@ class DiagnosisCase:
         _require_utc(occurred_at, "now")
         return cls(
             id=diagnosis_id or uuid4(),
+            service_id=service_id,
             title=title,
             problem_type=problem_type,
             status=DiagnosisStatus.CREATED,

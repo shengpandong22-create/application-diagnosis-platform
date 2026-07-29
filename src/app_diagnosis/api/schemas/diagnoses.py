@@ -21,6 +21,7 @@ class CreateDiagnosisRequest(BaseModel):
 
 class DiagnosisResponse(BaseModel):
     id: UUID
+    service_id: UUID | None
     title: str
     problem_type: str
     status: str
@@ -35,6 +36,7 @@ class DiagnosisResponse(BaseModel):
     def from_domain(cls, diagnosis: DiagnosisCase) -> "DiagnosisResponse":
         return cls(
             id=diagnosis.id,
+            service_id=diagnosis.service_id,
             title=diagnosis.title,
             problem_type=diagnosis.problem_type.value,
             status=diagnosis.status.value,

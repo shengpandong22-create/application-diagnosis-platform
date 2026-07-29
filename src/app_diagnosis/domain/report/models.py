@@ -7,6 +7,7 @@ from app_diagnosis.domain.confirmation import Confirmation
 from app_diagnosis.domain.diagnosis import DiagnosisCase
 from app_diagnosis.domain.diagnosis_plan import DiagnosisPlan
 from app_diagnosis.domain.evidence import Evidence
+from app_diagnosis.domain.service_profile import ServiceProfile
 
 
 @dataclass(frozen=True, slots=True)
@@ -24,6 +25,7 @@ class ReportRun:
 @dataclass(frozen=True, slots=True)
 class DiagnosisReport:
     diagnosis: DiagnosisCase
+    service: ServiceProfile | None
     conclusion: DiagnosisConclusion | None
     evidence: tuple[Evidence, ...]
     plans: tuple[DiagnosisPlan, ...]

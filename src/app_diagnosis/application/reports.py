@@ -12,6 +12,9 @@ from app_diagnosis.adapters.persistence.diagnosis_plan_repository import (
 )
 from app_diagnosis.adapters.persistence.diagnosis_repository import SqlAlchemyDiagnosisRepository
 from app_diagnosis.adapters.persistence.evidence_repository import SqlAlchemyEvidenceRepository
+from app_diagnosis.adapters.persistence.service_profile_repository import (
+    SqlAlchemyServiceProfileRepository,
+)
 from app_diagnosis.agent.schemas import DiagnosisConclusion
 from app_diagnosis.application.diagnoses import DiagnosisNotFound
 from app_diagnosis.domain.report import DiagnosisReport, ReportRun
@@ -30,6 +33,11 @@ class DiagnosisReportService:
             diagnosis = await SqlAlchemyDiagnosisRepository(session).get(diagnosis_id)
             if diagnosis is None:
                 raise DiagnosisNotFound(str(diagnosis_id))
+            service = (
+                await SqlAlchemyServiceProfileRepository(self._sessions).get(diagnosis.service_id)
+                if diagnosis.service_id
+                else None
+            )
             evidence = await SqlAlchemyEvidenceRepository(session).list_by_diagnosis(diagnosis_id)
             confirmations = await SqlAlchemyConfirmationRepository(session).list_by_diagnosis(
                 diagnosis_id
@@ -46,6 +54,7 @@ class DiagnosisReportService:
         runs = await self._executions.list_agent_runs(diagnosis_id)
         return DiagnosisReport(
             diagnosis=diagnosis,
+            service=service,
             conclusion=conclusion,
             evidence=evidence,
             plans=plans,
@@ -75,6 +84,7 @@ def render_markdown(report: DiagnosisReport) -> str:
         f"# 诊断报告：{d.title}",
         "",
         f"- Diagnosis ID: `{d.id}`",
+        f"- Service ID: `{d.service_id}`" if d.service_id else "- Service ID: 无",
         f"- 状态: `{d.status.value}`",
         f"- 生成时间: `{report.generated_at.isoformat()}`",
         "",
@@ -82,6 +92,16 @@ def render_markdown(report: DiagnosisReport) -> str:
         "",
         d.symptom,
     ]
+    if report.service:
+        lines += [
+            "",
+            "## 服务",
+            "",
+            f"- 名称: `{report.service.name}`",
+            f"- 环境: `{report.service.environment}`",
+            f"- 源码路径: `{report.service.code_workspace_path or '未配置'}`",
+            f"- 日志目录: `{report.service.log_directory or '未配置'}`",
+        ]
     if report.conclusion:
         c = report.conclusion
         lines += ["", "## 事实", ""]

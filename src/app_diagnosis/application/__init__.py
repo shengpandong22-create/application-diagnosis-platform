@@ -14,6 +14,11 @@ from app_diagnosis.application.knowledge import (
 )
 from app_diagnosis.application.plans import DiagnosisPlanNotFound, DiagnosisPlanService
 from app_diagnosis.application.reports import DiagnosisReportService, render_markdown
+from app_diagnosis.application.services import (
+    ServiceCatalogApplicationService,
+    ServiceProfileConflict,
+    ServiceProfileNotFound,
+)
 from app_diagnosis.application.traces import DiagnosisTraceService
 
 __all__ = [
@@ -28,6 +33,9 @@ __all__ = [
     "DiagnosisPlanNotFound",
     "DiagnosisPlanService",
     "DiagnosisReportService",
+    "ServiceCatalogApplicationService",
+    "ServiceProfileConflict",
+    "ServiceProfileNotFound",
     "DiagnosisTraceService",
     "render_markdown",
 ]

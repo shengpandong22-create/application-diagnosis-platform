@@ -25,7 +25,7 @@ def test_knowledge_migration_upgrade_and_downgrade(tmp_path: Path) -> None:
         "created_at",
         "updated_at",
     }
-    assert revision == "0009"
+    assert revision == "0010"
     command.downgrade(config, "0003")
     with sqlite3.connect(database_path) as connection:
         assert (

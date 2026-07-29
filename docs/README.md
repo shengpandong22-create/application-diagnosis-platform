@@ -13,7 +13,7 @@
 | Phase 0C | 评测、报告和极简界面 | [扩展架构与学习总结](./01-architecture/phase0c-extension.md) · [SVG](./01-architecture/phase0c-extension.svg) · [Graphviz](./01-architecture/phase0c-extension.dot) | [实现规格](./02-specifications/Phase%200C%20实现规格说明.md) | [验收记录](./04-validation/phase0c-acceptance.md) | 已完成 |
 | Phase 1 | 日志与授权源码联合诊断 | [扩展架构与学习总结](./01-architecture/phase1-extension.md) · [端到端链路图](./01-architecture/phase1-log-code-flow.md) | [实现规格](./02-specifications/Phase%201%20实现规格说明.md) · [能力总结](./03-progress/2026-07-17-Phase1当前能力总结.md) | [验收记录](./04-validation/phase1-acceptance.md) | 本地最小闭环完成 |
 | Phase 2 | 可观测、多策略、现场感知 | [扩展架构与学习总结](./01-architecture/phase2-extension.md) · [SVG](./01-architecture/phase2-extension.svg) · [Graphviz](./01-architecture/phase2-extension.dot) | [实现规格](./02-specifications/Phase%202%20实现规格说明.md) · [开发总结](./03-progress/2026-07-18-Phase2开发总结.md) | [验收记录](./04-validation/phase2-acceptance.md) | 已完成 |
-| Phase 3A/3B | 可解释诊断与轻量计划 | [可视化风格规范](./01-architecture/visual-style-guide.md) | [实现规格](./02-specifications/Phase%203%20实现规格说明.md) | [验收记录](./04-validation/phase3a-3b-acceptance.md) | 进行中 |
+| Phase 3A/3B/3C-1 | 可解释诊断、轻量计划与最小服务目录 | [可视化风格规范](./01-architecture/visual-style-guide.md) | [实现规格](./02-specifications/Phase%203%20实现规格说明.md) | [验收记录](./04-validation/phase3a-3b-acceptance.md) | 进行中 |
 
 ## 按内容查找
 
@@ -77,7 +77,7 @@
 - [Phase 0B 验收记录](./04-validation/phase0b-acceptance.md)
 - [Phase 0C 验收记录](./04-validation/phase0c-acceptance.md)
 - [Phase 2 验收记录](./04-validation/phase2-acceptance.md)
-- [Phase 3A/3B 验收记录](./04-validation/phase3a-3b-acceptance.md)
+- [Phase 3A/3B/3C-1 验收记录](./04-validation/phase3a-3b-acceptance.md)
 
 ### 5. 架构决策 ADR
 

@@ -26,6 +26,7 @@ class SqlAlchemyDiagnosisRepository:
     async def add(self, diagnosis: DiagnosisCase) -> None:
         record = DiagnosisRecord(
             id=str(diagnosis.id),
+            service_id=str(diagnosis.service_id) if diagnosis.service_id else None,
             title=diagnosis.title,
             problem_type=diagnosis.problem_type.value,
             status=diagnosis.status.value,
@@ -49,6 +50,7 @@ class SqlAlchemyDiagnosisRepository:
             return None
         return DiagnosisCase(
             id=UUID(record.id),
+            service_id=UUID(record.service_id) if record.service_id else None,
             title=record.title,
             problem_type=ProblemType(record.problem_type),
             status=DiagnosisStatus(record.status),
@@ -69,6 +71,7 @@ class SqlAlchemyDiagnosisRepository:
             )
             .values(
                 title=diagnosis.title,
+                service_id=str(diagnosis.service_id) if diagnosis.service_id else None,
                 problem_type=diagnosis.problem_type.value,
                 status=diagnosis.status.value,
                 symptom=diagnosis.symptom,

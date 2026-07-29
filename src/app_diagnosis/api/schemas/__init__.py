@@ -11,10 +11,15 @@ from app_diagnosis.api.schemas.diagnoses import (
     SupplementResponse,
 )
 from app_diagnosis.api.schemas.plans import DiagnosisPlanResponse, PlanStepResponse
+from app_diagnosis.api.schemas.services import (
+    CreateServiceProfileRequest,
+    ServiceProfileResponse,
+)
 
 __all__ = [
     "AgentRunResponse",
     "CreateDiagnosisRequest",
+    "CreateServiceProfileRequest",
     "ConfirmationRequest",
     "ConfirmationRecordResponse",
     "ConfirmationResponse",
@@ -22,6 +27,7 @@ __all__ = [
     "EvidenceResponse",
     "DiagnosisPlanResponse",
     "PlanStepResponse",
+    "ServiceProfileResponse",
     "RunResultResponse",
     "SupplementRequest",
     "SupplementResponse",

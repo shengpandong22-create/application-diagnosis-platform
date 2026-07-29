@@ -34,4 +34,5 @@ def test_upgrade_from_empty_database(tmp_path: Path) -> None:
         "version",
         "created_at",
         "updated_at",
+        "service_id",
     } == columns

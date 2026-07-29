@@ -18,6 +18,9 @@ from app_diagnosis.adapters.persistence.diagnosis_plan_repository import (
     SqlAlchemyDiagnosisPlanRepository,
 )
 from app_diagnosis.adapters.persistence.evidence_store import SqlAlchemyEvidenceStore
+from app_diagnosis.adapters.persistence.service_profile_repository import (
+    SqlAlchemyServiceProfileRepository,
+)
 from app_diagnosis.adapters.redaction import LocalRuleRedactor
 from app_diagnosis.agent.policies import EvidenceCitationPolicy
 from app_diagnosis.agent.runtime import AgentBudget, ToolLoopRunner
@@ -34,6 +37,7 @@ from app_diagnosis.application import (
     DiagnosisReportService,
     DiagnosisTraceService,
     KnowledgeApplicationService,
+    ServiceCatalogApplicationService,
 )
 from app_diagnosis.bootstrap.settings import Settings
 from app_diagnosis.domain.code_workspace import CodeWorkspace
@@ -163,6 +167,17 @@ def build_knowledge_service(database: Database) -> KnowledgeApplicationService:
 def build_plan_service(database: Database) -> DiagnosisPlanService:
     """构建诊断计划只读服务。"""
     return DiagnosisPlanService(database.session_factory)
+
+
+def build_service_catalog(
+    database: Database,
+    diagnosis_service: DiagnosisApplicationService,
+) -> ServiceCatalogApplicationService:
+    """构建最小服务目录用例服务。"""
+    return ServiceCatalogApplicationService(
+        services=SqlAlchemyServiceProfileRepository(database.session_factory),
+        diagnoses=diagnosis_service,
+    )
 
 
 def build_report_service(database: Database) -> DiagnosisReportService:

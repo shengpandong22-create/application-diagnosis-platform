@@ -12,6 +12,8 @@ from app_diagnosis.application import (
     KnowledgeConflict,
     KnowledgeNotFound,
     KnowledgeStatusConflict,
+    ServiceProfileConflict,
+    ServiceProfileNotFound,
 )
 from app_diagnosis.domain.diagnosis import InvalidDiagnosisValue
 
@@ -66,6 +68,23 @@ def install_exception_handlers(app: FastAPI) -> None:
             "knowledge_status_conflict",
             str(error),
         )
+
+    @app.exception_handler(ServiceProfileNotFound)
+    async def service_profile_not_found(
+        request: Request, error: ServiceProfileNotFound
+    ) -> JSONResponse:
+        return _response(
+            request,
+            status.HTTP_404_NOT_FOUND,
+            "service_profile_not_found",
+            "Service profile not found",
+        )
+
+    @app.exception_handler(ServiceProfileConflict)
+    async def service_profile_conflict(
+        request: Request, error: ServiceProfileConflict
+    ) -> JSONResponse:
+        return _response(request, status.HTTP_409_CONFLICT, "service_profile_conflict", str(error))
 
     @app.exception_handler(InvalidDiagnosisValue)
     async def invalid_diagnosis(request: Request, error: InvalidDiagnosisValue) -> JSONResponse:

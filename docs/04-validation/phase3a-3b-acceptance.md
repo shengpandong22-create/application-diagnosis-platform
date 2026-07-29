@@ -1,11 +1,12 @@
-# Phase 3A / 3B 验收记录
+# Phase 3A / 3B / 3C-1 验收记录
 
 ## 验收目标
 
 本次验收覆盖：
 
 - Phase 3A：源码接手型注释、主链路学习文档、可视化风格规范；
-- Phase 3B：规则版 DiagnosisPlan、Plan API、Report / Trace 集成。
+- Phase 3B：规则版 DiagnosisPlan、Plan API、Report / Trace 集成；
+- Phase 3C-1：最小服务目录元数据闭环。
 
 ## 功能验收清单
 
@@ -21,6 +22,14 @@
 | Markdown 报告包含“诊断计划”章节 | 已完成 |
 | Trace 的 AgentRun 包含关联 Plan | 已完成 |
 | Plan 不改变 Agent Loop 执行逻辑 | 已通过全量回归确认 |
+| `POST /api/v1/services` 可创建服务档案 | 已完成 |
+| `GET /api/v1/services` 可列出服务档案 | 已完成 |
+| `GET /api/v1/services/{id}` 可查询服务档案 | 已完成 |
+| `POST /api/v1/services/{id}/diagnoses` 可基于服务创建诊断 | 已完成 |
+| DiagnosisResponse 包含 `service_id` | 已完成 |
+| 普通诊断创建流程不受服务目录影响 | 已完成 |
+| Report JSON / Markdown 展示服务信息 | 已完成 |
+| 3C-1 不扫描本机目录，不动态改变工具访问范围 | 已完成 |
 
 ## 自动化验收
 
@@ -38,7 +47,23 @@ uv run ruff check .
 All checks passed!
 
 uv run pytest
-190 passed, 1 warning
+196 passed, 1 warning
+```
+
+3C-1 定向测试：
+
+```powershell
+uv run pytest tests/unit/domain/service_profile `
+  tests/integration/persistence/test_service_profile_migration.py `
+  tests/integration/test_service_catalog_api.py `
+  tests/integration/persistence/test_migrations.py `
+  tests/integration/persistence/test_diagnosis_repository.py
+```
+
+结果：
+
+```text
+13 passed, 1 warning
 ```
 
 补充离线验收：

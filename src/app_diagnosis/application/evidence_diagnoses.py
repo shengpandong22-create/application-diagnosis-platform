@@ -51,6 +51,7 @@ class EvidenceAwareDiagnosisApplicationService(BaseService):
         title: str,
         symptom: str,
         submitted_log: str | None,
+        service_id=None,
     ) -> DiagnosisCase:
         """创建诊断，并把初始用户输入转换为已脱敏 Evidence。
 
@@ -67,6 +68,7 @@ class EvidenceAwareDiagnosisApplicationService(BaseService):
             title=title,
             symptom=safe_symptom.content,
             submitted_log=safe_log.content if safe_log else None,
+            service_id=service_id,
         )
         evidence = [
             Evidence.create(

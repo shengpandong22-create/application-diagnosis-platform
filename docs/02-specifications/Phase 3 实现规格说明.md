@@ -101,9 +101,14 @@ GET /api/v1/diagnoses/{id}/plan
 
 ## Phase 3C：最小服务目录
 
-Phase 3C 暂不在本批实现。它的目标是把诊断对象从一次请求升级为一个真实服务。
+Phase 3C 的目标是把诊断对象从一次请求升级为一个真实服务。为避免一次性重构
+工具上下文，本阶段拆成 3C-1 和 3C-2。
 
-预期最小模型：
+### Phase 3C-1：服务目录元数据闭环
+
+第一批实现服务档案的创建、查询和基于服务创建诊断。
+
+领域模型：
 
 ```text
 ServiceProfile
@@ -120,7 +125,38 @@ ServiceProfile
 - updated_at
 ```
 
-第一版服务目录只保存用户显式配置，不扫描本机任意目录，不做多租户和复杂 CMDB。
+API：
+
+```text
+POST /api/v1/services
+GET /api/v1/services
+GET /api/v1/services/{id}
+POST /api/v1/services/{id}/diagnoses
+```
+
+行为边界：
+
+- 只保存用户显式传入的路径和健康检查目标；
+- 不扫描用户电脑；
+- 不校验路径是否真实存在；
+- 不改变当前 ToolLoopRunner 和 Adapter 的工具访问范围；
+- 基于服务创建的 Diagnosis 会记录 `service_id`；
+- 普通 `POST /api/v1/diagnoses` 继续可用，且 `service_id = null`；
+- Report 展示关联服务信息。
+
+### Phase 3C-2：按服务驱动工具上下文
+
+下一批再让服务目录真正影响工具访问范围：
+
+```text
+service.code_workspace_path
+service.log_directory
+service.config_workspace_path
+service.health_targets
+→ 诊断运行时动态影响 ToolExecutionContext / Adapter 可访问范围
+```
+
+3C-2 需要重点设计安全边界，不能让 Agent 自动扫描任意目录。
 
 ## 真实模型验收策略
 

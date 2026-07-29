@@ -19,9 +19,24 @@ async def get_report(diagnosis_id: UUID, request: Request) -> dict[str, Any]:
     return {
         "diagnosis": {
             "id": str(report.diagnosis.id),
+            "service_id": str(report.diagnosis.service_id) if report.diagnosis.service_id else None,
             "title": report.diagnosis.title,
             "status": report.diagnosis.status.value,
         },
+        "service": (
+            {
+                "id": str(report.service.id),
+                "name": report.service.name,
+                "environment": report.service.environment,
+                "code_workspace_path": report.service.code_workspace_path,
+                "log_directory": report.service.log_directory,
+                "config_workspace_path": report.service.config_workspace_path,
+                "health_targets": list(report.service.health_targets),
+                "tags": list(report.service.tags),
+            }
+            if report.service
+            else None
+        ),
         "conclusion": report.conclusion.model_dump(mode="json") if report.conclusion else None,
         "evidence": [
             {
