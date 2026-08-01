@@ -9,6 +9,7 @@ from app_diagnosis.application import (
     DiagnosisNotFound,
     DiagnosisPlanNotFound,
     DiagnosisRunConflict,
+    KnowledgeCandidateNotAllowed,
     KnowledgeConflict,
     KnowledgeNotFound,
     KnowledgeStatusConflict,
@@ -48,6 +49,17 @@ def install_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(KnowledgeConflict)
     async def knowledge_conflict(request: Request, error: KnowledgeConflict) -> JSONResponse:
         return _response(request, status.HTTP_409_CONFLICT, "knowledge_conflict", str(error))
+
+    @app.exception_handler(KnowledgeCandidateNotAllowed)
+    async def knowledge_candidate_not_allowed(
+        request: Request, error: KnowledgeCandidateNotAllowed
+    ) -> JSONResponse:
+        return _response(
+            request,
+            status.HTTP_409_CONFLICT,
+            "knowledge_candidate_not_allowed",
+            str(error),
+        )
 
     @app.exception_handler(KnowledgeNotFound)
     async def knowledge_not_found(request: Request, error: KnowledgeNotFound) -> JSONResponse:

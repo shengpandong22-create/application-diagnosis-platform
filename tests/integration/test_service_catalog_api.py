@@ -40,9 +40,7 @@ def conclusion_without_citations() -> str:
 
 
 @contextmanager
-def migrated_client(
-    tmp_path: Path, fake: FakeLLMClient | None = None
-) -> Iterator[TestClient]:
+def migrated_client(tmp_path: Path, fake: FakeLLMClient | None = None) -> Iterator[TestClient]:
     database_path = tmp_path / "services.db"
     database_url = f"sqlite+aiosqlite:///{database_path.as_posix()}"
     config = Config("alembic.ini")
@@ -141,9 +139,7 @@ def test_service_scoped_code_workspace_feeds_agent_tools(tmp_path: Path) -> None
                     ToolCall(
                         id="call-code-read",
                         name="code__read",
-                        arguments_json=(
-                            '{"path":"OrderService.java","start_line":1,"end_line":3}'
-                        ),
+                        arguments_json=('{"path":"OrderService.java","start_line":1,"end_line":3}'),
                     ),
                 )
             ),
@@ -179,3 +175,49 @@ def test_service_scoped_code_workspace_feeds_agent_tools(tmp_path: Path) -> None
         code_evidence = [item for item in evidence if item["type"] == "code_excerpt"]
         assert code_evidence
         assert code_evidence[0]["metadata"]["workspace"] == "service-scoped-java-lab"
+
+
+def test_service_diagnosis_history_and_summary(tmp_path: Path) -> None:
+    with migrated_client(tmp_path) as client:
+        service = client.post(
+            "/api/v1/services",
+            json={"name": "history-service", "environment": "test"},
+        ).json()
+        first = client.post(
+            f"/api/v1/services/{service['id']}/diagnoses",
+            json={"title": "First failure", "symptom": "HTTP 500"},
+        ).json()
+        second = client.post(
+            f"/api/v1/services/{service['id']}/diagnoses",
+            json={"title": "Second failure", "symptom": "Connection refused"},
+        ).json()
+
+        history = client.get(f"/api/v1/services/{service['id']}/diagnoses")
+        assert history.status_code == 200
+        assert [item["id"] for item in history.json()] == [second["id"], first["id"]]
+
+        summary = client.get(f"/api/v1/services/{service['id']}/summary")
+        assert summary.status_code == 200
+        payload = summary.json()
+        assert payload["service"]["id"] == service["id"]
+        assert payload["total_diagnoses"] == 2
+        assert payload["status_counts"] == {"created": 2}
+        assert payload["latest_diagnosis"]["id"] == second["id"]
+
+
+def test_empty_service_summary_and_unknown_service(tmp_path: Path) -> None:
+    with migrated_client(tmp_path) as client:
+        service = client.post(
+            "/api/v1/services",
+            json={"name": "empty-service", "environment": "test"},
+        ).json()
+
+        summary = client.get(f"/api/v1/services/{service['id']}/summary")
+        assert summary.status_code == 200
+        assert summary.json()["total_diagnoses"] == 0
+        assert summary.json()["status_counts"] == {}
+        assert summary.json()["latest_diagnosis"] is None
+
+        missing = "00000000-0000-0000-0000-000000000099"
+        assert client.get(f"/api/v1/services/{missing}/diagnoses").status_code == 404
+        assert client.get(f"/api/v1/services/{missing}/summary").status_code == 404

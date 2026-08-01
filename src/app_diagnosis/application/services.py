@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from uuid import UUID
 
 from app_diagnosis.adapters.persistence.service_profile_repository import (
@@ -17,6 +18,16 @@ class ServiceProfileNotFound(LookupError):
 
 class ServiceProfileConflict(RuntimeError):
     pass
+
+
+@dataclass(frozen=True, slots=True)
+class ServiceDiagnosisSummary:
+    """服务维度的轻量诊断聚合视图。"""
+
+    service: ServiceProfile
+    total_diagnoses: int
+    status_counts: dict[str, int]
+    latest_diagnosis: DiagnosisCase | None
 
 
 class ServiceCatalogApplicationService:
@@ -89,4 +100,24 @@ class ServiceCatalogApplicationService:
             symptom=symptom,
             submitted_log=submitted_log,
             service_id=service_id,
+        )
+
+    async def list_diagnoses(self, service_id: UUID) -> tuple[DiagnosisCase, ...]:
+        """返回服务的全部诊断历史，并先验证服务仍然存在。"""
+        await self.get(service_id)
+        return await self._diagnoses.list_by_service(service_id)
+
+    async def summarize(self, service_id: UUID) -> ServiceDiagnosisSummary:
+        """构建不触发模型调用的服务诊断摘要。"""
+        service = await self.get(service_id)
+        diagnoses = await self._diagnoses.list_by_service(service_id)
+        status_counts: dict[str, int] = {}
+        for diagnosis in diagnoses:
+            status = diagnosis.status.value
+            status_counts[status] = status_counts.get(status, 0) + 1
+        return ServiceDiagnosisSummary(
+            service=service,
+            total_diagnoses=len(diagnoses),
+            status_counts=status_counts,
+            latest_diagnosis=diagnoses[0] if diagnoses else None,
         )

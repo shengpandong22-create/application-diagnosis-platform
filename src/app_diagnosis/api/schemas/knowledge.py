@@ -2,6 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app_diagnosis.application.knowledge import KnowledgeCandidateResult
 from app_diagnosis.domain.knowledge import KnowledgeEntry, KnowledgeStatus
 
 
@@ -45,4 +46,16 @@ class KnowledgeResponse(BaseModel):
             status=entry.status.value,
             created_at=entry.created_at,
             updated_at=entry.updated_at,
+        )
+
+
+class KnowledgeCandidateResponse(BaseModel):
+    created: bool
+    knowledge: KnowledgeResponse
+
+    @classmethod
+    def from_result(cls, result: KnowledgeCandidateResult) -> "KnowledgeCandidateResponse":
+        return cls(
+            created=result.created,
+            knowledge=KnowledgeResponse.from_domain(result.entry),
         )

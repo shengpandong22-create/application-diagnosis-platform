@@ -203,6 +203,11 @@ class DiagnosisApplicationService:
             raise DiagnosisNotFound(str(diagnosis_id))
         return diagnosis
 
+    async def list_by_service(self, service_id: UUID) -> tuple[DiagnosisCase, ...]:
+        """读取某个服务的诊断历史，按创建时间倒序返回。"""
+        async with self._sessions() as session:
+            return await SqlAlchemyDiagnosisRepository(session).list_by_service(service_id)
+
     async def run(
         self,
         diagnosis_id: UUID,

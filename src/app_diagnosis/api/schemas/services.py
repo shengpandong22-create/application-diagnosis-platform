@@ -3,6 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app_diagnosis.api.schemas.diagnoses import DiagnosisResponse
+from app_diagnosis.application.services import ServiceDiagnosisSummary
 from app_diagnosis.domain.service_profile import ServiceProfile
 
 
@@ -35,3 +37,23 @@ class ServiceProfileResponse(BaseModel):
     @classmethod
     def from_domain(cls, service: ServiceProfile) -> "ServiceProfileResponse":
         return cls.model_validate(service, from_attributes=True)
+
+
+class ServiceDiagnosisSummaryResponse(BaseModel):
+    service: ServiceProfileResponse
+    total_diagnoses: int
+    status_counts: dict[str, int]
+    latest_diagnosis: DiagnosisResponse | None
+
+    @classmethod
+    def from_summary(cls, summary: ServiceDiagnosisSummary) -> "ServiceDiagnosisSummaryResponse":
+        return cls(
+            service=ServiceProfileResponse.from_domain(summary.service),
+            total_diagnoses=summary.total_diagnoses,
+            status_counts=summary.status_counts,
+            latest_diagnosis=(
+                DiagnosisResponse.from_domain(summary.latest_diagnosis)
+                if summary.latest_diagnosis is not None
+                else None
+            ),
+        )

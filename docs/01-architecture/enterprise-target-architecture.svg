@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title desc">
+  <title id="title">企业目标形态：可靠任务、服务事实与受控数据源</title>
+  <desc id="desc">企业用户经身份治理访问 API，诊断任务通过可靠队列交给 Worker，复用现有 Agent Runtime 与 Evidence 闭环，通过受限适配器读取企业日志、代码、Trace 和指标，并持久化到 PostgreSQL 与对象存储。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#64748b"/></marker>
+    <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/></marker>
+    <style>
+      .title{font:600 28px 'Microsoft YaHei',sans-serif;fill:#0f172a}.subtitle{font:14px 'Microsoft YaHei',sans-serif;fill:#475569}.group{rx:20;stroke-width:2}.group-title{font:600 16px 'Microsoft YaHei',sans-serif;fill:#334155}.node{rx:14;stroke-width:1.7}.node-title{font:600 16px 'Microsoft YaHei',sans-serif;fill:#0f172a}.node-text{font:13px 'Microsoft YaHei',sans-serif;fill:#475569}.edge{fill:none;stroke:#64748b;stroke-width:2;marker-end:url(#arrow)}.main{stroke:#f59e0b;stroke-width:3;marker-end:url(#arrow-orange)}.dash{stroke-dasharray:8 6}.label{font:12px 'Microsoft YaHei',sans-serif;fill:#475569}
+    </style>
+  </defs>
+  <rect width="1400" height="900" fill="#ffffff"/>
+  <text x="48" y="54" class="title">企业目标形态 · 可靠任务、服务事实与受控数据源</text>
+  <text x="48" y="82" class="subtitle">保留当前诊断核心，通过控制面、企业 Adapter、身份治理和可靠运行补齐生产能力</text>
+
+  <rect x="40" y="125" width="245" height="590" class="group" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="62" y="158" class="group-title">① 接入与身份</text>
+  <rect x="68" y="195" width="188" height="82" class="node" fill="#f8fafc" stroke="#64748b"/>
+  <text x="162" y="228" text-anchor="middle" class="node-title">企业用户 / 告警平台</text>
+  <text x="162" y="251" text-anchor="middle" class="node-text">人工发起 · 告警转诊断</text>
+  <rect x="68" y="330" width="188" height="90" class="node" fill="#e8f3ff" stroke="#3b82f6"/>
+  <text x="162" y="364" text-anchor="middle" class="node-title">OIDC / RBAC</text>
+  <text x="162" y="388" text-anchor="middle" class="node-text">用户 · 服务 · 环境范围</text>
+  <rect x="68" y="480" width="188" height="100" class="node" fill="#e8f3ff" stroke="#3b82f6"/>
+  <text x="162" y="516" text-anchor="middle" class="node-title">Web / API</text>
+  <text x="162" y="540" text-anchor="middle" class="node-text">诊断 · 审核 · 查询</text>
+  <text x="162" y="561" text-anchor="middle" class="node-text">不执行长时间 AgentRun</text>
+
+  <rect x="320" y="125" width="330" height="590" class="group" fill="#faf8ff" stroke="#c4b5fd"/>
+  <text x="342" y="158" class="group-title">② 控制面与可靠任务</text>
+  <rect x="350" y="195" width="270" height="100" class="node" fill="#e8f3ff" stroke="#3b82f6"/>
+  <text x="485" y="229" text-anchor="middle" class="node-title">Service Catalog</text>
+  <text x="485" y="253" text-anchor="middle" class="node-text">实例 · Deployment · commit</text>
+  <text x="485" y="274" text-anchor="middle" class="node-text">日志源 · 依赖 · Owner</text>
+  <rect x="350" y="360" width="270" height="112" class="node" fill="#f0edff" stroke="#7c3aed"/>
+  <text x="485" y="395" text-anchor="middle" class="node-title">DiagnosisJob Queue</text>
+  <text x="485" y="420" text-anchor="middle" class="node-text">租约 · 心跳 · 幂等 · 重试</text>
+  <text x="485" y="442" text-anchor="middle" class="node-text">取消 · 超时回收 · 失败队列</text>
+  <rect x="350" y="540" width="270" height="100" class="node" fill="#f0edff" stroke="#7c3aed"/>
+  <text x="485" y="575" text-anchor="middle" class="node-title">Diagnosis Workers</text>
+  <text x="485" y="600" text-anchor="middle" class="node-text">有界并发 · 可恢复执行</text>
+  <text x="485" y="621" text-anchor="middle" class="node-text">独立于 API 扩缩容</text>
+
+  <rect x="685" y="125" width="300" height="590" class="group" fill="#faf8ff" stroke="#c4b5fd"/>
+  <text x="707" y="158" class="group-title">③ 复用当前诊断核心</text>
+  <rect x="715" y="250" width="240" height="116" class="node" fill="#f0edff" stroke="#7c3aed"/>
+  <text x="835" y="286" text-anchor="middle" class="node-title">Agent Runtime</text>
+  <text x="835" y="312" text-anchor="middle" class="node-text">Strategy · Registry · Budget</text>
+  <text x="835" y="334" text-anchor="middle" class="node-text">Tool Loop · Plan · Execution</text>
+  <rect x="715" y="470" width="240" height="130" class="node" fill="#e2f6ef" stroke="#0d9488"/>
+  <text x="835" y="506" text-anchor="middle" class="node-title">可信诊断闭环</text>
+  <text x="835" y="532" text-anchor="middle" class="node-text">Evidence · Citation</text>
+  <text x="835" y="554" text-anchor="middle" class="node-text">Confirmation · Audit</text>
+  <text x="835" y="576" text-anchor="middle" class="node-text">Trace · Report · Knowledge</text>
+
+  <rect x="1020" y="125" width="340" height="590" class="group" fill="#f0fdfa" stroke="#5eead4"/>
+  <text x="1042" y="158" class="group-title">④ 数据与企业适配器</text>
+  <rect x="1050" y="195" width="280" height="96" class="node" fill="#e2f6ef" stroke="#0d9488"/>
+  <text x="1190" y="229" text-anchor="middle" class="node-title">PostgreSQL + Object Storage</text>
+  <text x="1190" y="254" text-anchor="middle" class="node-text">状态元数据 · 大证据 · 报告</text>
+  <rect x="1050" y="360" width="280" height="105" class="node" fill="#e2f6ef" stroke="#0d9488"/>
+  <text x="1190" y="396" text-anchor="middle" class="node-title">受限 Enterprise Adapters</text>
+  <text x="1190" y="421" text-anchor="middle" class="node-text">Log · Git · Trace · Metric · CMDB</text>
+  <text x="1190" y="443" text-anchor="middle" class="node-text">结构化查询 · 最小权限 · 脱敏</text>
+  <rect x="1050" y="540" width="280" height="112" class="node" fill="#edf7e5" stroke="#65a30d"/>
+  <text x="1190" y="576" text-anchor="middle" class="node-title">企业数据源</text>
+  <text x="1190" y="601" text-anchor="middle" class="node-text">Loki/OpenSearch · GitLab</text>
+  <text x="1190" y="623" text-anchor="middle" class="node-text">OTel/Jaeger · Prometheus · CMDB</text>
+
+  <rect x="320" y="760" width="1040" height="92" class="node" fill="#fff1dd" stroke="#d97706"/>
+  <text x="840" y="795" text-anchor="middle" class="node-title">质量与治理横切面</text>
+  <text x="840" y="821" text-anchor="middle" class="node-text">版本化评测集 · 模型/Prompt 版本 · 成本与延迟 · 数据分级 · 凭据治理 · 知识审核 · 安全策略</text>
+
+  <path d="M162 277 V330" class="edge main"/>
+  <path d="M162 420 V480" class="edge main"/>
+  <path d="M256 530 H305 V416 H350" class="edge main"/>
+  <path d="M485 295 V345" class="edge"/>
+  <text x="500" y="329" class="label">绑定服务事实</text>
+  <path d="M485 472 V540" class="edge main"/>
+  <path d="M620 590 H670 V308 H715" class="edge main"/>
+  <path d="M835 366 V470" class="edge main"/>
+  <path d="M955 308 H1005 V413 H1050" class="edge"/>
+  <text x="975" y="390" class="label">受限取证</text>
+  <path d="M1050 596 H1015 V535 H955" class="edge"/>
+  <path d="M1190 465 V540" class="edge"/>
+  <path d="M955 535 H1005 V243 H1050" class="edge"/>
+  <path d="M620 416 H1000 V243 H1050" class="edge dash"/>
+  <path d="M840 760 V730 H162 V580" class="edge dash"/>
+  <path d="M840 760 V690 H835 V600" class="edge dash"/>
+  <path d="M840 760 V690 H1190 V652" class="edge dash"/>
+</svg>

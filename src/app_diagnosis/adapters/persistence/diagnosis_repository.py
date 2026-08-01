@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
-from sqlalchemy import update
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -48,19 +48,16 @@ class SqlAlchemyDiagnosisRepository:
         record = await self._session.get(DiagnosisRecord, str(diagnosis_id))
         if record is None:
             return None
-        return DiagnosisCase(
-            id=UUID(record.id),
-            service_id=UUID(record.service_id) if record.service_id else None,
-            title=record.title,
-            problem_type=ProblemType(record.problem_type),
-            status=DiagnosisStatus(record.status),
-            symptom=record.symptom,
-            submitted_log=record.submitted_log,
-            version=record.version,
-            created_at=_as_utc(record.created_at),
-            updated_at=_as_utc(record.updated_at),
-            conclusion=record.conclusion_json,
+        return _to_domain(record)
+
+    async def list_by_service(self, service_id: UUID) -> tuple[DiagnosisCase, ...]:
+        """按创建时间倒序返回服务的诊断历史。"""
+        result = await self._session.execute(
+            select(DiagnosisRecord)
+            .where(DiagnosisRecord.service_id == str(service_id))
+            .order_by(DiagnosisRecord.created_at.desc(), DiagnosisRecord.id.desc())
         )
+        return tuple(_to_domain(record) for record in result.scalars())
 
     async def save(self, diagnosis: DiagnosisCase, *, expected_version: int) -> None:
         statement = (
@@ -84,3 +81,20 @@ class SqlAlchemyDiagnosisRepository:
         result = await self._session.execute(statement)
         if result.rowcount != 1:
             raise ConcurrentDiagnosisUpdate(diagnosis.id, expected_version)
+
+
+def _to_domain(record: DiagnosisRecord) -> DiagnosisCase:
+    """集中维护 ORM Record 到领域聚合根的映射。"""
+    return DiagnosisCase(
+        id=UUID(record.id),
+        service_id=UUID(record.service_id) if record.service_id else None,
+        title=record.title,
+        problem_type=ProblemType(record.problem_type),
+        status=DiagnosisStatus(record.status),
+        symptom=record.symptom,
+        submitted_log=record.submitted_log,
+        version=record.version,
+        created_at=_as_utc(record.created_at),
+        updated_at=_as_utc(record.updated_at),
+        conclusion=record.conclusion_json,
+    )

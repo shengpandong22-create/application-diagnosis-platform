@@ -1,0 +1,51 @@
+digraph EnterpriseTarget {
+  graph [rankdir=LR,bgcolor="#FFFFFF",pad="0.35",nodesep="0.38",ranksep="0.72",splines=ortho,fontname="Microsoft YaHei",fontsize=18,fontcolor="#0F172A",label="企业目标形态 · 可靠任务、服务事实与受控数据源",labelloc=t,labeljust=l,compound=true,newrank=true];
+  node [shape=box,style="rounded,filled",fontname="Microsoft YaHei",fontsize=10,fontcolor="#0F172A",color="#64748B",margin="0.12,0.08"];
+  edge [color="#64748B",penwidth=1.25,arrowsize=0.7,fontname="Microsoft YaHei",fontsize=8.5,fontcolor="#475569"];
+
+  user [label="企业用户 / 告警平台",fillcolor="#F8FAFC"];
+
+  subgraph cluster_access {
+    label="① 接入与身份"; color="#93C5FD"; fillcolor="#EFF6FF"; style="rounded,filled";
+    oidc [label="OIDC / RBAC\n服务与环境范围",fillcolor="#E8F3FF",color="#3B82F6"];
+    api [label="Web / API\n诊断 · 审核 · 查询",fillcolor="#E8F3FF",color="#3B82F6"];
+  }
+
+  subgraph cluster_control {
+    label="② 控制面与可靠任务"; color="#C4B5FD"; fillcolor="#FAF8FF"; style="rounded,filled";
+    catalog [label="Service Catalog\n实例 · Deployment · commit · 依赖",fillcolor="#E8F3FF",color="#3B82F6"];
+    queue [label="DiagnosisJob Queue\n租约 · 心跳 · 重试 · 取消",fillcolor="#F0EDFF",color="#7C3AED"];
+    worker [label="Diagnosis Workers\n有界并发 · 可恢复执行",fillcolor="#F0EDFF",color="#7C3AED"];
+  }
+
+  subgraph cluster_runtime {
+    label="③ 复用诊断核心"; color="#C4B5FD"; fillcolor="#FAF8FF"; style="rounded,filled";
+    runtime [label="Agent Runtime\nStrategy · Registry · Budget",fillcolor="#F0EDFF",color="#7C3AED"];
+    evidence [label="Evidence / Citation / Confirmation\nTrace · Audit · Report",fillcolor="#E2F6EF",color="#0D9488"];
+  }
+
+  subgraph cluster_data {
+    label="④ 数据与企业适配器"; color="#5EEAD4"; fillcolor="#F0FDFA"; style="rounded,filled";
+    storage [label="PostgreSQL + Object Storage\n元数据 · 大证据 · 报告",fillcolor="#E2F6EF",color="#0D9488"];
+    adapters [label="受限 Adapters\nLog · Git · Trace · Metric · CMDB",fillcolor="#E2F6EF",color="#0D9488"];
+    systems [label="企业数据源\nLoki/OpenSearch · GitLab · OTel · Prometheus",fillcolor="#EDF7E5",color="#65A30D"];
+  }
+
+  governance [label="质量与治理\n评测集 · 成本 · 安全策略 · 知识审核",fillcolor="#FFF1DD",color="#D97706"];
+
+  user -> oidc [color="#F59E0B",penwidth=2.3];
+  oidc -> api [color="#F59E0B",penwidth=2.3];
+  api -> queue [label="创建/取消任务",color="#F59E0B",penwidth=2.3];
+  catalog -> queue [label="绑定服务事实",color="#3B82F6"];
+  queue -> worker [label="租约领取",color="#F59E0B",penwidth=2.3];
+  worker -> runtime [color="#F59E0B",penwidth=2.3];
+  runtime -> evidence [color="#F59E0B",penwidth=2.3];
+  runtime -> adapters [label="受限取证",color="#0D9488",penwidth=2.0];
+  adapters -> systems [dir=both,color="#0D9488",penwidth=2.0];
+  evidence -> storage [color="#0D9488",penwidth=2.0];
+  queue -> storage [label="Job/Run 状态",color="#64748B"];
+  catalog -> storage [color="#64748B"];
+  governance -> api [style=dashed,color="#D97706"];
+  governance -> runtime [style=dashed,color="#D97706"];
+  governance -> evidence [style=dashed,color="#D97706"];
+}

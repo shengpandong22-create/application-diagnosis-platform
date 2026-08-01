@@ -20,7 +20,8 @@ from app_diagnosis.api.schemas import (
     SupplementRequest,
     SupplementResponse,
 )
-from app_diagnosis.application import DiagnosisApplicationService
+from app_diagnosis.api.schemas.knowledge import KnowledgeCandidateResponse
+from app_diagnosis.application import DiagnosisApplicationService, KnowledgeApplicationService
 from app_diagnosis.bootstrap.settings import Settings
 
 router = APIRouter(prefix="/api/v1/diagnoses", tags=["diagnoses"])
@@ -29,6 +30,11 @@ router = APIRouter(prefix="/api/v1/diagnoses", tags=["diagnoses"])
 def _service(request: Request) -> DiagnosisApplicationService:
     """从 FastAPI app.state 取出 bootstrap 装配好的应用服务。"""
     return request.app.state.diagnosis_service
+
+
+def _knowledge_service(request: Request) -> KnowledgeApplicationService:
+    """获取知识用例服务，用于显式生成诊断知识候选。"""
+    return request.app.state.knowledge_service
 
 
 @router.post("", response_model=DiagnosisResponse, status_code=status.HTTP_201_CREATED)
@@ -125,3 +131,20 @@ async def confirm_diagnosis(
         diagnosis=DiagnosisResponse.from_domain(diagnosis),
         confirmation=ConfirmationRecordResponse.from_domain(confirmation),
     )
+
+
+@router.post(
+    "/{diagnosis_id}/knowledge-candidates",
+    response_model=KnowledgeCandidateResponse,
+)
+async def create_knowledge_candidate(
+    diagnosis_id: UUID,
+    request: Request,
+) -> KnowledgeCandidateResponse:
+    """从已人工确认的诊断显式生成 candidate 知识。"""
+    result = await _knowledge_service(request).create_from_confirmed_diagnosis(
+        diagnosis_id=diagnosis_id,
+        actor="local-api-user",
+        correlation_id=request.state.request_id,
+    )
+    return KnowledgeCandidateResponse.from_result(result)

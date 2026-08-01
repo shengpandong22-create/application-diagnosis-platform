@@ -20,6 +20,7 @@
 ### 0. 项目总览与展示
 
 - [项目介绍](./00-overview/项目介绍.md)
+- [Phase 0～3 项目核心掌握手册（图片 + 文字 + 代码）](./00-overview/Phase%200-3%20项目核心掌握手册.md)
 - [Phase 0～2 项目掌握与面试准备指南](./00-overview/Phase%200-2%20项目掌握与面试准备指南.md)
 - [Phase 0～2 源码学习路线图](./00-overview/Phase%200-2%20源码学习路线图.md)
 - [Phase 0 离线演示指南](./00-overview/演示指南.md)
@@ -27,6 +28,7 @@
 - [Phase 2 实现规格与验收标准](./02-specifications/Phase%202%20实现规格说明.md)
 - [Phase 3 实现规格与验收标准](./02-specifications/Phase%203%20实现规格说明.md)
 - [Phase 3 当前能力总结](./03-progress/2026-07-30-Phase3当前能力总结.md)
+- [本地诊断 Agent 到企业平台演进设计](./02-specifications/本地诊断Agent到企业平台演进设计.md)
 - [Phase 1 验收记录](./04-validation/phase1-acceptance.md)
 - [Phase 1 真实日志与源码联合诊断验收](./04-validation/phase1-real-log-acceptance.md)
 - [Phase 1 真实模型端到端诊断验收](./04-validation/phase1-real-model-acceptance.md)
@@ -58,12 +60,15 @@
 - [Phase 3C 架构图：服务目录驱动的受限工具上下文](./01-architecture/phase3c-service-context.md)
 - [Phase 3C SVG 成品](./01-architecture/phase3c-service-context.svg)
 - [Phase 3C Graphviz 源文件](./01-architecture/phase3c-service-context.dot)
+- [企业目标架构 SVG](./01-architecture/enterprise-target-architecture.svg)
+- [企业目标架构 Graphviz 源文件](./01-architecture/enterprise-target-architecture.dot)
 
 ### 2. 设计与实现规格
 
 - [独立应用诊断闭环平台设计文档](./02-specifications/独立应用诊断闭环平台设计文档.md)
 - [Phase 0 实现规格说明](./02-specifications/Phase%200%20实现规格说明.md)
 - [ITOps 参考实现复用矩阵](./02-specifications/ITOps参考实现复用矩阵.md)
+- [本地诊断 Agent 到企业平台演进设计](./02-specifications/本地诊断Agent到企业平台演进设计.md)
 
 ### 3. 开发过程记录
 
@@ -84,6 +89,7 @@
 - [Phase 2 验收记录](./04-validation/phase2-acceptance.md)
 - [Phase 3A/3B/3C-1 验收记录](./04-validation/phase3a-3b-acceptance.md)
 - [Phase 3C-2 服务目录驱动工具上下文验收记录](./04-validation/phase3c-service-context-acceptance.md)
+- [面试收尾增强：服务历史、知识候选与企业演进设计验收](./04-validation/interview-readiness-enhancements-acceptance.md)
 
 ### 5. 架构决策 ADR
 

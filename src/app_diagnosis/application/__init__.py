@@ -8,6 +8,8 @@ from app_diagnosis.application.evidence_diagnoses import (
 )
 from app_diagnosis.application.knowledge import (
     KnowledgeApplicationService,
+    KnowledgeCandidateNotAllowed,
+    KnowledgeCandidateResult,
     KnowledgeConflict,
     KnowledgeNotFound,
     KnowledgeStatusConflict,
@@ -27,6 +29,8 @@ __all__ = [
     "DiagnosisRunConflict",
     "DiagnosisRunDetails",
     "KnowledgeApplicationService",
+    "KnowledgeCandidateNotAllowed",
+    "KnowledgeCandidateResult",
     "KnowledgeConflict",
     "KnowledgeNotFound",
     "KnowledgeStatusConflict",
