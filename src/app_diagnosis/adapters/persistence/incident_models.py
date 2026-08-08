@@ -23,6 +23,9 @@ class IncidentRecord(Base):
     fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
     fingerprint_version: Mapped[str] = mapped_column(String(32), nullable=False)
     aggregation_key: Mapped[str] = mapped_column(String(300), nullable=False)
+    diagnosis_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("diagnoses.id", ondelete="SET NULL"), unique=True
+    )
     status: Mapped[str] = mapped_column(String(32), nullable=False)
     exception_type: Mapped[str] = mapped_column(String(300), nullable=False)
     sample_message: Mapped[str] = mapped_column(Text, nullable=False)

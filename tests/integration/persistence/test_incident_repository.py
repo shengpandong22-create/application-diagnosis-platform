@@ -40,7 +40,8 @@ def candidate(*, bucket: str = "10:00") -> Incident:
     start = NOW if bucket == "10:00" else NOW + timedelta(minutes=15)
     return Incident(
         id=uuid4(), service_id=SERVICE_ID, environment="local", fingerprint="a" * 64,
-        fingerprint_version="v1", aggregation_key=f"key:{bucket}", status=IncidentStatus.OPEN,
+        fingerprint_version="v1", aggregation_key=f"key:{bucket}", diagnosis_id=None,
+        status=IncidentStatus.OPEN,
         exception_type="NullPointerException", sample_message="safe message", occurrence_count=1,
         first_seen_at=start, last_seen_at=start, window_started_at=start,
         window_ends_at=start + timedelta(minutes=15), created_at=start, updated_at=start,

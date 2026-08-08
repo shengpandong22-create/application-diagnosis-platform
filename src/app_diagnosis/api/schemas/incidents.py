@@ -33,6 +33,7 @@ class IncidentResponse(BaseModel):
     environment: str
     fingerprint: str
     fingerprint_version: str
+    diagnosis_id: UUID | None
     status: str
     exception_type: str
     sample_message: str

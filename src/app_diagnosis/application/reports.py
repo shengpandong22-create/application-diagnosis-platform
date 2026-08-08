@@ -12,6 +12,7 @@ from app_diagnosis.adapters.persistence.diagnosis_plan_repository import (
 )
 from app_diagnosis.adapters.persistence.diagnosis_repository import SqlAlchemyDiagnosisRepository
 from app_diagnosis.adapters.persistence.evidence_repository import SqlAlchemyEvidenceRepository
+from app_diagnosis.adapters.persistence.incident_repository import SqlAlchemyIncidentRepository
 from app_diagnosis.adapters.persistence.service_profile_repository import (
     SqlAlchemyServiceProfileRepository,
 )
@@ -42,6 +43,12 @@ class DiagnosisReportService:
             confirmations = await SqlAlchemyConfirmationRepository(session).list_by_diagnosis(
                 diagnosis_id
             )
+            incidents = await SqlAlchemyIncidentRepository(self._sessions).list(
+                service_id=diagnosis.service_id
+            )
+            incident = next(
+                (item for item in incidents if item.diagnosis_id == diagnosis_id), None
+            )
         plans = await SqlAlchemyDiagnosisPlanRepository(self._sessions).list_by_diagnosis(
             diagnosis_id
         )
@@ -55,6 +62,7 @@ class DiagnosisReportService:
         return DiagnosisReport(
             diagnosis=diagnosis,
             service=service,
+            incident=incident,
             conclusion=conclusion,
             evidence=evidence,
             plans=plans,
@@ -101,6 +109,16 @@ def render_markdown(report: DiagnosisReport) -> str:
             f"- 环境: `{report.service.environment}`",
             f"- 源码路径: `{report.service.code_workspace_path or '未配置'}`",
             f"- 日志目录: `{report.service.log_directory or '未配置'}`",
+        ]
+    if report.incident:
+        lines += [
+            "",
+            "## 主动发现来源",
+            "",
+            f"- Incident ID: `{report.incident.id}`",
+            f"- Fingerprint: `{report.incident.fingerprint}`",
+            f"- Fingerprint Version: `{report.incident.fingerprint_version}`",
+            f"- Occurrences: `{report.incident.occurrence_count}`",
         ]
     if report.conclusion:
         c = report.conclusion

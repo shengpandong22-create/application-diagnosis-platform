@@ -83,7 +83,7 @@ class IncidentApplicationService:
             id=uuid4(), service_id=service_id, environment=event.environment,
             fingerprint=fingerprint.value,
             fingerprint_version=fingerprint.algorithm_version,
-            aggregation_key=key, status=IncidentStatus.OPEN,
+            aggregation_key=key, diagnosis_id=None, status=IncidentStatus.OPEN,
             exception_type=event.exception_type, sample_message=event.message,
             occurrence_count=1, first_seen_at=event.occurred_at,
             last_seen_at=event.occurred_at, window_started_at=window_start,

@@ -6,6 +6,7 @@ from app_diagnosis.adapters.persistence import SqlAlchemyDiagnosisRepository
 from app_diagnosis.adapters.persistence.diagnosis_plan_repository import (
     SqlAlchemyDiagnosisPlanRepository,
 )
+from app_diagnosis.adapters.persistence.incident_repository import SqlAlchemyIncidentRepository
 from app_diagnosis.application.diagnoses import DiagnosisNotFound
 from app_diagnosis.domain.execution import AgentRun, ToolRun
 from app_diagnosis.domain.trace import AgentRunTrace, DiagnosisTrace, TraceEvent
@@ -27,10 +28,16 @@ class DiagnosisTraceService:
             diagnosis = await SqlAlchemyDiagnosisRepository(session).get(diagnosis_id)
         if diagnosis is None:
             raise DiagnosisNotFound(str(diagnosis_id))
+        incidents = await SqlAlchemyIncidentRepository(self._sessions).list(
+            service_id=diagnosis.service_id
+        )
+        incident = next((item for item in incidents if item.diagnosis_id == diagnosis_id), None)
         runs = await self._executions.list_agent_runs(diagnosis_id)
         return DiagnosisTrace(
             diagnosis_id=diagnosis.id,
             diagnosis_status=diagnosis.status.value,
+            incident_id=incident.id if incident else None,
+            incident_fingerprint=incident.fingerprint if incident else None,
             runs=tuple([await self._run_trace(run) for run in runs]),
         )
 

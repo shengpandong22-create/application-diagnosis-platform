@@ -7,6 +7,7 @@ from app_diagnosis.adapters.persistence import Database
 from app_diagnosis.api.errors import install_exception_handlers
 from app_diagnosis.api.middleware import install_request_context_middleware
 from app_diagnosis.api.routes.diagnoses import router as diagnoses_router
+from app_diagnosis.api.routes.discovery import router as discovery_router
 from app_diagnosis.api.routes.health import router as health_router
 from app_diagnosis.api.routes.incidents import router as incidents_router
 from app_diagnosis.api.routes.knowledge import router as knowledge_router
@@ -18,6 +19,7 @@ from app_diagnosis.api.routes.ui import router as ui_router
 from app_diagnosis.application import DiagnosisApplicationService
 from app_diagnosis.bootstrap.container import (
     build_diagnosis_service,
+    build_discovery_service,
     build_incident_service,
     build_knowledge_service,
     build_plan_service,
@@ -69,6 +71,9 @@ def create_app(
     app.state.diagnosis_service = diagnosis_service
     app.state.knowledge_service = build_knowledge_service(resolved_database)
     app.state.incident_service = build_incident_service(resolved_database)
+    app.state.discovery_service = build_discovery_service(
+        resolved_database, diagnosis_service, resolved_settings
+    )
     app.state.plan_service = build_plan_service(resolved_database)
     app.state.service_catalog = build_service_catalog(resolved_database, diagnosis_service)
     app.state.report_service = build_report_service(resolved_database)
@@ -77,6 +82,7 @@ def create_app(
     install_exception_handlers(app)
     app.include_router(health_router)
     app.include_router(diagnoses_router)
+    app.include_router(discovery_router)
     app.include_router(knowledge_router)
     app.include_router(incidents_router)
     app.include_router(plans_router)

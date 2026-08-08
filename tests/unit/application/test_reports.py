@@ -20,7 +20,9 @@ def test_markdown_report_separates_sections_and_uses_safe_evidence() -> None:
         content=diagnosis.symptom,
         reliability=EvidenceReliability.MEDIUM,
     )
-    report = DiagnosisReport(diagnosis, None, None, (evidence,), (), (), (), datetime.now(UTC))
+    report = DiagnosisReport(
+        diagnosis, None, None, None, (evidence,), (), (), (), datetime.now(UTC)
+    )
     markdown = render_markdown(report)
     assert "## Evidence" in markdown
     assert "password=[REDACTED]" in markdown

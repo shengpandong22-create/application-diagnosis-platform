@@ -7,6 +7,7 @@ from app_diagnosis.domain.confirmation import Confirmation
 from app_diagnosis.domain.diagnosis import DiagnosisCase
 from app_diagnosis.domain.diagnosis_plan import DiagnosisPlan
 from app_diagnosis.domain.evidence import Evidence
+from app_diagnosis.domain.incident import Incident
 from app_diagnosis.domain.service_profile import ServiceProfile
 
 
@@ -26,6 +27,7 @@ class ReportRun:
 class DiagnosisReport:
     diagnosis: DiagnosisCase
     service: ServiceProfile | None
+    incident: Incident | None
     conclusion: DiagnosisConclusion | None
     evidence: tuple[Evidence, ...]
     plans: tuple[DiagnosisPlan, ...]

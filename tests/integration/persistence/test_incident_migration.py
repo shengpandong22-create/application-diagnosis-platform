@@ -15,4 +15,4 @@ def test_incident_migration_creates_required_tables(tmp_path: Path) -> None:
         tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master")}
         revision = connection.execute("SELECT version_num FROM alembic_version").fetchone()[0]
     assert {"incidents", "deduplication_keys"} <= tables
-    assert revision == "0011"
+    assert revision == "0012"

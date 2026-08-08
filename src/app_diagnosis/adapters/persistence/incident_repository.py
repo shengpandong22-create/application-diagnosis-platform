@@ -65,6 +65,17 @@ class SqlAlchemyIncidentRepository:
             )
         return None if record is None else self._domain(record)
 
+    async def link_diagnosis(self, incident_id: UUID, diagnosis_id: UUID) -> Incident:
+        async with self._sessions.begin() as session:
+            record = await session.get(IncidentRecord, str(incident_id))
+            if record is None:
+                raise LookupError(str(incident_id))
+            if record.diagnosis_id not in {None, str(diagnosis_id)}:
+                raise ValueError("incident already links another diagnosis")
+            record.diagnosis_id = str(diagnosis_id)
+            await session.flush()
+            return self._domain(record)
+
     async def list(self, *, service_id: UUID | None = None) -> tuple[Incident, ...]:
         statement = select(IncidentRecord).order_by(IncidentRecord.last_seen_at.desc())
         if service_id is not None:
@@ -79,6 +90,7 @@ class SqlAlchemyIncidentRepository:
             id=str(value.id), service_id=str(value.service_id), environment=value.environment,
             fingerprint=value.fingerprint, fingerprint_version=value.fingerprint_version,
             aggregation_key=value.aggregation_key, status=value.status.value,
+            diagnosis_id=str(value.diagnosis_id) if value.diagnosis_id else None,
             exception_type=value.exception_type, sample_message=value.sample_message,
             occurrence_count=value.occurrence_count, first_seen_at=value.first_seen_at,
             last_seen_at=value.last_seen_at, window_started_at=value.window_started_at,
@@ -92,6 +104,7 @@ class SqlAlchemyIncidentRepository:
             id=UUID(value.id), service_id=UUID(value.service_id), environment=value.environment,
             fingerprint=value.fingerprint, fingerprint_version=value.fingerprint_version,
             aggregation_key=value.aggregation_key, status=IncidentStatus(value.status),
+            diagnosis_id=UUID(value.diagnosis_id) if value.diagnosis_id else None,
             exception_type=value.exception_type, sample_message=value.sample_message,
             occurrence_count=value.occurrence_count, first_seen_at=_utc(value.first_seen_at),
             last_seen_at=_utc(value.last_seen_at), window_started_at=_utc(value.window_started_at),

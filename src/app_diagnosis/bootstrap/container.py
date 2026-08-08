@@ -46,9 +46,11 @@ from app_diagnosis.application import (
     ServiceCatalogApplicationService,
 )
 from app_diagnosis.application.diagnoses import build_service_tool_resource_resolver
+from app_diagnosis.application.discovery import ActiveDiscoveryApplicationService
 from app_diagnosis.application.incidents import IncidentApplicationService
 from app_diagnosis.bootstrap.settings import Settings
 from app_diagnosis.domain.code_workspace import CodeWorkspace
+from app_diagnosis.domain.incident import DiagnosisTriggerPolicy
 from app_diagnosis.ports.llm import LLMClient, LLMTransportError
 from app_diagnosis.tools import DiagnosticToolRegistry
 from app_diagnosis.tools.code import CodeReadTool, CodeSearchTool
@@ -212,6 +214,30 @@ def build_incident_service(database: Database) -> IncidentApplicationService:
         deduplication=SqlAlchemyDeduplicationStore(database.session_factory),
         services=SqlAlchemyServiceProfileRepository(database.session_factory),
         redactor=LocalRuleRedactor(),
+    )
+
+
+def build_discovery_service(
+    database: Database,
+    diagnosis_service: DiagnosisApplicationService,
+    settings: Settings,
+) -> ActiveDiscoveryApplicationService:
+    """构建本地主动发现闭环；默认仍复用已装配的有界 Agent Runner。"""
+    repository = SqlAlchemyIncidentRepository(database.session_factory)
+    redactor = LocalRuleRedactor()
+    return ActiveDiscoveryApplicationService(
+        sessions=database.session_factory,
+        incidents=IncidentApplicationService(
+            incidents=repository,
+            deduplication=SqlAlchemyDeduplicationStore(database.session_factory),
+            services=SqlAlchemyServiceProfileRepository(database.session_factory),
+            redactor=redactor,
+        ),
+        incident_repository=repository,
+        diagnoses=diagnosis_service,
+        evidence_store=SqlAlchemyEvidenceStore(database.session_factory, redactor),
+        trigger_policy=DiagnosisTriggerPolicy(),
+        max_tool_output_bytes=settings.tool_output_max_bytes,
     )
 
 

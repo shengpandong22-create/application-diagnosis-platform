@@ -34,6 +34,8 @@ def test_report_api_and_minimal_ui_do_not_require_model(tmp_path: Path) -> None:
         assert trace.json() == {
             "diagnosis_id": diagnosis_id,
             "diagnosis_status": "created",
+            "incident_id": None,
+            "incident_fingerprint": None,
             "runs": [],
         }
         ui = api.get("/ui")

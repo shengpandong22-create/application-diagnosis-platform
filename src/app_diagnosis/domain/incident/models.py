@@ -70,6 +70,7 @@ class Incident:
     fingerprint: str
     fingerprint_version: str
     aggregation_key: str
+    diagnosis_id: UUID | None
     status: IncidentStatus
     exception_type: str
     sample_message: str
@@ -98,6 +99,11 @@ class Incident:
             last_seen_at=max(self.last_seen_at, event.occurred_at),
             updated_at=max(self.updated_at, event.received_at),
         )
+
+    def link_diagnosis(self, diagnosis_id: UUID) -> "Incident":
+        if self.diagnosis_id is not None and self.diagnosis_id != diagnosis_id:
+            raise ValueError("incident already links another diagnosis")
+        return replace(self, diagnosis_id=diagnosis_id)
 
 
 @dataclass(frozen=True, slots=True)

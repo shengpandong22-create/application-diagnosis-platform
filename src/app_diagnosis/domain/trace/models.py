@@ -47,4 +47,6 @@ class AgentRunTrace:
 class DiagnosisTrace:
     diagnosis_id: UUID
     diagnosis_status: str
+    incident_id: UUID | None
+    incident_fingerprint: str | None
     runs: tuple[AgentRunTrace, ...]

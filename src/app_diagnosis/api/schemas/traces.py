@@ -39,6 +39,8 @@ class AgentRunTraceResponse(BaseModel):
 class DiagnosisTraceResponse(BaseModel):
     diagnosis_id: UUID
     diagnosis_status: str
+    incident_id: UUID | None
+    incident_fingerprint: str | None
     runs: list[AgentRunTraceResponse]
 
     @classmethod
