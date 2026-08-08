@@ -1,0 +1,107 @@
+{
+  "dataset_version": "phase4a-v1",
+  "cases": [
+    {
+      "id": "npe-supported",
+      "title": "NPE with direct evidence",
+      "source": "synthetic",
+      "versions": {
+        "dataset_version": "phase4a-v1",
+        "model_id": "fake-llm-v1",
+        "prompt_version": "generic-application-error-v1",
+        "strategy_version": "generic-application-error-v1",
+        "tool_schema_version": "phase3-v1",
+        "citation_policy_version": "phase0b-v1",
+        "code_revision": "phase4a-baseline"
+      },
+      "expected_termination_reason": "completed",
+      "expected_category": "code_bug",
+      "expected_information_sufficient": true,
+      "expected_tool_names": ["log__search"],
+      "required_evidence_types": ["log_excerpt"],
+      "required_evidence_ids": ["11111111-1111-4111-8111-111111111111"],
+      "allowed_root_cause_keywords": ["null"],
+      "forbidden_root_cause_keywords": ["database corruption"],
+      "observation": {
+        "termination_reason": "completed",
+        "tool_statuses": ["success"],
+        "tool_names": ["log__search"],
+        "observed_category": "code_bug",
+        "confidence": 0.86,
+        "latency_ms": 120,
+        "prompt_tokens": 180,
+        "completion_tokens": 70,
+        "estimated_cost_usd": 0.0002,
+        "evidence": [
+          {"id": "11111111-1111-4111-8111-111111111111", "type": "log_excerpt"}
+        ],
+        "conclusion": {
+          "symptom_summary": "HTTP 500",
+          "facts": [
+            {
+              "statement": "Log contains NullPointerException",
+              "status": "probable",
+              "evidence_ids": ["11111111-1111-4111-8111-111111111111"]
+            }
+          ],
+          "root_causes": [
+            {
+              "statement": "Null dereference",
+              "status": "probable",
+              "evidence_ids": ["11111111-1111-4111-8111-111111111111"]
+            }
+          ],
+          "recommendations": ["Inspect first application frame"],
+          "missing_information": []
+        }
+      }
+    },
+    {
+      "id": "insufficient",
+      "title": "Insufficient evidence",
+      "source": "synthetic",
+      "versions": {
+        "dataset_version": "phase4a-v1",
+        "model_id": "fake-llm-v1",
+        "prompt_version": "generic-application-error-v1",
+        "strategy_version": "generic-application-error-v1",
+        "tool_schema_version": "phase3-v1",
+        "citation_policy_version": "phase0b-v1",
+        "code_revision": "phase4a-baseline"
+      },
+      "expected_termination_reason": "completed",
+      "expected_category": "insufficient_evidence",
+      "expected_information_sufficient": false,
+      "required_evidence_types": ["user_statement"],
+      "allowed_root_cause_keywords": [],
+      "forbidden_root_cause_keywords": ["confirmed database failure"],
+      "observation": {
+        "termination_reason": "completed",
+        "tool_statuses": [],
+        "tool_names": [],
+        "observed_category": "insufficient_evidence",
+        "confidence": 0.3,
+        "latency_ms": 80,
+        "prompt_tokens": 120,
+        "completion_tokens": 45,
+        "estimated_cost_usd": 0.0001,
+        "evidence": [
+          {"id": "22222222-2222-4222-8222-222222222222", "type": "user_statement"}
+        ],
+        "conclusion": {
+          "symptom_summary": "Intermittent timeout",
+          "facts": [
+            {
+              "statement": "Evidence is insufficient",
+              "status": "insufficient_evidence",
+              "evidence_ids": []
+            }
+          ],
+          "root_causes": [],
+          "recommendations": ["Collect timeout logs"],
+          "missing_information": ["request trace"]
+        }
+      }
+    }
+  ]
+}

@@ -18,4 +18,5 @@ build/
 .phase0a-acceptance/
 .phase0b-acceptance/
 .phase0c-acceptance/
+.phase4a-acceptance/
 demo-output/

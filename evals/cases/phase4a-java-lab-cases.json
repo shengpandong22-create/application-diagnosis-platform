@@ -1,0 +1,101 @@
+{
+  "dataset_version": "java-lab-phase4a-v1",
+  "cases": [
+    {
+      "id": "npe",
+      "title": "Null customer dereference",
+      "trigger_path": "/lab/orders/npe",
+      "keyword": "NullPointerException",
+      "expected_category": "code_bug",
+      "expected_context_depth": "cross_file",
+      "expected_code_paths": ["OrderService.java", "FailureController.java"],
+      "expected_evidence_types": ["log_excerpt", "code_excerpt"],
+      "expected_tools": ["code__search", "code__read"],
+      "allowed_root_cause_keywords": ["null", "trim", "customer"]
+    },
+    {
+      "id": "connection-refused",
+      "title": "Downstream connection refused",
+      "trigger_path": "/lab/payments/connection-refused",
+      "keyword": "ConnectException",
+      "expected_category": "dependency",
+      "expected_context_depth": "config",
+      "expected_code_paths": ["PaymentClient.java", "application.yml"],
+      "expected_evidence_types": ["log_excerpt", "config_excerpt"],
+      "expected_tools": ["config__read"],
+      "allowed_root_cause_keywords": ["connection refused", "downstream", "65534"]
+    },
+    {
+      "id": "timeout",
+      "title": "Inventory operation timeout",
+      "trigger_path": "/lab/inventory/timeout",
+      "keyword": "TimeoutException",
+      "expected_category": "dependency",
+      "expected_context_depth": "config",
+      "expected_code_paths": ["InventoryClient.java", "application.yml"],
+      "expected_evidence_types": ["log_excerpt", "config_excerpt"],
+      "expected_tools": ["config__read"],
+      "allowed_root_cause_keywords": ["timeout", "inventory", "50"]
+    },
+    {
+      "id": "concurrent-modification",
+      "title": "Collection modified during iteration",
+      "trigger_path": "/lab/carts/concurrent-modification",
+      "keyword": "ConcurrentModificationException",
+      "expected_category": "code_bug",
+      "expected_context_depth": "class",
+      "expected_code_paths": ["ConcurrentCartService.java"],
+      "expected_evidence_types": ["log_excerpt", "code_excerpt"],
+      "expected_tools": ["code__search", "code__read"],
+      "allowed_root_cause_keywords": ["remove", "iteration", "collection"]
+    },
+    {
+      "id": "missing-configuration",
+      "title": "Required region configuration is empty",
+      "trigger_path": "/lab/configuration/missing",
+      "keyword": "Missing required configuration",
+      "expected_category": "config",
+      "expected_context_depth": "config",
+      "expected_code_paths": ["ConfigurationService.java", "application.yml"],
+      "expected_evidence_types": ["log_excerpt", "config_excerpt"],
+      "expected_tools": ["config__read"],
+      "allowed_root_cause_keywords": ["required-region", "empty", "configuration"]
+    },
+    {
+      "id": "pool-exhausted",
+      "title": "Connection pool capacity exhausted",
+      "trigger_path": "/lab/pool/exhausted",
+      "keyword": "Connection pool exhausted",
+      "expected_category": "config",
+      "expected_context_depth": "config",
+      "expected_code_paths": ["ConnectionPoolService.java", "application.yml"],
+      "expected_evidence_types": ["log_excerpt", "config_excerpt"],
+      "expected_tools": ["config__read"],
+      "allowed_root_cause_keywords": ["pool", "size=1", "wait"]
+    },
+    {
+      "id": "invalid-request",
+      "title": "Invalid external request parameter",
+      "trigger_path": "/lab/requests/invalid",
+      "keyword": "Invalid request parameter",
+      "expected_category": "external",
+      "expected_context_depth": "class",
+      "expected_code_paths": ["RequestValidationService.java", "FailureController.java"],
+      "expected_evidence_types": ["log_excerpt", "code_excerpt"],
+      "expected_tools": ["code__read"],
+      "allowed_root_cause_keywords": ["limit", "-1", "invalid"]
+    },
+    {
+      "id": "chained-downstream-npe",
+      "title": "Downstream timeout followed by upstream NPE",
+      "trigger_path": "/lab/chain/downstream-then-npe",
+      "keyword": "lab-chain-001",
+      "expected_category": "dependency",
+      "expected_context_depth": "related_logs",
+      "expected_code_paths": ["ChainedFailureService.java"],
+      "expected_evidence_types": ["log_excerpt", "code_excerpt", "related_log_excerpt"],
+      "expected_tools": ["log__search", "code__read", "related_logs__query"],
+      "allowed_root_cause_keywords": ["inventory", "downstream", "timeout"]
+    }
+  ]
+}

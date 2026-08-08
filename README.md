@@ -24,7 +24,7 @@
 | Phase 1 | 日志与授权源码联合诊断 | 完成（本地最小闭环） | [扩展架构与学习总结](./docs/01-architecture/phase1-extension.md) · [端到端链路图](./docs/01-architecture/phase1-log-code-flow.md) |
 | Phase 2 | 可观测、多策略、现场感知 | 完成 | [扩展架构与学习总结](./docs/01-architecture/phase2-extension.md) · [开发总结](./docs/03-progress/2026-07-18-Phase2开发总结.md) |
 | Phase 3 | 可解释诊断、轻量计划与服务目录 | 进行中（3C 服务上下文闭环） | [Phase 3C 架构图](./docs/01-architecture/phase3c-service-context.md) · [能力总结](./docs/03-progress/2026-07-30-Phase3当前能力总结.md) |
-| Phase 4 | 日志主动发现、故障指纹与质量回归 | 规划完成，待实施 | [融合设计与实现规格](./docs/02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md) |
+| Phase 4 | 日志主动发现、故障指纹与质量回归 | 4A 已完成 | [融合设计与实现规格](./docs/02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md) · [4A 验收](./docs/04-validation/phase4a-acceptance.md) |
 
 ## 技术栈
 
@@ -70,7 +70,7 @@ uv run pytest
 .\scripts\verify-phase2.ps1 -SkipSync
 ```
 
-当前基线：`199 passed`，Phase 0C 固定评测 `2/2 passed`，Phase 0A/0B/0C/2 一键验收通过，Phase 1 Java Lab 三类真实模型案例通过，Phase 3C 服务驱动离线演示通过。
+当前基线：`210 passed`，Phase 4A 版本化质量评测 `2/2 passed`，Java Lab 8 类确定性故障测试通过；Phase 1 三类真实模型案例通过，Phase 4A 新增场景已建立少量真实模型成本与失败基线。
 
 ## 主要 API
 
@@ -104,6 +104,8 @@ uv run pytest
 - [Phase 3C 架构图](./docs/01-architecture/phase3c-service-context.md)
 - [Phase 3 当前能力总结](./docs/03-progress/2026-07-30-Phase3当前能力总结.md)
 - [日志主动发现能力融合设计与 Phase 4 实施规格](./docs/02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md)
+- [Phase 4A 开发总结](./docs/03-progress/2026-08-08-Phase4A质量基线与故障靶场增强.md)
+- [Phase 4A 验收记录](./docs/04-validation/phase4a-acceptance.md)
 - [简历与面试描述](./docs/00-overview/简历项目描述.md)
 
 ## 当前边界

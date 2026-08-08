@@ -32,6 +32,10 @@ def _router() -> DiagnosisStrategyRouter:
         ("downstream connection refused", "network_diagnosis_v1"),
         ("InventoryClient TimeoutException", "network_diagnosis_v1"),
         ("missing property database.url", "configuration_diagnosis_v1"),
+        ("Missing required configuration: lab.required-region", "configuration_diagnosis_v1"),
+        ("IllegalStateException: Missing required configuration", "configuration_diagnosis_v1"),
+        ("generic IllegalStateException", "generic_application_error_v1"),
+        ("plain HTTP 500", "generic_application_error_v1"),
         ("application behaves unexpectedly", "generic_application_error_v1"),
     ],
 )

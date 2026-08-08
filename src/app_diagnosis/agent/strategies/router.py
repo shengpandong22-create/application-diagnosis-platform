@@ -35,8 +35,6 @@ class DiagnosisStrategyRouter:
                         r"nullpointerexception",
                         r"\bnpe\b",
                         r"stack\s*trace",
-                        r"exception",
-                        r"http\s*500",
                     )
                 ),
             ),
@@ -62,6 +60,7 @@ class DiagnosisStrategyRouter:
                 _patterns(
                     (
                         r"missing\s+(?:property|configuration)",
+                        r"missing\s+required\s+configuration",
                         r"invalid\s+(?:property|config)",
                         r"could\s+not\s+resolve\s+placeholder",
                         r"configuration\s+error",

@@ -51,6 +51,8 @@ def main() -> None:
         raise ValueError("provide --keyword or --case")
     expected_paths = tuple((case or {}).get("expected_code_paths", ()))
     expected_terms = tuple((case or {}).get("allowed_root_cause_keywords", ()))
+    expected_tools = set((case or {}).get("expected_tools", ()))
+    expected_evidence_types = set((case or {}).get("expected_evidence_types", ()))
 
     java_lab = args.java_lab.resolve(strict=True)
     excerpt = LocalLogFileReader(java_lab / "logs").read_latest(
@@ -68,6 +70,7 @@ def main() -> None:
             knowledge_directory=str(PROJECT_ROOT / "samples" / "knowledge"),
             code_workspace_path=str(java_lab),
             code_workspace_name="diagnosis-java-lab",
+            config_workspace_path=str(java_lab),
             agent_max_rounds=6,
             agent_max_tool_calls=8,
             agent_total_timeout_seconds=120,
@@ -86,7 +89,7 @@ def main() -> None:
                 "/api/v1/diagnoses",
                 json={
                     "title": f"Java Lab real-log diagnosis: {case['title'] if case else keyword}",
-                    "symptom": f"Java Lab HTTP 500 contains {keyword}",
+                    "symptom": f"Java Lab failure contains {keyword}",
                     "submitted_log": excerpt.content,
                 },
             )
@@ -124,19 +127,28 @@ def main() -> None:
             failures.append("diagnosis plan is not linked to the agent run")
         if "## 诊断计划" not in report_response.text:
             failures.append("markdown report does not include diagnosis plan")
-        if not {"code__search", "code__read"}.issubset(successful_tools):
-            failures.append("model did not successfully search and read code")
-        if not {"log_excerpt", "code_excerpt"}.issubset(cited_types):
-            failures.append("conclusion did not cite both log and code evidence")
+        required_tools = expected_tools or {"code__search", "code__read"}
+        if not required_tools.issubset(successful_tools):
+            failures.append(
+                "missing expected successful tools: "
+                + ", ".join(sorted(required_tools - successful_tools))
+            )
+        required_evidence = expected_evidence_types or {"log_excerpt", "code_excerpt"}
+        if not required_evidence.issubset(cited_types):
+            failures.append(
+                "missing expected cited evidence: "
+                + ", ".join(sorted(required_evidence - cited_types))
+            )
         code_references = [
             item["source_reference"] or "" for item in evidence if item["type"] == "code_excerpt"
         ]
+        evidence_references = [item["source_reference"] or "" for item in evidence]
         if expected_paths and not any(
             reference.endswith(path) or f"{path}:" in reference
-            for reference in code_references
+            for reference in evidence_references
             for path in expected_paths
         ):
-            failures.append("expected source file was not captured as code evidence")
+            failures.append("expected source file was not captured as evidence")
         root_cause_text = " ".join(
             item["statement"] for item in (result.get("conclusion") or {}).get("root_causes", [])
         ).casefold()
@@ -176,8 +188,11 @@ def main() -> None:
             ],
             "cited_evidence_types": sorted(cited_types),
             "code_evidence_references": code_references,
+            "evidence_references": evidence_references,
             "expected_code_paths": expected_paths,
             "expected_root_cause_keywords": expected_terms,
+            "expected_tools": sorted(required_tools),
+            "expected_evidence_types": sorted(required_evidence),
             "log_source_reference": excerpt.source_reference,
             "external_model_called": True,
             "report": str(report_path.resolve()),
