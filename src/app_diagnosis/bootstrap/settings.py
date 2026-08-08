@@ -31,6 +31,25 @@ class Settings(BaseSettings):
     agent_total_timeout_seconds: float = Field(default=120, gt=0, le=900)
     tool_output_max_bytes: int = Field(default=32_768, ge=1024, le=1_048_576)
     input_log_max_bytes: int = Field(default=262_144, ge=1024, le=10_485_760)
+    enterprise_enabled: bool = False
+    rabbitmq_url: SecretStr = SecretStr("")
+    redis_url: SecretStr = SecretStr("")
+    gitlab_base_url: str = ""
+    gitlab_private_token: SecretStr = SecretStr("")
+    gitlab_allowed_projects: set[str] = Field(default_factory=set)
+    gitlab_allowed_commits: set[str] = Field(default_factory=set)
+    github_token: SecretStr = SecretStr("")
+    notification_webhook_url: SecretStr = SecretStr("")
+    notification_allowed_hosts: set[str] = Field(default_factory=set)
+    smtp_host: str = ""
+    smtp_port: int = Field(default=465, ge=1, le=65_535)
+    smtp_username: str = ""
+    smtp_password: SecretStr = SecretStr("")
+    smtp_sender: str = ""
+    smtp_recipients: set[str] = Field(default_factory=set)
+    smtp_allowed_hosts: set[str] = Field(default_factory=set)
+    smtp_use_ssl: bool = True
+    smtp_starttls: bool = False
 
     @property
     def docs_enabled(self) -> bool:

@@ -21,6 +21,10 @@ dev = [
   "pytest-asyncio>=0.25,<1",
   "ruff>=0.9,<1",
 ]
+enterprise = [
+  "aio-pika>=9.5,<10",
+  "redis>=5.2,<7",
+]
 
 [build-system]
 requires = ["hatchling"]
