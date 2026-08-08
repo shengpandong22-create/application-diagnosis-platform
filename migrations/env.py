@@ -11,6 +11,10 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from app_diagnosis.adapters.persistence.audit_models import AuditEventRecord  # noqa: F401
 from app_diagnosis.adapters.persistence.confirmation_models import ConfirmationRecord  # noqa: F401
 from app_diagnosis.adapters.persistence.evidence_models import EvidenceRecord  # noqa: F401
+from app_diagnosis.adapters.persistence.incident_models import (  # noqa: F401
+    DeduplicationKeyRecord,
+    IncidentRecord,
+)
 from app_diagnosis.adapters.persistence.knowledge_models import KnowledgeEntryRecord  # noqa: F401
 from app_diagnosis.adapters.persistence.models import Base
 

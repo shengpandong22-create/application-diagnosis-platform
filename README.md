@@ -24,7 +24,7 @@
 | Phase 1 | 日志与授权源码联合诊断 | 完成（本地最小闭环） | [扩展架构与学习总结](./docs/01-architecture/phase1-extension.md) · [端到端链路图](./docs/01-architecture/phase1-log-code-flow.md) |
 | Phase 2 | 可观测、多策略、现场感知 | 完成 | [扩展架构与学习总结](./docs/01-architecture/phase2-extension.md) · [开发总结](./docs/03-progress/2026-07-18-Phase2开发总结.md) |
 | Phase 3 | 可解释诊断、轻量计划与服务目录 | 进行中（3C 服务上下文闭环） | [Phase 3C 架构图](./docs/01-architecture/phase3c-service-context.md) · [能力总结](./docs/03-progress/2026-07-30-Phase3当前能力总结.md) |
-| Phase 4 | 日志主动发现、故障指纹与质量回归 | 4A 已完成 | [融合设计与实现规格](./docs/02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md) · [4A 验收](./docs/04-validation/phase4a-acceptance.md) |
+| Phase 4 | 日志主动发现、故障指纹与质量回归 | 4A、4B 已完成 | [融合设计与实现规格](./docs/02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md) · [4B 验收](./docs/04-validation/phase4b-acceptance.md) |
 
 ## 技术栈
 
@@ -106,6 +106,8 @@ uv run pytest
 - [日志主动发现能力融合设计与 Phase 4 实施规格](./docs/02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md)
 - [Phase 4A 开发总结](./docs/03-progress/2026-08-08-Phase4A质量基线与故障靶场增强.md)
 - [Phase 4A 验收记录](./docs/04-validation/phase4a-acceptance.md)
+- [Phase 4B 开发总结](./docs/03-progress/2026-08-08-Phase4B主动发现领域核心.md)
+- [Phase 4B 验收记录](./docs/04-validation/phase4b-acceptance.md)
 - [简历与面试描述](./docs/00-overview/简历项目描述.md)
 
 ## 当前边界

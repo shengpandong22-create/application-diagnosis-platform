@@ -1,0 +1,14 @@
+from typing import Protocol
+from uuid import UUID
+
+from app_diagnosis.domain.incident import Incident, IncidentAggregation
+
+
+class IncidentRepository(Protocol):
+    async def aggregate(self, candidate: Incident) -> IncidentAggregation: ...
+
+    async def get(self, incident_id: UUID) -> Incident | None: ...
+
+    async def get_by_aggregation_key(self, key: str) -> Incident | None: ...
+
+    async def list(self, *, service_id: UUID | None = None) -> tuple[Incident, ...]: ...

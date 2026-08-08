@@ -19,7 +19,7 @@ def test_diagnosis_plan_migration_creates_table(tmp_path: Path) -> None:
         }
         revision = connection.execute("SELECT version_num FROM alembic_version").fetchone()[0]
 
-    assert revision == "0010"
+    assert revision == "0011"
     assert {
         "id",
         "diagnosis_id",

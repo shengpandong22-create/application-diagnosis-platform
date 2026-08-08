@@ -14,7 +14,7 @@
 | Phase 1 | 日志与授权源码联合诊断 | [扩展架构与学习总结](./01-architecture/phase1-extension.md) · [端到端链路图](./01-architecture/phase1-log-code-flow.md) | [实现规格](./02-specifications/Phase%201%20实现规格说明.md) · [能力总结](./03-progress/2026-07-17-Phase1当前能力总结.md) | [验收记录](./04-validation/phase1-acceptance.md) | 本地最小闭环完成 |
 | Phase 2 | 可观测、多策略、现场感知 | [扩展架构与学习总结](./01-architecture/phase2-extension.md) · [SVG](./01-architecture/phase2-extension.svg) · [Graphviz](./01-architecture/phase2-extension.dot) | [实现规格](./02-specifications/Phase%202%20实现规格说明.md) · [开发总结](./03-progress/2026-07-18-Phase2开发总结.md) | [验收记录](./04-validation/phase2-acceptance.md) | 已完成 |
 | Phase 3A/3B/3C | 可解释诊断、轻量计划与服务驱动工具上下文 | [Phase 3C 架构图](./01-architecture/phase3c-service-context.md) · [SVG](./01-architecture/phase3c-service-context.svg) | [实现规格](./02-specifications/Phase%203%20实现规格说明.md) | [3A/3B/3C-1](./04-validation/phase3a-3b-acceptance.md) · [3C-2](./04-validation/phase3c-service-context-acceptance.md) | 进行中 |
-| Phase 4 | 日志主动发现、故障指纹与质量回归 | 待补 | [融合设计与实现规格](./02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md) · [4A 总结](./03-progress/2026-08-08-Phase4A质量基线与故障靶场增强.md) | [4A 验收](./04-validation/phase4a-acceptance.md) | 4A 已完成 |
+| Phase 4 | 日志主动发现、故障指纹与质量回归 | 待补 | [融合设计与实现规格](./02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md) · [4B 总结](./03-progress/2026-08-08-Phase4B主动发现领域核心.md) | [4B 验收](./04-validation/phase4b-acceptance.md) | 4A、4B 已完成 |
 
 ## 按内容查找
 
@@ -31,6 +31,8 @@
 - [日志主动发现能力融合设计与 Phase 4 实施规格](./02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md)
 - [Phase 4A 质量基线与故障靶场增强总结](./03-progress/2026-08-08-Phase4A质量基线与故障靶场增强.md)
 - [Phase 4A 验收记录](./04-validation/phase4a-acceptance.md)
+- [Phase 4B 主动发现领域核心总结](./03-progress/2026-08-08-Phase4B主动发现领域核心.md)
+- [Phase 4B 验收记录](./04-validation/phase4b-acceptance.md)
 - [Phase 3 当前能力总结](./03-progress/2026-07-30-Phase3当前能力总结.md)
 - [本地诊断 Agent 到企业平台演进设计](./02-specifications/本地诊断Agent到企业平台演进设计.md)
 - [Phase 1 验收记录](./04-validation/phase1-acceptance.md)

@@ -16,12 +16,17 @@ from app_diagnosis.application import (
     ServiceProfileConflict,
     ServiceProfileNotFound,
 )
+from app_diagnosis.application.incidents import IncidentNotFound
 from app_diagnosis.domain.diagnosis import InvalidDiagnosisValue
 
 logger = logging.getLogger("app_diagnosis.api.errors")
 
 
 def install_exception_handlers(app: FastAPI) -> None:
+    @app.exception_handler(IncidentNotFound)
+    async def incident_not_found(request: Request, error: IncidentNotFound) -> JSONResponse:
+        return _response(request, status.HTTP_404_NOT_FOUND, "incident_not_found", str(error))
+
     @app.exception_handler(DiagnosisNotFound)
     async def diagnosis_not_found(request: Request, error: DiagnosisNotFound) -> JSONResponse:
         return _response(

@@ -14,10 +14,16 @@ from app_diagnosis.adapters.knowledge import JsonKnowledgeSeedLoader, SqliteKnow
 from app_diagnosis.adapters.llm import OpenAICompatibleChatClient
 from app_diagnosis.adapters.logs import LocalLogFileReader
 from app_diagnosis.adapters.persistence import Database, SqlAlchemyAgentExecutionRepository
+from app_diagnosis.adapters.persistence.deduplication_store import (
+    SqlAlchemyDeduplicationStore,
+)
 from app_diagnosis.adapters.persistence.diagnosis_plan_repository import (
     SqlAlchemyDiagnosisPlanRepository,
 )
 from app_diagnosis.adapters.persistence.evidence_store import SqlAlchemyEvidenceStore
+from app_diagnosis.adapters.persistence.incident_repository import (
+    SqlAlchemyIncidentRepository,
+)
 from app_diagnosis.adapters.persistence.service_profile_repository import (
     SqlAlchemyServiceProfileRepository,
 )
@@ -40,6 +46,7 @@ from app_diagnosis.application import (
     ServiceCatalogApplicationService,
 )
 from app_diagnosis.application.diagnoses import build_service_tool_resource_resolver
+from app_diagnosis.application.incidents import IncidentApplicationService
 from app_diagnosis.bootstrap.settings import Settings
 from app_diagnosis.domain.code_workspace import CodeWorkspace
 from app_diagnosis.ports.llm import LLMClient, LLMTransportError
@@ -195,6 +202,16 @@ def build_service_catalog(
     return ServiceCatalogApplicationService(
         services=SqlAlchemyServiceProfileRepository(database.session_factory),
         diagnoses=diagnosis_service,
+    )
+
+
+def build_incident_service(database: Database) -> IncidentApplicationService:
+    """构建 Phase 4B 确定性日志事件聚合服务，不接入 LLM。"""
+    return IncidentApplicationService(
+        incidents=SqlAlchemyIncidentRepository(database.session_factory),
+        deduplication=SqlAlchemyDeduplicationStore(database.session_factory),
+        services=SqlAlchemyServiceProfileRepository(database.session_factory),
+        redactor=LocalRuleRedactor(),
     )
 
 
