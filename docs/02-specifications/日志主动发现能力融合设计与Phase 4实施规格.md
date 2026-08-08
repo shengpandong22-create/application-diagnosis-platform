@@ -1,6 +1,6 @@
 # 日志主动发现能力融合设计与 Phase 4 实施规格
 
-> 文档状态：Phase 4A、4B、4C 已完成，Phase 4D 待实施
+> 文档状态：Phase 4A～4D 已完成，Phase 4E 按需可选
 > 适用项目：Application Diagnosis Platform
 > 目标版本：Phase 4
 > 编写日期：2026-08-08

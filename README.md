@@ -24,7 +24,7 @@
 | Phase 1 | 日志与授权源码联合诊断 | 完成（本地最小闭环） | [扩展架构与学习总结](./docs/01-architecture/phase1-extension.md) · [端到端链路图](./docs/01-architecture/phase1-log-code-flow.md) |
 | Phase 2 | 可观测、多策略、现场感知 | 完成 | [扩展架构与学习总结](./docs/01-architecture/phase2-extension.md) · [开发总结](./docs/03-progress/2026-07-18-Phase2开发总结.md) |
 | Phase 3 | 可解释诊断、轻量计划与服务目录 | 进行中（3C 服务上下文闭环） | [Phase 3C 架构图](./docs/01-architecture/phase3c-service-context.md) · [能力总结](./docs/03-progress/2026-07-30-Phase3当前能力总结.md) |
-| Phase 4 | 日志主动发现、故障指纹与质量回归 | 4A、4B、4C 已完成 | [融合设计与实现规格](./docs/02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md) · [4C 验收](./docs/04-validation/phase4c-acceptance.md) |
+| Phase 4 | 日志主动发现、故障指纹与质量回归 | 4A～4D 已完成 | [融合设计与实现规格](./docs/02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md) · [4D 验收](./docs/04-validation/phase4d-acceptance.md) |
 
 ## 技术栈
 
@@ -110,6 +110,8 @@ uv run pytest
 - [Phase 4B 验收记录](./docs/04-validation/phase4b-acceptance.md)
 - [Phase 4C 开发总结](./docs/03-progress/2026-08-08-Phase4C本地主动发现闭环.md)
 - [Phase 4C 验收记录](./docs/04-validation/phase4c-acceptance.md)
+- [Phase 4D 开发总结](./docs/03-progress/2026-08-08-Phase4D运营复盘与反馈回流.md)
+- [Phase 4D 验收记录](./docs/04-validation/phase4d-acceptance.md)
 - [简历与面试描述](./docs/00-overview/简历项目描述.md)
 
 ## 当前边界

@@ -1,12 +1,18 @@
+from datetime import date
 from uuid import UUID
 
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Request, Response, status
 
 from app_diagnosis.api.schemas import CreateDiagnosisRequest, DiagnosisResponse
+from app_diagnosis.api.schemas.daily_summaries import DailyServiceSummaryResponse
 from app_diagnosis.api.schemas.services import (
     CreateServiceProfileRequest,
     ServiceDiagnosisSummaryResponse,
     ServiceProfileResponse,
+)
+from app_diagnosis.application.daily_summaries import (
+    DailyServiceSummaryService,
+    render_daily_markdown,
 )
 from app_diagnosis.application.services import ServiceCatalogApplicationService
 
@@ -15,6 +21,23 @@ router = APIRouter(prefix="/api/v1/services", tags=["services"])
 
 def _service(request: Request) -> ServiceCatalogApplicationService:
     return request.app.state.service_catalog
+
+
+@router.get("/{service_id}/daily-summary", response_model=DailyServiceSummaryResponse)
+async def daily_summary(
+    service_id: UUID, request: Request, day: date
+) -> DailyServiceSummaryResponse:
+    service: DailyServiceSummaryService = request.app.state.daily_summary_service
+    return DailyServiceSummaryResponse.from_domain(await service.generate(service_id, day))
+
+
+@router.get("/{service_id}/daily-summary.md", response_class=Response)
+async def daily_summary_markdown(
+    service_id: UUID, request: Request, day: date
+) -> Response:
+    service: DailyServiceSummaryService = request.app.state.daily_summary_service
+    markdown = render_daily_markdown(await service.generate(service_id, day))
+    return Response(markdown, media_type="text/markdown; charset=utf-8")
 
 
 @router.post("", response_model=ServiceProfileResponse, status_code=status.HTTP_201_CREATED)

@@ -20,7 +20,7 @@ def test_service_profile_migration_creates_table_and_diagnosis_link(tmp_path: Pa
         diagnosis_columns = {row[1] for row in connection.execute("PRAGMA table_info('diagnoses')")}
         revision = connection.execute("SELECT version_num FROM alembic_version").fetchone()[0]
 
-    assert revision == "0012"
+    assert revision == "0013"
     assert {
         "id",
         "name",

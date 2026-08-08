@@ -66,7 +66,7 @@ class GenericApplicationErrorStrategy:
         if self._config_tools_enabled or "config__read" in context.available_tool_names:
             names.add("config__read")
         if self._log_tools_enabled or "log__search" in context.available_tool_names:
-            names.add("log__search")
+            names.update({"log__search", "related_logs__query"})
         if self._health_tools_enabled or "health__check" in context.available_tool_names:
             names.add("health__check")
         return frozenset(names)

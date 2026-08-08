@@ -15,6 +15,9 @@ from app_diagnosis.adapters.persistence.confirmation_repository import (
     SqlAlchemyConfirmationRepository,
 )
 from app_diagnosis.adapters.persistence.diagnosis_repository import SqlAlchemyDiagnosisRepository
+from app_diagnosis.adapters.persistence.evaluation_candidate_repository import (
+    SqlAlchemyEvaluationCandidateRepository,
+)
 from app_diagnosis.adapters.persistence.evidence_repository import SqlAlchemyEvidenceRepository
 from app_diagnosis.application.diagnoses import DiagnosisApplicationService as BaseService
 from app_diagnosis.application.diagnoses import DiagnosisNotFound, DiagnosisRunConflict
@@ -25,6 +28,7 @@ from app_diagnosis.domain.diagnosis import (
     DiagnosisStatus,
     InvalidDiagnosisValue,
 )
+from app_diagnosis.domain.evaluation_candidate import EvaluationCandidate
 from app_diagnosis.domain.evidence import (
     Evidence,
     EvidenceReliability,
@@ -243,6 +247,24 @@ class EvidenceAwareDiagnosisApplicationService(BaseService):
                 diagnosis.reopen_investigation()
             await diagnoses.save(diagnosis, expected_version=expected_version)
             await SqlAlchemyConfirmationRepository(session).add(confirmation)
+            if action is ConfirmationAction.REJECT:
+                candidates = SqlAlchemyEvaluationCandidateRepository(session)
+                if await candidates.get_by_diagnosis(diagnosis.id) is None:
+                    candidate = EvaluationCandidate.create(
+                        diagnosis_id=diagnosis.id,
+                        source_action="human_reject",
+                        feedback_summary=safe_comment,
+                    )
+                    await candidates.add(candidate)
+                    await SqlAlchemyAuditRepository(session).add(
+                        AuditEvent.create(
+                            actor=actor,
+                            action="evaluation_candidate.created",
+                            target_type="evaluation_candidate",
+                            target_id=str(candidate.id),
+                            summary=f"Candidate created from rejected diagnosis {diagnosis.id}",
+                        )
+                    )
             action_name = {
                 ConfirmationAction.CONFIRM: "diagnosis.confirmed",
                 ConfirmationAction.REJECT: "diagnosis.rejected",

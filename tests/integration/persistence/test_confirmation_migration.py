@@ -15,7 +15,7 @@ def test_confirmation_migration_upgrade_and_downgrade(tmp_path: Path) -> None:
         columns = {row[1] for row in connection.execute("PRAGMA table_info('confirmations')")}
         revision = connection.execute("SELECT version_num FROM alembic_version").fetchone()[0]
     assert columns == {"id", "diagnosis_id", "action", "actor", "comment", "created_at"}
-    assert revision == "0012"
+    assert revision == "0013"
     command.downgrade(config, "0004")
     with sqlite3.connect(database_path) as connection:
         table = connection.execute(

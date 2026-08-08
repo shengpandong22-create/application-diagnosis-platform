@@ -16,6 +16,10 @@ from app_diagnosis.application import (
     ServiceProfileConflict,
     ServiceProfileNotFound,
 )
+from app_diagnosis.application.evaluation_candidates import (
+    EvaluationCandidateConflict,
+    EvaluationCandidateNotFound,
+)
 from app_diagnosis.application.incidents import IncidentNotFound
 from app_diagnosis.domain.diagnosis import InvalidDiagnosisValue
 
@@ -23,6 +27,22 @@ logger = logging.getLogger("app_diagnosis.api.errors")
 
 
 def install_exception_handlers(app: FastAPI) -> None:
+    @app.exception_handler(EvaluationCandidateConflict)
+    async def evaluation_candidate_conflict(
+        request: Request, error: EvaluationCandidateConflict
+    ) -> JSONResponse:
+        return _response(
+            request, status.HTTP_409_CONFLICT, "evaluation_candidate_conflict", str(error)
+        )
+
+    @app.exception_handler(EvaluationCandidateNotFound)
+    async def evaluation_candidate_not_found(
+        request: Request, error: EvaluationCandidateNotFound
+    ) -> JSONResponse:
+        return _response(
+            request, status.HTTP_404_NOT_FOUND, "evaluation_candidate_not_found", str(error)
+        )
+
     @app.exception_handler(IncidentNotFound)
     async def incident_not_found(request: Request, error: IncidentNotFound) -> JSONResponse:
         return _response(request, status.HTTP_404_NOT_FOUND, "incident_not_found", str(error))

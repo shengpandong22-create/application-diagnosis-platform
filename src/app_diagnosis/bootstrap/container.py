@@ -45,8 +45,10 @@ from app_diagnosis.application import (
     KnowledgeApplicationService,
     ServiceCatalogApplicationService,
 )
+from app_diagnosis.application.daily_summaries import DailyServiceSummaryService
 from app_diagnosis.application.diagnoses import build_service_tool_resource_resolver
 from app_diagnosis.application.discovery import ActiveDiscoveryApplicationService
+from app_diagnosis.application.evaluation_candidates import EvaluationCandidateService
 from app_diagnosis.application.incidents import IncidentApplicationService
 from app_diagnosis.bootstrap.settings import Settings
 from app_diagnosis.domain.code_workspace import CodeWorkspace
@@ -58,6 +60,7 @@ from app_diagnosis.tools.config import ConfigReadTool
 from app_diagnosis.tools.health import HealthCheckTool
 from app_diagnosis.tools.knowledge_search import KnowledgeSearchTool
 from app_diagnosis.tools.log_search import LogSearchTool
+from app_diagnosis.tools.related_logs import RelatedLogsQueryTool
 
 
 class UnconfiguredLLMClient(LLMClient):
@@ -119,9 +122,12 @@ def build_diagnosis_service(
     log_tools_enabled = bool(settings.log_directory.strip())
     if log_tools_enabled:
         # 日志工具只读取配置目录内的日志文件，避免 Agent 任意读取本机文件。
-        registry.register(LogSearchTool(LocalLogFileReader(Path(settings.log_directory)), redactor))
+        log_reader = LocalLogFileReader(Path(settings.log_directory))
+        registry.register(LogSearchTool(log_reader, redactor))
+        registry.register(RelatedLogsQueryTool(log_reader, redactor))
     else:
         registry.register(LogSearchTool(None, redactor))
+        registry.register(RelatedLogsQueryTool(None, redactor))
     health_tools_enabled = bool(settings.health_targets)
     if health_tools_enabled:
         registry.register(HealthCheckTool(HttpHealthCheckClient(settings.health_targets, redactor)))
@@ -239,6 +245,21 @@ def build_discovery_service(
         trigger_policy=DiagnosisTriggerPolicy(),
         max_tool_output_bytes=settings.tool_output_max_bytes,
     )
+
+
+def build_daily_summary_service(
+    database: Database,
+    diagnosis_service: DiagnosisApplicationService,
+) -> DailyServiceSummaryService:
+    return DailyServiceSummaryService(
+        services=SqlAlchemyServiceProfileRepository(database.session_factory),
+        incidents=SqlAlchemyIncidentRepository(database.session_factory),
+        diagnoses=diagnosis_service,
+    )
+
+
+def build_evaluation_candidate_service(database: Database) -> EvaluationCandidateService:
+    return EvaluationCandidateService(database.session_factory)
 
 
 def build_report_service(database: Database) -> DiagnosisReportService:

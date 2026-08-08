@@ -1,4 +1,5 @@
 import re
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from app_diagnosis.ports.log_reader import LogExcerpt
@@ -70,6 +71,76 @@ class LocalLogFileReader:
             source_reference=f"{relative}:{first_line}-{last_line}",
             matched_line=match + 1,
         )
+
+    def query_related(
+        self,
+        *,
+        relative_path: str,
+        trace_id: str,
+        started_at: datetime,
+        ended_at: datetime,
+        limit: int,
+    ) -> tuple[LogExcerpt, ...]:
+        if not trace_id.strip() or len(trace_id) > 200:
+            raise InvalidLogRead("trace_id must be between 1 and 200 characters")
+        if started_at.tzinfo is None or ended_at.tzinfo is None or ended_at <= started_at:
+            raise InvalidLogRead("related log time range must be timezone-aware and positive")
+        if ended_at - started_at > timedelta(hours=24):
+            raise InvalidLogRead("related log time range must not exceed 24 hours")
+        if limit < 1 or limit > 50:
+            raise InvalidLogRead("related log limit must be between 1 and 50")
+        resolved = self._resolve_file(relative_path)
+        lines = self._bounded_lines(resolved)
+        results: list[LogExcerpt] = []
+        for index, line in enumerate(lines):
+            if trace_id.casefold() not in line.casefold():
+                continue
+            occurred_at = self._parse_timestamp(line)
+            if occurred_at is None or not (started_at <= occurred_at <= ended_at):
+                continue
+            start = self._event_start(lines, index)
+            end = min(self._event_end(lines, start), start + self._max_excerpt_lines)
+            relative = resolved.relative_to(self._root).as_posix()
+            results.append(
+                LogExcerpt(
+                    content="\n".join(lines[start:end]).strip(),
+                    source_reference=f"{relative}:{start + 1}-{end}",
+                    matched_line=index + 1,
+                )
+            )
+            if len(results) >= limit:
+                break
+        return tuple(results)
+
+    def _resolve_file(self, relative_path: str) -> Path:
+        requested = Path(relative_path)
+        if requested.is_absolute() or requested.suffix.casefold() not in self.ALLOWED_SUFFIXES:
+            raise InvalidLogRead("only relative .log or .txt files are allowed")
+        try:
+            resolved = (self._root / requested).resolve(strict=True)
+            resolved.relative_to(self._root)
+        except (OSError, ValueError) as exc:
+            raise InvalidLogRead("log path must remain inside the configured root") from exc
+        if not resolved.is_file():
+            raise InvalidLogRead("log path must identify a file")
+        return resolved
+
+    def _bounded_lines(self, resolved: Path) -> list[str]:
+        size = resolved.stat().st_size
+        with resolved.open("rb") as stream:
+            if size > self._max_tail_bytes:
+                stream.seek(size - self._max_tail_bytes)
+                stream.readline()
+            return stream.read(self._max_tail_bytes).decode("utf-8", errors="replace").splitlines()
+
+    @classmethod
+    def _parse_timestamp(cls, line: str) -> datetime | None:
+        match = cls._EVENT_START.match(line)
+        if match is None:
+            return None
+        value = match.group(0).replace(",", ".").replace(" ", "T")
+        parsed = datetime.fromisoformat(value)
+        return parsed.replace(tzinfo=UTC) if parsed.tzinfo is None else parsed.astimezone(UTC)
 
     @classmethod
     def _event_start(cls, lines: list[str], match: int) -> int:

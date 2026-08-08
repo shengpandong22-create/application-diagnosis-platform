@@ -40,7 +40,7 @@ class ToolResourceContext:
         if self.code_repository is not None:
             names.update({"code__search", "code__read"})
         if self.log_reader is not None:
-            names.add("log__search")
+            names.update({"log__search", "related_logs__query"})
         if self.config_repository is not None:
             names.add("config__read")
         if self.health_check_client is not None:
