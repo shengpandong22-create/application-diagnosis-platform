@@ -22,7 +22,7 @@ DEFAULT_CASES = PROJECT_ROOT / "evals" / "cases" / "phase1-java-lab-cases.json"
 
 def load_case(path: Path, case_id: str) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
-    cases = payload.get("cases")
+    cases = payload.get("cases") or payload.get("scenarios")
     if not isinstance(cases, list):
         raise ValueError("case file must contain a cases array")
     for item in cases:
@@ -51,8 +51,14 @@ def main() -> None:
         raise ValueError("provide --keyword or --case")
     expected_paths = tuple((case or {}).get("expected_code_paths", ()))
     expected_terms = tuple((case or {}).get("allowed_root_cause_keywords", ()))
-    expected_tools = set((case or {}).get("expected_tools", ()))
-    expected_evidence_types = set((case or {}).get("expected_evidence_types", ()))
+    expected_tools = set(
+        (case or {}).get("expected_tools")
+        or (case or {}).get("expected_tool_names", ())
+    )
+    expected_evidence_types = set(
+        (case or {}).get("expected_evidence_types")
+        or (case or {}).get("required_evidence_types", ())
+    )
 
     java_lab = args.java_lab.resolve(strict=True)
     excerpt = LocalLogFileReader(java_lab / "logs").read_latest(
@@ -89,7 +95,9 @@ def main() -> None:
                 "/api/v1/diagnoses",
                 json={
                     "title": f"Java Lab real-log diagnosis: {case['title'] if case else keyword}",
-                    "symptom": f"Java Lab failure contains {keyword}",
+                    "symptom": (case or {}).get(
+                        "symptom", f"Java Lab failure contains {keyword}"
+                    ),
                     "submitted_log": excerpt.content,
                 },
             )
@@ -176,6 +184,10 @@ def main() -> None:
             "input_tokens": run["input_tokens"],
             "output_tokens": run["output_tokens"],
             "elapsed_ms": elapsed_ms,
+            "conclusion": result.get("conclusion"),
+            "evidence": [
+                {"id": item["id"], "type": item["type"]} for item in evidence
+            ],
             "tool_trace": [
                 {
                     "name": item["tool_name"],
