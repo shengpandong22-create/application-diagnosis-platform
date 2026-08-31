@@ -73,6 +73,7 @@ class EvidenceAwareDiagnosisApplicationService(BaseService):
             symptom=safe_symptom.content,
             submitted_log=safe_log.content if safe_log else None,
             service_id=service_id,
+            now=self._clock(),
         )
         evidence = [
             Evidence.create(

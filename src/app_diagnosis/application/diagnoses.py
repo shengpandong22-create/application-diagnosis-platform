@@ -9,6 +9,7 @@ Strategy 选择，以及把 ToolLoopRunner 的结果回写到 DiagnosisCase 状�
 import asyncio
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID
 
@@ -154,6 +155,7 @@ class DiagnosisApplicationService:
         strategy: DiagnosisStrategy,
         budget: AgentBudget,
         max_input_log_bytes: int,
+        clock: Callable[[], datetime] = lambda: datetime.now(UTC),
         strategy_router: DiagnosisStrategyRouter | None = None,
         tool_resource_resolver: ToolResourceResolver | None = None,
     ) -> None:
@@ -165,6 +167,7 @@ class DiagnosisApplicationService:
         self._tool_resource_resolver = tool_resource_resolver
         self._budget = budget
         self._max_input_log_bytes = max_input_log_bytes
+        self._clock = clock
         self._active_tasks: dict[UUID, asyncio.Task] = {}
         self._active_lock = asyncio.Lock()
 
@@ -186,6 +189,7 @@ class DiagnosisApplicationService:
             title=title,
             symptom=symptom,
             submitted_log=submitted_log,
+            now=self._clock(),
         )
         async with self._sessions.begin() as session:
             await SqlAlchemyDiagnosisRepository(session).add(diagnosis)

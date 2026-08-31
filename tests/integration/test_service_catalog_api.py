@@ -1,5 +1,6 @@
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
+from datetime import datetime
 from pathlib import Path
 
 from alembic import command
@@ -40,7 +41,12 @@ def conclusion_without_citations() -> str:
 
 
 @contextmanager
-def migrated_client(tmp_path: Path, fake: FakeLLMClient | None = None) -> Iterator[TestClient]:
+def migrated_client(
+    tmp_path: Path,
+    fake: FakeLLMClient | None = None,
+    *,
+    clock: Callable[[], datetime] | None = None,
+) -> Iterator[TestClient]:
     database_path = tmp_path / "services.db"
     database_url = f"sqlite+aiosqlite:///{database_path.as_posix()}"
     config = Config("alembic.ini")
@@ -53,11 +59,14 @@ def migrated_client(tmp_path: Path, fake: FakeLLMClient | None = None) -> Iterat
         knowledge_directory=str(Path("samples/knowledge").resolve()),
     )
     database = Database(database_url)
-    service, _ = build_diagnosis_service(
-        settings=settings,
-        database=database,
-        llm_client=fake or FakeLLMClient([]),
-    )
+    build_kwargs = {
+        "settings": settings,
+        "database": database,
+        "llm_client": fake or FakeLLMClient([]),
+    }
+    if clock is not None:
+        build_kwargs["clock"] = clock
+    service, _ = build_diagnosis_service(**build_kwargs)
     with TestClient(
         create_app(settings=settings, database=database, diagnosis_service=service)
     ) as client:

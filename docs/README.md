@@ -128,6 +128,7 @@
 - [ADR-0002：供应商无关的 LLM Runtime](./05-decisions/0002-provider-neutral-llm-runtime.md)
 - [ADR-0003：有界诊断工具与显式 Registry](./05-decisions/0003-bounded-diagnostic-tools.md)
 - [ADR-0004：可持久化的有界 Tool Loop](./05-decisions/0004-durable-bounded-tool-loop.md)
+- [ADR-0005：将应用时间作为可注入依赖](./05-decisions/0005-injectable-application-clock.md)
 
 ### 6. 学习教案
 

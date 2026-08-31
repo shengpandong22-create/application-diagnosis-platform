@@ -5,6 +5,8 @@
 后续替换模型、数据库、工具 Adapter 或 Strategy 时，优先从这里调整装配关系。
 """
 
+from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
 
 from app_diagnosis.adapters.code import LocalCodeRepository
@@ -79,6 +81,7 @@ def build_diagnosis_service(
     settings: Settings,
     database: Database,
     llm_client: LLMClient | None = None,
+    clock: Callable[[], datetime] = lambda: datetime.now(UTC),
 ) -> tuple[DiagnosisApplicationService, LLMClient]:
     """构建诊断主服务，并返回服务本身和最终使用的 LLM Client。
 
@@ -137,9 +140,10 @@ def build_diagnosis_service(
         llm_client=resolved_llm,
         registry=registry,
         execution_repository=executions,
-        evidence_store=SqlAlchemyEvidenceStore(database.session_factory, redactor),
+        evidence_store=SqlAlchemyEvidenceStore(database.session_factory, redactor, clock),
         citation_policy=EvidenceCitationPolicy(),
         plan_repository=SqlAlchemyDiagnosisPlanRepository(database.session_factory),
+        clock=clock,
     )
     strategy_options = {
         "code_tools_enabled": code_tools_enabled,
@@ -165,6 +169,7 @@ def build_diagnosis_service(
             total_timeout_seconds=settings.agent_total_timeout_seconds,
         ),
         max_input_log_bytes=settings.input_log_max_bytes,
+        clock=clock,
         redactor=redactor,
         tool_resource_resolver=build_service_tool_resource_resolver(
             session_factory=database.session_factory,

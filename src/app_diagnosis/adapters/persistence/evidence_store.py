@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
@@ -19,15 +20,17 @@ class SqlAlchemyEvidenceStore:
         self,
         session_factory: async_sessionmaker[AsyncSession],
         redactor: Redactor,
+        clock: Callable[[], datetime] = lambda: datetime.now(UTC),
     ) -> None:
         self._sessions = session_factory
         self._redactor = redactor
+        self._clock = clock
 
     async def add_candidates(
         self, diagnosis_id: UUID, candidates: tuple[EvidenceCandidate, ...]
     ) -> tuple[Evidence, ...]:
         stored: list[Evidence] = []
-        base_time = datetime.now(UTC)
+        base_time = self._clock()
         async with self._sessions.begin() as session:
             repository = SqlAlchemyEvidenceRepository(session)
             for index, candidate in enumerate(candidates):
