@@ -1,0 +1,28 @@
+digraph Phase0ALoop {
+  graph [rankdir=TB,bgcolor="#FFFFFF",pad="0.35",nodesep="0.36",ranksep="0.58",splines=ortho,fontname="Microsoft YaHei",fontsize=18,fontcolor="#0F172A",label="Phase 0A · ToolLoopRunner 内部：模型提议，系统裁决",labelloc=t,labeljust=c,newrank=true];
+  node [shape=box,style="rounded,filled",fontname="Microsoft YaHei",fontsize=10.5,fontcolor="#0F172A",color="#64748B",penwidth=1.2,margin="0.18,0.11"];
+  edge [color="#64748B",penwidth=1.3,arrowsize=0.72,fontname="Microsoft YaHei",fontsize=8.5,fontcolor="#475569"];
+
+  context [label="1. 构造本轮上下文\nStrategy · 工具定义 · 历史消息",fillcolor="#E8F3FF",color="#3B82F6"];
+  llm [label="2. LLM 决策\n请求 Tool Call 或提交候选结论",fillcolor="#FFF0EB",color="#EA580C",penwidth=1.8];
+  decision [shape=diamond,label="模型输出类型？",fillcolor="#F0EDFF",color="#7C3AED"];
+  gate [label="3. 确定性执行闸门\n注册 · 白名单 · 权限 · 参数 · 预算",fillcolor="#E8F3FF",color="#3B82F6"];
+  tool [label="4. 执行 DiagnosticTool\n单工具超时 · 有限输出",fillcolor="#E2F6EF",color="#0D9488"];
+  record [label="保存 ToolRun\n成功结果或安全错误",fillcolor="#E2F6EF",color="#0D9488"];
+  final_gate [label="5. 最终结论校验\n本地 Schema · termination reason",fillcolor="#E8F3FF",color="#3B82F6"];
+  result [label="ToolLoopResult\n交回 ApplicationService",fillcolor="#F0EDFF",color="#7C3AED",penwidth=1.8];
+  controlled [label="受控终止\n预算耗尽 · 非法输出 · 超时",fillcolor="#FFF0F0",color="#DC2626"];
+
+  context -> llm [color="#F59E0B",penwidth=2.5];
+  llm -> decision [color="#F59E0B",penwidth=2.5];
+  decision -> gate [label="Tool Call",color="#F59E0B",penwidth=2.5];
+  gate -> tool [label="校验通过",color="#0D9488",penwidth=2.0];
+  tool -> record [color="#0D9488",penwidth=2.0];
+  record -> llm [style=dashed,label="tool_result 回传下一轮",color="#7C3AED",constraint=false];
+  decision -> final_gate [label="候选结论",color="#F59E0B",penwidth=2.5];
+  final_gate -> result [label="合法",color="#F59E0B",penwidth=2.5];
+  gate -> controlled [style=dashed,label="拒绝 / 预算不足",color="#DC2626"];
+  tool -> controlled [style=dashed,label="不可恢复失败",color="#DC2626"];
+  final_gate -> controlled [style=dashed,label="纠错后仍非法",color="#DC2626"];
+  controlled -> result [style=dashed,label="标准终止原因",color="#DC2626"];
+}

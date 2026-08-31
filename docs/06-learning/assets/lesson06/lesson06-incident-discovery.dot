@@ -1,0 +1,15 @@
+digraph G {
+  graph [rankdir=TB,bgcolor="white",pad="0.35",nodesep="0.35",ranksep="0.55",splines=polyline,fontname="Microsoft YaHei",label="第 6 课 · 从 100 条异常到 1 个 Incident",labelloc=t,fontsize=24,fontcolor="#174f86"];
+  node [shape=rect,style="rounded,filled",fontname="Microsoft YaHei",fontsize=14,margin="0.22,0.14",penwidth=1.4]; edge [fontname="Microsoft YaHei",fontsize=11,color="#60666d",penwidth=1.5,arrowsize=0.8];
+  source [label="File / Replay / RabbitMQ\n日志事件来源",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  event [label="LogEvent\nsource_event_id 防重放",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  fp [label="ErrorFingerprint\n归一化异常类型与栈帧\n忽略易变行号",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  incident [label="Incident.observe()\noccurrence_count + 时间窗\n保留首次/最近事实",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86",penwidth=2.0];
+  trigger [label="TriggerPolicy\n未绑定 Diagnosis 才触发",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  diagnosis [label="创建并绑定 Diagnosis\n追加自动触发 Evidence",fillcolor="#f0edff",color="#7762dc",fontcolor="#3f318f"];
+  run [label="复用被动诊断闭环\nDiagnosisApplicationService.run()",fillcolor="#edf7e5",color="#6f9e3b",fontcolor="#315f13"];
+  keep [label="Agent 失败仍保留 Incident\n便于重试、审计与运营复盘",fillcolor="#fff0f0",color="#d9534f",fontcolor="#8f2522"];
+  {rank=same; source; event; fp; incident;}
+  {rank=same; trigger; diagnosis; run; keep;}
+  source -> event -> fp -> incident -> trigger [color="#e79616",penwidth=2.3]; trigger -> diagnosis [label="should_trigger = true",color="#e79616",penwidth=2.3]; diagnosis -> run [color="#e79616",penwidth=2.3]; trigger -> incident [label="重复事件只累计",style=dashed,color="#16846a",constraint=false]; run -> keep [label="失败",style=dashed,color="#d9534f"];
+}

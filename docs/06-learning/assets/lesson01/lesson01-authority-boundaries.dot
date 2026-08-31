@@ -1,0 +1,33 @@
+digraph G {
+  graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.48", ranksep="0.5", splines=polyline,
+    fontname="Microsoft YaHei", label="第 1 课 · 五个权力边界如何协作", labelloc=t, fontsize=24, fontcolor="#174f86"];
+  node [shape=rect, style="rounded,filled", fontname="Microsoft YaHei", fontsize=14, margin="0.24,0.15", penwidth=1.4];
+  edge [fontname="Microsoft YaHei", fontsize=11, color="#60666d", fontcolor="#4f565d", penwidth=1.5, arrowsize=0.8];
+
+  input [label="① 用户提交\n症状 + 日志", fillcolor="#fff1dd", color="#d8922f", fontcolor="#81520d"];
+  app_start [label="② ApplicationService · 编排启动\n创建运行记录，调用 ToolLoopRunner", fillcolor="#e8f3ff", color="#347fc4", fontcolor="#174f86"];
+  runner [label="③ ToolLoopRunner · 执行调查\n驱动循环、记录 ToolRun / Evidence\n不裁决领域状态", fillcolor="#f0edff", color="#7762dc", fontcolor="#3f318f"];
+  llm [label="LLM · 建议者\n只提议工具、参数与候选结论", fillcolor="#fff0eb", color="#ef7044", fontcolor="#8b3218"];
+  registry [label="④ ToolRegistry · 安检员\n校验注册 / 白名单 / 权限 / 参数 / 风险", fillcolor="#e2f6ef", color="#279475", fontcolor="#0b6450"];
+  adapter [label="Tool Adapter\n受限读取外部资源", fillcolor="#e2f6ef", color="#279475", fontcolor="#0b6450"];
+  validate [label="确定性事实边界\nEvidenceStore + CitationPolicy + ExecutionRepo", fillcolor="#e2f6ef", color="#279475", fontcolor="#0b6450"];
+  result [label="ToolLoopResult\n结构化候选结果", fillcolor="#f0edff", color="#7762dc", fontcolor="#3f318f"];
+  app_apply [label="ApplicationService · 应用结果\n调用聚合根领域行为", fillcolor="#e8f3ff", color="#347fc4", fontcolor="#174f86"];
+  domain [label="⑤ DiagnosisCase · 裁决者\n检查状态转换是否合法", fillcolor="#e8f3ff", color="#347fc4", fontcolor="#174f86", penwidth=2.0];
+  waiting [label="WAITING_FOR_CONFIRMATION\n候选结论等待人工裁决", fillcolor="#fff1dd", color="#d8922f", fontcolor="#81520d"];
+  human [label="用户最终裁决\nconfirm / reject / continue", fillcolor="#fff1dd", color="#d8922f", fontcolor="#81520d"];
+  principle [shape=note, label="分权原则\nLLM 只有提议权；\n执行、校验、持久化和状态裁决\n均由确定性组件负责。", fillcolor="#fff9e8", color="#d6a83b", fontcolor="#6f5010", fontsize=13];
+
+  input -> app_start -> runner [color="#e79616", penwidth=2.3];
+  runner -> validate -> result -> app_apply -> domain -> waiting -> human [color="#e79616", penwidth=2.3];
+
+  {rank=same; llm; runner; registry;}
+  runner -> llm [label="构造上下文"];
+  llm -> runner [label="提议", color="#ef7044", fontcolor="#8b3218"];
+  runner -> registry [label="请求校验"];
+  registry -> adapter [label="通过"];
+  adapter -> runner [label="结果 + EvidenceDraft", color="#16846a", fontcolor="#0d6753", constraint=false];
+
+  {rank=same; domain; principle;}
+  domain -> principle [style=dashed, arrowhead=none, color="#c79b31"];
+}

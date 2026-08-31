@@ -1,0 +1,11 @@
+digraph G {
+  graph [rankdir=LR,bgcolor="white",pad="0.35",nodesep="0.42",ranksep="0.5",splines=polyline,fontname="Microsoft YaHei",label="第 4 课 · Evidence 引用如何进入人工闭环",labelloc=t,fontsize=24,fontcolor="#174f86"];
+  node [shape=rect,style="rounded,filled",fontname="Microsoft YaHei",fontsize=15,margin="0.24,0.15",penwidth=1.4]; edge [fontname="Microsoft YaHei",fontsize=11,color="#60666d",penwidth=1.5,arrowsize=0.8];
+  evidence [label="正式 Evidence ID\n已落库且属于当前 Diagnosis",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450",penwidth=2.0];
+  model [label="候选结论\nfacts / root causes / recommendations",fillcolor="#fff0eb",color="#ef7044",fontcolor="#8b3218"];
+  citation [label="CitationPolicy\n归属、可信等级、验证建议\n模型不得输出 confirmed",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  report [label="Report + Trace + Audit\n事实、过程、动作分别保留",fillcolor="#edf7e5",color="#6f9e3b",fontcolor="#315f13"];
+  human [label="Confirmation 追加记录\nconfirm / reject / continue",fillcolor="#fff1dd",color="#d8922f",fontcolor="#81520d"];
+  knowledge [label="人工确认后\nKnowledge candidate",fillcolor="#edf7e5",color="#6f9e3b",fontcolor="#315f13"];
+  evidence -> model -> citation -> report -> human -> knowledge [color="#e79616",penwidth=2.3]; human -> evidence [label="补充信息形成新 Evidence",style=dashed,color="#7762dc",constraint=false];
+}

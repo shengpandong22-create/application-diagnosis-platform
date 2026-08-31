@@ -1,0 +1,16 @@
+digraph G {
+  graph [rankdir=TB,bgcolor="white",pad="0.35",nodesep="0.42",ranksep="0.52",splines=polyline,fontname="Microsoft YaHei",label="第 9 课 · Phase 5 四类事实如何形成跨服务因果候选",labelloc=t,fontsize=24,fontcolor="#174f86"];
+  node [shape=rect,style="rounded,filled",fontname="Microsoft YaHei",fontsize=14,margin="0.24,0.15",penwidth=1.4]; edge [fontname="Microsoft YaHei",fontsize=11,color="#60666d",penwidth=1.5,arrowsize=0.8];
+  gateway [label="Gateway Route\n外部路径应该进入哪个服务\n只证明入口路由",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  nacos [label="Nacos Registry\n服务实例、健康、版本、观测时间\n只证明注册事实",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  static [label="Static Dependency\nFeign / 配置 / 人工目录\n只证明可能依赖",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  trace [label="Runtime Trace\n本次请求真实调用服务与接口\n不单独证明最终根因",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  snapshot [label="TopologySnapshot\n冻结诊断时使用的最小拓扑事实",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450",penwidth=2.0];
+  tools [label="受控拓扑工具\n最多跳数 / 服务数 / Span 数\n按服务授权资源",fillcolor="#f0edff",color="#7762dc",fontcolor="#3f318f"];
+  downstream [label="下游本地事实\n日志 / 健康 / 配置 / 固定 commit 源码",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  policy [label="Causal + Citation Policy\n失败 RuntimeCall + 下游本地 Evidence\n拦截伪造服务、Span 与 Evidence ID",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  report [label="跨服务诊断报告\nentry / symptom / root cause candidate\naffected / propagation path",fillcolor="#edf7e5",color="#6f9e3b",fontcolor="#315f13"];
+  human [label="Human Confirmation\n人工确认后才产生最终根因事实",fillcolor="#fff1dd",color="#d8922f",fontcolor="#81520d"];
+  {rank=same; gateway; nacos; static; trace;}
+  gateway -> snapshot; nacos -> snapshot; static -> snapshot; trace -> snapshot [color="#e79616",penwidth=2.0]; snapshot -> tools -> downstream -> policy -> report -> human [color="#e79616",penwidth=2.3]; trace -> policy [label="RuntimeCall Evidence"]; snapshot -> policy [label="合法传播路径"];
+}

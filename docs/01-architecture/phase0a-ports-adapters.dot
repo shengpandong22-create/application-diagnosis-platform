@@ -1,0 +1,27 @@
+digraph Phase0ABoundaries {
+  graph [rankdir=LR,bgcolor="#FFFFFF",pad="0.35",nodesep="0.42",ranksep="0.52",splines=ortho,fontname="Microsoft YaHei",fontsize=18,fontcolor="#0F172A",label="Phase 0A · 稳定契约与可替换实现",labelloc=t,labeljust=c,newrank=true];
+  node [shape=box,style="rounded,filled",fontname="Microsoft YaHei",fontsize=10.5,fontcolor="#0F172A",color="#64748B",penwidth=1.2,margin="0.20,0.12"];
+  edge [color="#64748B",penwidth=1.4,arrowsize=0.72,fontname="Microsoft YaHei",fontsize=8.5,fontcolor="#475569"];
+
+  runtime [label="ToolLoopRunner",fillcolor="#F0EDFF",color="#7C3AED"];
+  application [label="Application / Runtime",fillcolor="#E8F3FF",color="#0284C7"];
+
+  llm_port [label="LLM Client Port\n供应商无关对话契约",fillcolor="#F0EDFF",color="#A855F7"];
+  tool_contract [label="DiagnosticTool Contract\n结构化输入与结果",fillcolor="#F0EDFF",color="#A855F7"];
+  repo_ports [label="Repository Ports\nDiagnosis · Execution",fillcolor="#F0EDFF",color="#A855F7"];
+
+  llm_adapter [label="DeepSeek Adapter\n测试替换为 Fake LLM",fillcolor="#E2F6EF",color="#0D9488"];
+  knowledge [label="Knowledge Tool\nJSON Knowledge Adapter",fillcolor="#E2F6EF",color="#0D9488"];
+  sqlite [label="SQLite + SQLAlchemy\nAlembic 0001 / 0002",fillcolor="#E2F6EF",color="#0D9488"];
+
+  runtime -> llm_port [label="调用模型"];
+  llm_port -> llm_adapter [label="Bootstrap 注入",color="#0D9488"];
+  runtime -> tool_contract [label="执行工具"];
+  tool_contract -> knowledge [label="最小知识实现",color="#0D9488"];
+  application -> repo_ports [label="保存事实"];
+  repo_ports -> sqlite [label="Persistence Adapter",color="#0D9488"];
+
+  {rank=same; runtime; application;}
+  {rank=same; llm_port; tool_contract; repo_ports;}
+  {rank=same; llm_adapter; knowledge; sqlite;}
+}

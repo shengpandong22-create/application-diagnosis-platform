@@ -1,0 +1,31 @@
+digraph G {
+  graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.48", ranksep="0.48", splines=polyline,
+    fontname="Microsoft YaHei", label="第 1 课 · 两条业务主线如何汇合", labelloc=t, fontsize=24, fontcolor="#174f86"];
+  node [shape=rect, style="rounded,filled", fontname="Microsoft YaHei", fontsize=15, margin="0.24,0.15", penwidth=1.4];
+  edge [fontname="Microsoft YaHei", fontsize=12, color="#60666d", fontcolor="#4f565d", penwidth=1.5, arrowsize=0.8];
+
+  user [label="A. 被动诊断 · 人发起\n用户提交症状与日志", fillcolor="#e8f3ff", color="#347fc4", fontcolor="#174f86"];
+  log [label="B. 主动发现 · 日志触发\nLogEvent 标准化事实", fillcolor="#e2f6ef", color="#279475", fontcolor="#0b6450"];
+  fingerprint [label="ErrorFingerprint\n归并同类异常", fillcolor="#e2f6ef", color="#279475", fontcolor="#0b6450"];
+  incident [label="Incident\n累计次数与时间窗", fillcolor="#e2f6ef", color="#279475", fontcolor="#0b6450"];
+  trigger [label="TriggerPolicy\n判断是否值得进入诊断", fillcolor="#e8f3ff", color="#347fc4", fontcolor="#174f86"];
+
+  diagnosis [label="DiagnosisCase\n两条主线在此汇合", fillcolor="#e8f3ff", color="#347fc4", fontcolor="#174f86", penwidth=2.0];
+  run [label="DiagnosisApplicationService.run()\n启动受控 AgentRun", fillcolor="#e8f3ff", color="#347fc4", fontcolor="#174f86"];
+  investigate [label="ToolLoopRunner\n工具调查 + Evidence 留存", fillcolor="#f0edff", color="#7762dc", fontcolor="#3f318f"];
+  conclusion [label="候选结论\nCitationPolicy 引用校验", fillcolor="#fff0eb", color="#ef7044", fontcolor="#8b3218"];
+  report [label="Report\n基于持久化事实生成", fillcolor="#edf7e5", color="#6f9e3b", fontcolor="#315f13"];
+  human [label="人工确认\nconfirm / reject / continue", fillcolor="#fff1dd", color="#d8922f", fontcolor="#81520d"];
+  note [shape=note, label="主动发现只决定\n‘是否进入诊断’\n进入后复用同一闭环", fillcolor="#fff9e8", color="#d6a83b", fontcolor="#6f5010", fontsize=13];
+
+  {rank=same; user; log;}
+  {rank=same; diagnosis; note;}
+  {rank=same; run; investigate; conclusion;}
+  {rank=same; report; human;}
+  user -> diagnosis [label="创建"];
+  log -> fingerprint -> incident -> trigger;
+  trigger -> diagnosis [label="触发创建", color="#16846a", fontcolor="#0d6753", penwidth=2.0];
+  trigger -> note [style=dashed, arrowhead=none, color="#c79b31"];
+  diagnosis -> run -> investigate -> conclusion -> report -> human [color="#e79616", penwidth=2.4];
+  human -> run [label="continue：新 AgentRun", style=dashed, color="#7762dc", fontcolor="#3f318f", constraint=false];
+}

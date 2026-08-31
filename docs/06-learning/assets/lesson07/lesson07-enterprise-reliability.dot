@@ -1,0 +1,16 @@
+digraph G {
+  graph [rankdir=TB,bgcolor="white",pad="0.35",nodesep="0.34",ranksep="0.55",splines=polyline,fontname="Microsoft YaHei",label="第 7 课 · 企业消息消费与三种失败语义",labelloc=t,fontsize=24,fontcolor="#174f86"];
+  node [shape=rect,style="rounded,filled",fontname="Microsoft YaHei",fontsize=14,margin="0.22,0.14",penwidth=1.4]; edge [fontname="Microsoft YaHei",fontsize=11,color="#60666d",penwidth=1.5,arrowsize=0.8];
+  mq [label="RabbitMQ Message\n外部 LogEvent",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  decode [label="解码与契约校验",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  dedup [label="Redis DeduplicationStore\n跨进程 source_event_id 幂等",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  process [label="DiscoveryApplicationService\nIncident → Diagnosis → AgentRun",fillcolor="#f0edff",color="#7762dc",fontcolor="#3f318f"];
+  persist [label="事实持久化成功",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  ack [label="ACK\n消息确认",fillcolor="#edf7e5",color="#6f9e3b",fontcolor="#315f13"];
+  notify [label="SMTP 通知（旁路）\n失败只记录，不回滚 ACK",fillcolor="#edf7e5",color="#6f9e3b",fontcolor="#315f13"];
+  retry [label="临时处理失败 → retry\n消息重新入队",fillcolor="#fff0f0",color="#d9534f",fontcolor="#8f2522"];
+  dlq [label="毒消息 / 解码失败 → DLQ\n避免阻塞正常消费",fillcolor="#fff0f0",color="#d9534f",fontcolor="#8f2522"];
+  {rank=same; mq; decode; dedup; process;}
+  {rank=same; dlq; retry; persist; ack; notify;}
+  mq -> decode -> dedup -> process -> persist -> ack -> notify [color="#e79616",penwidth=2.3]; decode -> dlq [label="不可处理",style=dashed,color="#d9534f"]; process -> retry [label="临时异常",style=dashed,color="#d9534f"]; notify -> ack [label="通知失败不影响事实成功",style=dashed,color="#6f9e3b",constraint=false];
+}

@@ -73,7 +73,7 @@ Trace v1 只展示真实持久化的 AgentRun、ToolRun 和 Evidence 关联。�
 5. 为什么网络 Strategy 默认不开放源码工具？
 6. Router 与 Model Router 有什么区别？
 7. 为什么并列信号回退 Generic？
-8. 本阶段为什么仍不增加 Shell 和状态修改工具？
+8. xxxxxxxxxx dot -Tsvg phase1-log-code-flow.dot -o phase1-log-code-flow.svgpowershell
 
 ## 当前边界
 

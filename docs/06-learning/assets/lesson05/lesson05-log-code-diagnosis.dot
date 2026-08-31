@@ -1,0 +1,19 @@
+digraph G {
+  graph [rankdir=TB,bgcolor="white",pad="0.35",nodesep="0.34",ranksep="0.55",splines=polyline,fontname="Microsoft YaHei",label="第 5 课 · Java 真实日志与源码联合诊断",labelloc=t,fontsize=24,fontcolor="#174f86"];
+  node [shape=rect,style="rounded,filled",fontname="Microsoft YaHei",fontsize=14,margin="0.22,0.14",penwidth=1.4]; edge [fontname="Microsoft YaHei",fontsize=11,color="#60666d",penwidth=1.5,arrowsize=0.8];
+  fault [label="Java Lab 触发故障\nNPE / 连接拒绝 / 超时",fillcolor="#fff0f0",color="#d9534f",fontcolor="#8f2522"];
+  logs [label="固定日志文件\n异常事件边界提取",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  logev [label="log_excerpt Evidence\n脱敏 + 正式 ID",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  profile [label="ServiceProfile\n授权 log / code / health 资源",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  resolver [label="ToolResourceResolver\n按 service_id 绑定资源",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  search [label="code__search\n定位文件与关键词",fillcolor="#f0edff",color="#7762dc",fontcolor="#3f318f"];
+  read [label="code__read\n读取最小授权片段",fillcolor="#f0edff",color="#7762dc",fontcolor="#3f318f"];
+  codeev [label="code_reference Evidence\n固定路径 / 行号 / commit",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  conclusion [label="日志事实 + 源码事实\n引用校验后的候选根因",fillcolor="#fff0eb",color="#ef7044",fontcolor="#8b3218"];
+  report [label="诊断报告 + 人工验证",fillcolor="#edf7e5",color="#6f9e3b",fontcolor="#315f13"];
+  {rank=same; fault; logs; logev;}
+  {rank=same; profile; resolver;}
+  {rank=same; search; read; codeev;}
+  {rank=same; conclusion; report;}
+  fault -> logs -> logev [color="#e79616",penwidth=2.3]; profile -> resolver -> search -> read -> codeev [color="#e79616",penwidth=2.3]; logev -> conclusion; codeev -> conclusion; conclusion -> report [color="#e79616",penwidth=2.3];
+}

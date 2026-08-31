@@ -1,0 +1,15 @@
+digraph G {
+  graph [rankdir=TB,bgcolor="white",pad="0.35",nodesep="0.42",ranksep="0.55",splines=polyline,fontname="Microsoft YaHei",label="第 9 课 · 从单机参考实现到企业诊断平台",labelloc=t,fontsize=24,fontcolor="#174f86"];
+  node [shape=rect,style="rounded,filled",fontname="Microsoft YaHei",fontsize=14,margin="0.24,0.15",penwidth=1.4]; edge [fontname="Microsoft YaHei",fontsize=11,color="#60666d",penwidth=1.5,arrowsize=0.8];
+  current [label="当前 Phase 0～4\n单机参考实现\n可信诊断闭环已验证",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86",penwidth=2.0];
+  scale [label="规模与运行形态\nSQLite → PostgreSQL\n进程内 Run → Worker + Checkpoint",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  access [label="数据与系统接入\n本地日志 → 企业日志平台\n静态目录 → CMDB / Nacos / Gateway",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  topology [label="Phase 5 跨服务诊断\nTrace + 服务拓扑 + 下游 Evidence\n区分现象服务与根因候选",fillcolor="#f0edff",color="#7762dc",fontcolor="#3f318f",penwidth=2.0];
+  governance [label="安全与模型治理\nSSO / RBAC / 多租户隔离\n模型网关 / 配额 / 成本 / 降级",fillcolor="#fff1dd",color="#d8922f",fontcolor="#81520d"];
+  quality [label="质量与运营\n版本化评测 / 发布门禁 / SLA\nTrace UI / 工单 / 知识运营",fillcolor="#edf7e5",color="#6f9e3b",fontcolor="#315f13"];
+  enterprise [label="企业级智能诊断平台\n可扩展、可治理、可观测、可运营\n仍由人工确认最终事实",fillcolor="#edf7e5",color="#6f9e3b",fontcolor="#315f13",penwidth=2.0];
+  caution [shape=note,label="演进原则\n先扩展确定性事实与运行能力\n再扩大 Agent 调查范围；\n协议联通不等于生产可用。",fillcolor="#fff9e8",color="#d6a83b",fontcolor="#6f5010",fontsize=13];
+  {rank=same; scale; access; topology;}
+  {rank=same; governance; quality;}
+  current -> scale; current -> access; current -> topology [color="#e79616",penwidth=2.3]; scale -> governance; access -> governance; topology -> quality; governance -> enterprise; quality -> enterprise [color="#e79616",penwidth=2.3]; enterprise -> caution [style=dashed,arrowhead=none,color="#c79b31"];
+}

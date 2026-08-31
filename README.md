@@ -2,7 +2,7 @@
 
 证据驱动的应用诊断 Agent 平台：让模型结论可引用、可校验、可人工确认、可离线评测。
 
-![Phase 3C 架构图](./docs/01-architecture/phase3c-service-context.svg)
+![Phase 0～4 项目演进地图](./docs/01-architecture/phase0-4-evolution-map.svg)
 
 ## 为什么不是普通 Agent Demo
 
@@ -23,8 +23,8 @@
 | Phase 0C | 评测、报告和极简界面 | 完成 | [扩展架构与学习总结](./docs/01-architecture/phase0c-extension.md) |
 | Phase 1 | 日志与授权源码联合诊断 | 完成（本地最小闭环） | [扩展架构与学习总结](./docs/01-architecture/phase1-extension.md) · [端到端链路图](./docs/01-architecture/phase1-log-code-flow.md) |
 | Phase 2 | 可观测、多策略、现场感知 | 完成 | [扩展架构与学习总结](./docs/01-architecture/phase2-extension.md) · [开发总结](./docs/03-progress/2026-07-18-Phase2开发总结.md) |
-| Phase 3 | 可解释诊断、轻量计划与服务目录 | 进行中（3C 服务上下文闭环） | [Phase 3C 架构图](./docs/01-architecture/phase3c-service-context.md) · [能力总结](./docs/03-progress/2026-07-30-Phase3当前能力总结.md) |
-| Phase 4 | 日志主动发现、故障指纹与质量回归 | 4A～4E 已完成 | [融合设计与实现规格](./docs/02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md) · [4E 验收](./docs/04-validation/phase4e-acceptance.md) |
+| Phase 3 | 可解释诊断、轻量计划与服务目录 | 已完成（3C 服务上下文闭环） | [Phase 3C 架构图](./docs/01-architecture/phase3c-service-context.md) · [能力总结](./docs/03-progress/2026-07-30-Phase3当前能力总结.md) |
+| Phase 4 | 日志主动发现、故障指纹与企业接入 | 4A～4E 已完成 | [主动发现架构](./docs/01-architecture/phase4-active-discovery.md) · [企业 Adapter 架构](./docs/01-architecture/phase4-enterprise-adapters.md) · [4E 验收](./docs/04-validation/phase4e-acceptance.md) |
 
 ## 技术栈
 
@@ -68,9 +68,10 @@ uv run ruff check .
 uv run pytest
 .\scripts\verify-phase0c.ps1 -SkipSync
 .\scripts\verify-phase2.ps1 -SkipSync
+.\scripts\verify-phase4e.ps1
 ```
 
-当前基线：`210 passed`，Phase 4A 版本化质量评测 `2/2 passed`，Java Lab 8 类确定性故障测试通过；Phase 1 三类真实模型案例通过，Phase 4A 新增场景已建立少量真实模型成本与失败基线。
+当前基线：`244 passed`。Phase 4A 版本化质量评测 `2/2 passed`，Java Lab 8 类确定性故障测试通过；RabbitMQ、Redis、GitHub 固定 commit 和 SMTP 已完成本地真实协议验收。测试通过证明工程链路可回归，不等于生产规模 SLA 或统计诊断准确率。
 
 ## 主要 API
 
@@ -92,6 +93,7 @@ uv run pytest
 ## 文档入口
 
 - [项目介绍](./docs/00-overview/项目介绍.md)
+- [Phase 0～4 项目核心掌握手册](./docs/00-overview/Phase%200-4%20项目核心掌握手册.md)
 - [Phase 0～2 项目掌握与面试准备指南](./docs/00-overview/Phase%200-2%20项目掌握与面试准备指南.md)
 - [Phase 0～2 源码学习路线图](./docs/00-overview/Phase%200-2%20源码学习路线图.md)
 - [完整文档导航](./docs/README.md)
@@ -103,6 +105,9 @@ uv run pytest
 - [Phase 2 验收记录](./docs/04-validation/phase2-acceptance.md)
 - [Phase 3C 架构图](./docs/01-architecture/phase3c-service-context.md)
 - [Phase 3 当前能力总结](./docs/03-progress/2026-07-30-Phase3当前能力总结.md)
+- [Phase 0～4 项目演进图](./docs/01-architecture/phase0-4-evolution-map.md)
+- [Phase 4 主动发现架构](./docs/01-architecture/phase4-active-discovery.md)
+- [Phase 4E 企业 Adapter 架构](./docs/01-architecture/phase4-enterprise-adapters.md)
 - [日志主动发现能力融合设计与 Phase 4 实施规格](./docs/02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md)
 - [Phase 4A 开发总结](./docs/03-progress/2026-08-08-Phase4A质量基线与故障靶场增强.md)
 - [Phase 4A 验收记录](./docs/04-validation/phase4a-acceptance.md)
@@ -118,6 +123,6 @@ uv run pytest
 
 ## 当前边界
 
-这是具备生产化设计意识的本地单机工程骨架，不是完整生产平台。目前没有 Worker/队列、企业认证与 RBAC、远程日志采集、高可用、分布式追踪和真实模型质量统计。
+这是具备生产化设计意识的本地单机参考实现，不是完整生产平台。项目已有 RabbitMQ Consumer 与企业 Adapter，但没有独立部署、长期运行和水平扩容的生产 Worker，也没有企业认证与 RBAC、远程采集代理、高可用、分布式追踪和规模化真实模型质量统计。
 
 `.env`、API Key、SQLite 数据库、验收临时目录和演示输出均被 Git 忽略。

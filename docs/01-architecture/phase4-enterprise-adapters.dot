@@ -1,0 +1,25 @@
+digraph Phase4Enterprise {
+  graph [rankdir=TB,bgcolor="#FFFFFF",pad="0.35",nodesep="0.38",ranksep="0.68",splines=ortho,fontname="Microsoft YaHei",fontsize=18,fontcolor="#0F172A",label="Phase 4E · 企业 Adapter 与真实联调边界",labelloc=t,labeljust=l,compound=true,newrank=true];
+  node [shape=box,style="rounded,filled",fontname="Microsoft YaHei",fontsize=10,fontcolor="#0F172A",color="#64748B",penwidth=1.1,margin="0.16,0.10"];
+  edge [color="#64748B",penwidth=1.3,arrowsize=0.7,fontname="Microsoft YaHei",fontsize=8.5,fontcolor="#475569"];
+
+  rabbit [label="RabbitMQ + DLX / DLQ\n真实中间件",fillcolor="#E2F6EF",color="#0D9488"];
+  consumer [label="RabbitMQLogEventConsumer\n解码 · 大小限制 · poison",fillcolor="#E8F3FF",color="#3B82F6"];
+  enterprise [label="EnterpriseDiscoveryConsumer\nretry / ack / notification",fillcolor="#E8F3FF",color="#3B82F6"];
+  core [label="ActiveDiscoveryApplicationService\n复用本地主动发现核心",fillcolor="#F0EDFF",color="#7C3AED"];
+  smtp [label="EmailNotificationClient\n脱敏 · 白名单 · SMTP",fillcolor="#EDF7E5",color="#65A30D"];
+
+  redis [label="RedisDeduplicationStore\nSET NX PX · Lua",fillcolor="#E2F6EF",color="#0D9488"];
+  github [label="GitHubSnapshotRepository\n仓库 + 固定 commit 白名单",fillcolor="#E2F6EF",color="#0D9488"];
+  default_mode [label="默认 create_app()\n不装配企业 Adapter",fillcolor="#FFF1DD",color="#D97706"];
+
+  rabbit -> consumer [color="#F59E0B",penwidth=2.4];
+  consumer -> enterprise [color="#F59E0B",penwidth=2.4];
+  enterprise -> core [color="#F59E0B",penwidth=2.4];
+  core -> enterprise [style=dashed,label="DiscoveryResult",color="#7C3AED",constraint=false];
+  enterprise -> rabbit [style=dashed,label="ack / retry / reject→DLQ",color="#0D9488",constraint=false];
+  enterprise -> smtp [label="triggered 后通知",color="#65A30D"];
+  redis -> enterprise [style=dashed,label="Worker 装配点（未默认接线）",color="#0D9488"];
+  github -> core [style=dashed,label="远程源码 Adapter（按需注入）",color="#0D9488"];
+  default_mode -> core [style=dashed,label="本地 File / Replay 路径",color="#D97706"];
+}

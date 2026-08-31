@@ -4,22 +4,57 @@
 
 > 阶段目标：在单机环境中建立一个可运行、可持久化、可替换模型、可受控调用工具的最小应用诊断 Agent。
 
-![Phase 0A 框架图](./phase0a-framework.svg)
+## 第一张图：先理解端到端骨架
+
+![Phase 0A 最小诊断 Agent 端到端骨架](./phase0a-framework.svg)
 
 ## 如何阅读这张图
 
-橙色粗线是一次诊断的主要执行路径：
+第一次阅读只沿橙色粗线看，不要先研究每个 Adapter：
 
 1. 本地用户通过 FastAPI 创建诊断并启动运行；
-2. `DiagnosisApplicationService` 控制用例、事务和同一诊断的运行冲突；
-3. `ToolLoopRunner` 在执行预算内组织模型推理和工具调用；
-4. Runtime 通过 LLM Client Port 调用 DeepSeek，自动测试时替换为 Fake LLM；
-5. 模型只能选择策略白名单内的工具，Tool Registry 负责权限、参数、风险和超时校验；
-6. `knowledge__search` 在 Phase 0A 中使用本地 JSON Knowledge Adapter；
-7. 模型输出经过本地 Schema 严格校验，再由应用服务推动诊断状态收敛；
-8. Diagnosis、AgentRun 和 ToolRun 经 Repository Ports 持久化到 SQLite。
+2. `DiagnosisApplicationService` 先处理事务与运行冲突，再启动 `ToolLoopRunner`；
+3. Runner 组织模型和工具，但只能返回 `ToolLoopResult`，不能直接修改领域状态；
+4. 同一个 `DiagnosisApplicationService` 通过 `_apply_result()` 解释运行结果；
+5. ApplicationService 调用 `DiagnosisCase` 的领域方法，状态机才真正发生转换。
 
-灰色线表示稳定依赖或可替换关系，蓝色虚线表示核心运行对领域状态和执行记录的作用。
+图中把 ApplicationService 画成“启动调查”和“应用结果”两个节点，只是为了展示它在调用前后的两个职责，并不是两个不同的服务。
+
+然后再看三条支撑关系：
+
+- `DiagnosisStrategy` 决定本次允许向模型暴露哪些工具；
+- `Tool Registry` 对模型提出的每次 Tool Call 重新进行确定性校验；
+- Runtime 将工具执行事实追加为 `AgentRun / ToolRun`，但执行记录不会替代领域状态。
+
+最重要的权力边界是：
+
+> LLM 提出下一步，Runner 和 Registry 裁决能否执行，ApplicationService 与 DiagnosisCase 决定状态怎样收敛。
+
+## 第二张图：再展开最小 Agent Loop
+
+![Phase 0A ToolLoopRunner 内部循环](./phase0a-agent-loop.svg)
+
+这张图只解释 Runner 内部发生什么：
+
+1. 系统构造上下文、工具定义和历史消息；
+2. LLM 概率性地选择 Tool Call 或候选结论；
+3. Tool Call 必须通过注册、白名单、权限、参数和预算检查；
+4. 工具在超时和输出上限内执行，ToolRun 保存可观察结果；
+5. `tool_result` 回传给下一轮模型，或者候选结论进入本地 Schema 校验；
+6. 预算耗尽、非法输出和不可恢复错误都转成标准终止原因，而不是无限重试。
+
+图中不记录或展示模型隐藏思维链。项目保留的是 LLM 请求、Tool Call、ToolRun、终止原因等可审计外部行为。
+
+## 第三张图：最后理解 Port 与 Adapter
+
+![Phase 0A 稳定契约与可替换实现](./phase0a-ports-adapters.svg)
+
+第三张图不再重复主调用链，只回答“核心代码依赖什么契约，运行时注入什么实现”：
+
+- Runner 依赖 `LLM Client Port`，可以装配 DeepSeek 或 Fake LLM；
+- Runner 通过 `DiagnosticTool Contract` 执行知识工具，Phase 0A 最小实现读取 JSON；
+- Application 与 Runtime 通过 Repository 边界保存 Diagnosis 和执行记录，基础设施实现是 SQLite + SQLAlchemy；
+- “可替换”表示变化集中在 Adapter、配置和 Bootstrap，不表示任何替换都不需要代码与迁移测试。
 
 ## Phase 0A 已建立的扩展基础
 
@@ -306,19 +341,22 @@ Phase 0B 证明了 Phase 0A 的一些边界确实稳定：
 | 颜色或线型 | 含义 |
 |---|---|
 | 浅蓝 | API 接入与应用编排 |
-| 深蓝 | 诊断领域模型和执行记录 |
-| 紫色 | Agent Runtime 和稳定 Ports |
+| 浅蓝 | API、Application 与领域状态边界 |
+| 紫色 | Agent Runtime、ToolLoopResult 和稳定 Ports |
+| 珊瑚色 | 概率性的 LLM 决策 |
 | 青绿色 | 可替换的基础设施 Adapters |
 | 橙色粗线 | 一次诊断的主执行路径 |
 | 灰色线或虚线 | 支撑依赖和治理关系 |
-| 绿色 | 保留给 Phase 0B 新增能力 |
+| 浅红 | 预算、输出或执行失败后的受控终止 |
 
 Phase 0B 图将复用本图的方向、模块位置、字号和配色。Phase 0A 已有模块保持原色，新增的 Evidence、Redaction、Knowledge Repository、Citation Policy、Confirmation 和 Audit Event 使用绿色，并标记 `NEW · Phase 0B`。
 
 ## 源文件与重新生成
 
-架构图源文件为 `phase0a-framework.dot`。安装 Graphviz 后，在本目录执行：
+架构图源文件为 `phase0a-framework.dot`、`phase0a-agent-loop.dot` 和 `phase0a-ports-adapters.dot`。安装 Graphviz 后，在本目录执行：
 
 ```powershell
 dot -Tsvg phase0a-framework.dot -o phase0a-framework.svg
+dot -Tsvg phase0a-agent-loop.dot -o phase0a-agent-loop.svg
+dot -Tsvg phase0a-ports-adapters.dot -o phase0a-ports-adapters.svg
 ```

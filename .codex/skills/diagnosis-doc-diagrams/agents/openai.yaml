@@ -1,0 +1,4 @@
+interface:
+  display_name: "诊断文档 SVG 制图"
+  short_description: "为诊断平台生成统一、可维护且可本地分享的 SVG 架构图"
+  default_prompt: "Use $diagnosis-doc-diagrams to create or update a project-native DOT and SVG diagram for the diagnosis platform documentation."

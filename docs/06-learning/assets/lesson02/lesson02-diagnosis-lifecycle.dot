@@ -1,0 +1,16 @@
+digraph G {
+  graph [rankdir=LR,bgcolor="white",pad="0.35",nodesep="0.35",ranksep="0.5",splines=polyline,fontname="Microsoft YaHei",label="第 2 课 · DiagnosisCase 生命周期与运行结果",labelloc=t,fontsize=24,fontcolor="#174f86"];
+  node [shape=rect,style="rounded,filled",fontname="Microsoft YaHei",fontsize=14,margin="0.22,0.14",penwidth=1.4]; edge [fontname="Microsoft YaHei",fontsize=11,color="#60666d",penwidth=1.5,arrowsize=0.8];
+  created [label="CREATED\n诊断已创建",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  investigating [label="INVESTIGATING\nAgentRun 调查中",fillcolor="#f0edff",color="#7762dc",fontcolor="#3f318f"];
+  input [label="WAITING_FOR_INPUT\n证据不足，等待补充",fillcolor="#fff1dd",color="#d8922f",fontcolor="#81520d"];
+  confirm [label="WAITING_FOR_CONFIRMATION\n候选结论等待人工裁决",fillcolor="#fff1dd",color="#d8922f",fontcolor="#81520d"];
+  inconclusive [label="INCONCLUSIVE\n本次调查未收敛",fillcolor="#fff0f0",color="#d9534f",fontcolor="#8f2522"];
+  confirmed [label="CONFIRMED\n人工确认",fillcolor="#edf7e5",color="#6f9e3b",fontcolor="#315f13"];
+  rejected [label="REJECTED\n人工驳回",fillcolor="#fff0f0",color="#d9534f",fontcolor="#8f2522"];
+  cancelled [label="CANCELLED\n用户取消",fillcolor="#fff0f0",color="#d9534f",fontcolor="#8f2522"];
+  result [shape=note,label="ToolLoopResult 是运行结果\ntermination_reason ≠ Diagnosis 状态\n由 ApplicationService 应用到聚合根",fillcolor="#fff9e8",color="#d6a83b",fontcolor="#6f5010"];
+  created -> investigating [color="#e79616",penwidth=2.3]; investigating -> confirm [label="completed + conclusion",color="#e79616",penwidth=2.3]; investigating -> input [label="需要补充信息"]; investigating -> inconclusive [label="预算耗尽 / 异常终止",color="#d9534f"];
+  input -> investigating [label="supplement：新 AgentRun",style=dashed,color="#7762dc"]; confirm -> confirmed [label="confirm"]; confirm -> rejected [label="reject",color="#d9534f"]; confirm -> investigating [label="continue",style=dashed,color="#7762dc"]; created -> cancelled [label="cancel",color="#d9534f"]; investigating -> cancelled [label="cancel",color="#d9534f"];
+  result -> confirm [style=dashed,arrowhead=none,color="#c79b31"];
+}

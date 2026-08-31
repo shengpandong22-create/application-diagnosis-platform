@@ -1,0 +1,20 @@
+digraph Evolution {
+  graph [rankdir=TB,bgcolor="#FFFFFF",pad="0.35",nodesep="0.28",ranksep="0.55",splines=ortho,fontname="Microsoft YaHei",fontsize=18,fontcolor="#0F172A",label="Application Diagnosis Platform · Phase 0～4 演进地图",labelloc=t,labeljust=l];
+  node [shape=box,style="rounded,filled",fontname="Microsoft YaHei",fontsize=9.5,fontcolor="#0F172A",penwidth=1.2,margin="0.16,0.12"];
+  edge [color="#F59E0B",penwidth=2.2,arrowsize=0.72,fontname="Microsoft YaHei",fontsize=8,fontcolor="#475569"];
+
+  p0a [label="Phase 0A\n受控运行\nState · Loop · Registry · Budget",fillcolor="#F0EDFF",color="#7C3AED"];
+  p0b [label="Phase 0B\n可信证据\nEvidence · Redaction · Citation",fillcolor="#E2F6EF",color="#0D9488"];
+  p0c [label="Phase 0C\n可评测交付\nEvaluation · Report · UI",fillcolor="#EDF7E5",color="#65A30D"];
+  p1 [label="Phase 1\n真实故障定位\nJava Log + Code Evidence",fillcolor="#E8F3FF",color="#3B82F6"];
+  p2 [label="Phase 2\n可观察与选择\nTrace · Strategy · Tools",fillcolor="#F0EDFF",color="#7C3AED"];
+  p3 [label="Phase 3\n可解释服务上下文\nPlan · ServiceProfile",fillcolor="#E8F3FF",color="#3B82F6"];
+  p4 [label="Phase 4\n主动发现与企业接入\nIncident · Broker · Remote Code",fillcolor="#E2F6EF",color="#0D9488",penwidth=2.0];
+
+  p0a -> p0b [label="先可控，再可信"];
+  p0b -> p0c [label="可信后才能评测"];
+  p0c -> p1 [label="从样例到真实故障"];
+  p1 -> p2 [label="工具增多需要复盘"];
+  p2 -> p3 [label="资源必须属于服务"];
+  p3 -> p4 [label="从被动请求到主动发现"];
+}

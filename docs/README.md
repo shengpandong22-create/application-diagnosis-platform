@@ -13,15 +13,16 @@
 | Phase 0C | 评测、报告和极简界面 | [扩展架构与学习总结](./01-architecture/phase0c-extension.md) · [SVG](./01-architecture/phase0c-extension.svg) · [Graphviz](./01-architecture/phase0c-extension.dot) | [实现规格](./02-specifications/Phase%200C%20实现规格说明.md) | [验收记录](./04-validation/phase0c-acceptance.md) | 已完成 |
 | Phase 1 | 日志与授权源码联合诊断 | [扩展架构与学习总结](./01-architecture/phase1-extension.md) · [端到端链路图](./01-architecture/phase1-log-code-flow.md) | [实现规格](./02-specifications/Phase%201%20实现规格说明.md) · [能力总结](./03-progress/2026-07-17-Phase1当前能力总结.md) | [验收记录](./04-validation/phase1-acceptance.md) | 本地最小闭环完成 |
 | Phase 2 | 可观测、多策略、现场感知 | [扩展架构与学习总结](./01-architecture/phase2-extension.md) · [SVG](./01-architecture/phase2-extension.svg) · [Graphviz](./01-architecture/phase2-extension.dot) | [实现规格](./02-specifications/Phase%202%20实现规格说明.md) · [开发总结](./03-progress/2026-07-18-Phase2开发总结.md) | [验收记录](./04-validation/phase2-acceptance.md) | 已完成 |
-| Phase 3A/3B/3C | 可解释诊断、轻量计划与服务驱动工具上下文 | [Phase 3C 架构图](./01-architecture/phase3c-service-context.md) · [SVG](./01-architecture/phase3c-service-context.svg) | [实现规格](./02-specifications/Phase%203%20实现规格说明.md) | [3A/3B/3C-1](./04-validation/phase3a-3b-acceptance.md) · [3C-2](./04-validation/phase3c-service-context-acceptance.md) | 进行中 |
-| Phase 4 | 日志主动发现、故障指纹与质量回归 | 待补 | [融合设计与实现规格](./02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md) · [4E 总结](./03-progress/2026-08-08-Phase4E企业Adapter.md) | [4E 验收](./04-validation/phase4e-acceptance.md) | 4A～4E 已完成 |
+| Phase 3A/3B/3C | 可解释诊断、轻量计划与服务驱动工具上下文 | [Phase 3C 架构图](./01-architecture/phase3c-service-context.md) · [SVG](./01-architecture/phase3c-service-context.svg) | [实现规格](./02-specifications/Phase%203%20实现规格说明.md) | [3A/3B/3C-1](./04-validation/phase3a-3b-acceptance.md) · [3C-2](./04-validation/phase3c-service-context-acceptance.md) | 已完成 |
+| Phase 4 | 日志主动发现、故障指纹与企业接入 | [主动发现](./01-architecture/phase4-active-discovery.md) · [企业 Adapter](./01-architecture/phase4-enterprise-adapters.md) | [融合设计与实现规格](./02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md) · [4E 总结](./03-progress/2026-08-08-Phase4E企业Adapter.md) | [4E 验收](./04-validation/phase4e-acceptance.md) | 4A～4E 已完成 |
+| Phase 5 | 服务拓扑与跨服务因果诊断 | 待实施 | [实施计划与验收标准](./02-specifications/服务拓扑与跨服务因果诊断Phase%205实施计划与验收标准.md) | 待实施 | 已设计、暂缓实施 |
 
 ## 按内容查找
 
 ### 0. 项目总览与展示
 
 - [项目介绍](./00-overview/项目介绍.md)
-- [Phase 0～3 项目核心掌握手册（图片 + 文字 + 代码）](./00-overview/Phase%200-3%20项目核心掌握手册.md)
+- [Phase 0～4 项目核心掌握手册（图片 + 文字 + 代码）](./00-overview/Phase%200-4%20项目核心掌握手册.md)
 - [Phase 0～2 项目掌握与面试准备指南](./00-overview/Phase%200-2%20项目掌握与面试准备指南.md)
 - [Phase 0～2 源码学习路线图](./00-overview/Phase%200-2%20源码学习路线图.md)
 - [Phase 0 离线演示指南](./00-overview/演示指南.md)
@@ -29,6 +30,7 @@
 - [Phase 2 实现规格与验收标准](./02-specifications/Phase%202%20实现规格说明.md)
 - [Phase 3 实现规格与验收标准](./02-specifications/Phase%203%20实现规格说明.md)
 - [日志主动发现能力融合设计与 Phase 4 实施规格](./02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md)
+- [服务拓扑与跨服务因果诊断：Phase 5 实施计划与验收标准](./02-specifications/服务拓扑与跨服务因果诊断Phase%205实施计划与验收标准.md)
 - [Phase 4A 质量基线与故障靶场增强总结](./03-progress/2026-08-08-Phase4A质量基线与故障靶场增强.md)
 - [Phase 4A 验收记录](./04-validation/phase4a-acceptance.md)
 - [Phase 4B 主动发现领域核心总结](./03-progress/2026-08-08-Phase4B主动发现领域核心.md)
@@ -54,6 +56,10 @@
 - [Phase 0A 框架图：独立骨架与最小 Agent Loop](./01-architecture/phase0a-framework.md)
 - [Phase 0A SVG 成品](./01-architecture/phase0a-framework.svg)
 - [Phase 0A Graphviz 源文件](./01-architecture/phase0a-framework.dot)
+- [Phase 0A Agent Loop SVG](./01-architecture/phase0a-agent-loop.svg)
+- [Phase 0A Agent Loop Graphviz 源文件](./01-architecture/phase0a-agent-loop.dot)
+- [Phase 0A Port / Adapter SVG](./01-architecture/phase0a-ports-adapters.svg)
+- [Phase 0A Port / Adapter Graphviz 源文件](./01-architecture/phase0a-ports-adapters.dot)
 - [Phase 0B 扩展图：证据驱动的人工诊断闭环](./01-architecture/phase0b-extension.md)
 - [Phase 0B SVG 成品](./01-architecture/phase0b-extension.svg)
 - [Phase 0B Graphviz 源文件](./01-architecture/phase0b-extension.dot)
@@ -72,6 +78,15 @@
 - [Phase 3C 架构图：服务目录驱动的受限工具上下文](./01-architecture/phase3c-service-context.md)
 - [Phase 3C SVG 成品](./01-architecture/phase3c-service-context.svg)
 - [Phase 3C Graphviz 源文件](./01-architecture/phase3c-service-context.dot)
+- [Phase 0～4 项目演进地图](./01-architecture/phase0-4-evolution-map.md)
+- [Phase 0～4 演进地图 SVG](./01-architecture/phase0-4-evolution-map.svg)
+- [Phase 0～4 演进地图 Graphviz 源文件](./01-architecture/phase0-4-evolution-map.dot)
+- [Phase 4 主动发现架构与说明](./01-architecture/phase4-active-discovery.md)
+- [Phase 4 主动发现 SVG](./01-architecture/phase4-active-discovery.svg)
+- [Phase 4 主动发现 Graphviz 源文件](./01-architecture/phase4-active-discovery.dot)
+- [Phase 4E 企业 Adapter 架构与说明](./01-architecture/phase4-enterprise-adapters.md)
+- [Phase 4E 企业 Adapter SVG](./01-architecture/phase4-enterprise-adapters.svg)
+- [Phase 4E 企业 Adapter Graphviz 源文件](./01-architecture/phase4-enterprise-adapters.dot)
 - [企业目标架构 SVG](./01-architecture/enterprise-target-architecture.svg)
 - [企业目标架构 Graphviz 源文件](./01-architecture/enterprise-target-architecture.dot)
 
@@ -82,6 +97,7 @@
 - [ITOps 参考实现复用矩阵](./02-specifications/ITOps参考实现复用矩阵.md)
 - [本地诊断 Agent 到企业平台演进设计](./02-specifications/本地诊断Agent到企业平台演进设计.md)
 - [日志主动发现能力融合设计与 Phase 4 实施规格](./02-specifications/日志主动发现能力融合设计与Phase%204实施规格.md)
+- [服务拓扑与跨服务因果诊断：Phase 5 实施计划与验收标准](./02-specifications/服务拓扑与跨服务因果诊断Phase%205实施计划与验收标准.md)
 
 ### 3. 开发过程记录
 
@@ -113,6 +129,17 @@
 - [ADR-0003：有界诊断工具与显式 Registry](./05-decisions/0003-bounded-diagnostic-tools.md)
 - [ADR-0004：可持久化的有界 Tool Loop](./05-decisions/0004-durable-bounded-tool-loop.md)
 
+### 6. 学习教案
+
+- [八课学习路线与完成状态](./06-learning/README.md)
+- [第1课：业务定位与系统全景](./06-learning/第1课：业务定位与系统全景.md)
+- [第2课：诊断用例与状态机](./06-learning/第2课：诊断用例与状态机.md)
+- [第3课：Agent Loop与工具闸门](./06-learning/第3课：Agent%20Loop与工具闸门.md)
+- [第4课：Evidence可信闭环](./06-learning/第4课：Evidence可信闭环.md)
+- [第5课：Java应用联合诊断](./06-learning/第5课：Java应用联合诊断.md)
+- [第6课：主动发现与Incident](./06-learning/第6课：主动发现与Incident.md)
+- [第7课：企业Adapter与可靠性](./06-learning/第7课：企业Adapter与可靠性.md)
+- [第8课：项目走读与面试实战](./06-learning/第8课：项目走读与面试实战.md)
 ## 目录规则
 
 | 目录 | 内容 |
@@ -123,5 +150,6 @@
 | `03-progress` | 每日总结、阶段总结和下一阶段计划 |
 | `04-validation` | 自动验收范围、执行方式和验收结果 |
 | `05-decisions` | 重要架构选择及其原因、取舍和影响 |
+| `06-learning` | 按课时组织的业务、代码与面试学习教案 |
 
 新增文档时，应同时在本页对应章节增加链接。阶段图统一保留源文件、SVG 成品和 Markdown 说明。

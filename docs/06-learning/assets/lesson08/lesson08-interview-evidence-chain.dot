@@ -1,0 +1,14 @@
+digraph G {
+  graph [rankdir=TB,bgcolor="white",pad="0.35",nodesep="0.38",ranksep="0.55",splines=polyline,fontname="Microsoft YaHei",label="第 8 课 · 用可验证证据讲清这个项目",labelloc=t,fontsize=24,fontcolor="#174f86"];
+  node [shape=rect,style="rounded,filled",fontname="Microsoft YaHei",fontsize=14,margin="0.24,0.15",penwidth=1.4]; edge [fontname="Microsoft YaHei",fontsize=11,color="#60666d",penwidth=1.5,arrowsize=0.8];
+  why [label="① 业务问题\n人工排障信息分散\nLLM 有能力但不可直接信任",fillcolor="#fff1dd",color="#d8922f",fontcolor="#81520d"];
+  design [label="② 核心设计\n确定性骨架约束概率性推理\nEvidence + 权限 + 状态机",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  flow [label="③ 两条主线\n被动诊断 + 主动发现\n汇合并复用同一闭环",fillcolor="#f0edff",color="#7762dc",fontcolor="#3f318f"];
+  code [label="④ 源码锚点\nRoute → ApplicationService → Runner\n→ Policy / Domain / Adapter",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  proof [label="⑤ 工程证明\nFake LLM 回归 + 故障靶场\n真实协议联调 + 一键演示",fillcolor="#edf7e5",color="#6f9e3b",fontcolor="#315f13"];
+  boundary [label="⑥ 诚实边界\n单机参考实现，不等于生产 AIOps\n说明规模、准确率与运维差距",fillcolor="#fff0f0",color="#d9534f",fontcolor="#8f2522"];
+  next [label="⑦ 演进方向\n服务拓扑 + 跨服务因果诊断\n任务队列、观测与安全治理",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  {rank=same; why; design; flow; code;}
+  {rank=same; proof; boundary; next;}
+  why -> design -> flow -> code -> proof -> boundary -> next [color="#e79616",penwidth=2.3];
+}

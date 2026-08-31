@@ -1,0 +1,11 @@
+digraph G {
+  graph [rankdir=LR,bgcolor="white",pad="0.35",nodesep="0.42",ranksep="0.5",splines=polyline,fontname="Microsoft YaHei",label="第 4 课 · 原始输入如何变成正式 Evidence",labelloc=t,fontsize=24,fontcolor="#174f86"];
+  node [shape=rect,style="rounded,filled",fontname="Microsoft YaHei",fontsize=15,margin="0.24,0.15",penwidth=1.4]; edge [fontname="Microsoft YaHei",fontsize=11,color="#60666d",penwidth=1.5,arrowsize=0.8];
+  raw [label="原始输入\n用户描述 / 日志 / 工具结果",fillcolor="#fff1dd",color="#d8922f",fontcolor="#81520d"];
+  redact [label="Redaction Port\n持久化与进模型前脱敏",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  draft [label="EvidenceDraft\n类型 + 来源 + reliability",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  hash [label="hash + 同 Diagnosis 去重\n完整性与膨胀控制",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  stored [label="Evidence 持久化\n生成正式 Evidence ID",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450",penwidth=2.0];
+  unsafe [label="禁止路径\n原始敏感内容先入库再脱敏",fillcolor="#fff0f0",color="#d9534f",fontcolor="#8f2522"];
+  raw -> redact -> draft -> hash -> stored [color="#e79616",penwidth=2.3]; raw -> unsafe [label="不得",style=dashed,color="#d9534f"];
+}

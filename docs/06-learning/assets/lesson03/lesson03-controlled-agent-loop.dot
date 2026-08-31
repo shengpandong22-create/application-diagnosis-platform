@@ -1,0 +1,19 @@
+digraph G {
+  graph [rankdir=TB,bgcolor="white",pad="0.35",nodesep="0.34",ranksep="0.5",splines=polyline,fontname="Microsoft YaHei",label="第 3 课 · 受控 Agent Loop 与五层工具闸门",labelloc=t,fontsize=24,fontcolor="#174f86"];
+  node [shape=rect,style="rounded,filled",fontname="Microsoft YaHei",fontsize=14,margin="0.22,0.14",penwidth=1.4]; edge [fontname="Microsoft YaHei",fontsize=11,color="#60666d",penwidth=1.5,arrowsize=0.8];
+  context [label="诊断上下文\n症状 + Evidence + Plan + Budget",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  llm [label="LLM 决策\ntool_call 或 candidate conclusion",fillcolor="#fff0eb",color="#ef7044",fontcolor="#8b3218"];
+  registry [label="ToolRegistry 五层安检\n注册 → 启用 → Strategy 白名单\n权限 → 参数 Schema",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  budget [label="运行预算\n轮次 / 工具次数 / 单次超时 / 总时长",fillcolor="#e8f3ff",color="#347fc4",fontcolor="#174f86"];
+  tool [label="Tool Adapter 执行\n受限访问外部资源",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  persist [label="ToolRun + Evidence\n先落库再得到正式 Evidence ID",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  feedback [label="tool_result 回传 LLM\n继续推理",fillcolor="#f0edff",color="#7762dc",fontcolor="#3f318f"];
+  citation [label="CitationPolicy\n校验结构与引用",fillcolor="#e2f6ef",color="#279475",fontcolor="#0b6450"];
+  done [label="ToolLoopResult\ncompleted / controlled termination",fillcolor="#edf7e5",color="#6f9e3b",fontcolor="#315f13"];
+  fail [label="受控拒绝 / 预算终止\n记录 ToolRun / Trace，不伪造 Evidence",fillcolor="#fff0f0",color="#d9534f",fontcolor="#8f2522"];
+  {rank=same; context; llm; registry;}
+  {rank=same; budget; tool; persist; feedback;}
+  {rank=same; fail; citation; done;}
+  context -> llm [color="#e79616",penwidth=2.3]; llm -> registry [label="tool_call",color="#e79616",penwidth=2.3]; registry -> tool [label="通过",color="#e79616",penwidth=2.3]; tool -> persist -> feedback [color="#e79616",penwidth=2.3]; feedback -> llm [style=dashed,color="#7762dc",constraint=false]; llm -> citation [label="candidate conclusion"]; citation -> done [label="通过"];
+  budget -> registry [style=dashed]; registry -> fail [label="任一闸门失败",style=dashed,color="#d9534f"]; budget -> fail [label="耗尽",style=dashed,color="#d9534f"];
+}

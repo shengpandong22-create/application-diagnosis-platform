@@ -427,7 +427,7 @@ Phase 0B 已完成最小证据闭环，但需要保留以下边界意识：
 | confirmed 可以由模型输出 | Phase 0 中 confirmed 保留给人工动作 |
 | KnowledgeEntry 就是 Evidence | Knowledge 是全局资产，Evidence 是某次 Diagnosis 的引用实例 |
 | continue_investigation 等于 supplement | 两者前置状态和业务语义不同，只是都可能重新进入 investigating |
-| Audit 保存的信息越多越好 | 审计只保存动作证明和安全摘要，避免复制敏感数据 |
+| Audit 保存的信息越多越好 | dot -Tsvg phase0a-framework.dot -o phase0a-framework.svgdot -Tsvg phase0a-agent-loop.dot -o phase0a-agent-loop.svgdot -Tsvg phase0a-ports-adapters.dot -o phase0a-ports-adapters.svgpowershell |
 | Phase 0B 只新增 Adapter，没有修改核心 | Knowledge 替换保持 Tool 契约，但 Evidence 闭环确实扩展了 ToolLoopRunner 和 Application |
 
 ## 推荐的代码阅读路径

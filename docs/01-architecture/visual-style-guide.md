@@ -159,3 +159,11 @@ LLM 输出
 - `phase0-2-controlled-failure.svg`
 
 后续新增学习图时，优先复用这套颜色和表达方式。
+
+Phase 0A 当前采用三图拆分，也是阶段文档的推荐模板：
+
+- `phase0a-framework.svg`：只画端到端主链与状态权力边界；
+- `phase0a-agent-loop.svg`：只展开概率性模型与确定性闸门；
+- `phase0a-ports-adapters.svg`：只解释稳定契约与可替换实现。
+
+当总览出现跨越两个以上分区的长线时，优先拆出边界映射图，不通过缩小字号或继续加宽画布解决。
