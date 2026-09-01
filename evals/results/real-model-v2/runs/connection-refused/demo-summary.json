@@ -1,0 +1,194 @@
+{
+  "diagnosis_id": "7e592af5-2448-4f34-a439-c5a116315c51",
+  "case_id": "connection-refused",
+  "keyword": "ConnectException",
+  "termination_reason": "time_budget_exhausted",
+  "run_error_code": null,
+  "model": "deepseek-v4-pro",
+  "round_count": 5,
+  "tool_call_count": 8,
+  "plan_id": "03be05e0-3daa-439e-8231-fd3b708aa664",
+  "plan_steps": [
+    "整理用户事实与初始日志",
+    "检索本地知识库",
+    "检查受限配置",
+    "综合证据并生成可审核结论"
+  ],
+  "plan_allowed_tools": [
+    "config__read",
+    "knowledge__search"
+  ],
+  "input_tokens": 31587,
+  "output_tokens": 9210,
+  "elapsed_ms": 120189,
+  "llm_timeout_seconds": 60.0,
+  "conclusion": null,
+  "evidence": [
+    {
+      "id": "9efdf680-d7ef-4e90-990c-fc69dafbd033",
+      "type": "user_statement"
+    },
+    {
+      "id": "ffe0cb44-a674-416a-a0a5-9ca801b75032",
+      "type": "log_excerpt"
+    },
+    {
+      "id": "cdedd6ac-1435-4423-954e-880f3fe85dfb",
+      "type": "knowledge_entry"
+    },
+    {
+      "id": "51b51be2-60ad-48f7-a71b-0babbb87d491",
+      "type": "knowledge_entry"
+    },
+    {
+      "id": "5eaf3b19-3c6e-4570-9dce-950413a1f305",
+      "type": "knowledge_entry"
+    },
+    {
+      "id": "dab97d20-41eb-4356-82c4-88f0ba1d7e7a",
+      "type": "knowledge_entry"
+    },
+    {
+      "id": "1d8c4e85-2c33-4818-aa20-a1e6f78b8647",
+      "type": "config_excerpt"
+    },
+    {
+      "id": "cb33cae8-dfd1-4d48-8026-b863dab491a6",
+      "type": "config_excerpt"
+    },
+    {
+      "id": "d74e2bd7-81ff-48c6-9bba-2508c75c1493",
+      "type": "knowledge_entry"
+    },
+    {
+      "id": "d4435c52-b662-4b8d-81db-8361f5e46ed4",
+      "type": "knowledge_entry"
+    }
+  ],
+  "tool_trace": [
+    {
+      "name": "knowledge__search",
+      "status": "success",
+      "duration_ms": 42,
+      "arguments": {
+        "query": "ConnectException Connection refused downstream endpoint timeout SocketTimeoutException",
+        "limit": 5
+      },
+      "error_code": null
+    },
+    {
+      "name": "config__read",
+      "status": "failed",
+      "duration_ms": 0,
+      "arguments": {
+        "path": "application.properties",
+        "start_line": 1,
+        "end_line": 120
+      },
+      "error_code": "config_read_filenotfounderror"
+    },
+    {
+      "name": "config__read",
+      "status": "failed",
+      "duration_ms": 1,
+      "arguments": {
+        "path": "src/main/resources/application.properties",
+        "start_line": 1,
+        "end_line": 120
+      },
+      "error_code": "config_read_filenotfounderror"
+    },
+    {
+      "name": "config__read",
+      "status": "failed",
+      "duration_ms": 0,
+      "arguments": {
+        "path": "application.yml",
+        "start_line": 1,
+        "end_line": 120
+      },
+      "error_code": "config_read_filenotfounderror"
+    },
+    {
+      "name": "config__read",
+      "status": "success",
+      "duration_ms": 1,
+      "arguments": {
+        "path": "src/main/resources/application.yml",
+        "start_line": 1,
+        "end_line": 120
+      },
+      "error_code": null
+    },
+    {
+      "name": "config__read",
+      "status": "success",
+      "duration_ms": 0,
+      "arguments": {
+        "path": "src/main/resources/application.yml",
+        "start_line": 12,
+        "end_line": 80
+      },
+      "error_code": null
+    },
+    {
+      "name": "knowledge__search",
+      "status": "success",
+      "duration_ms": 4,
+      "arguments": {
+        "query": "distinguish Connection refused versus connect timed out SocketTimeoutException HTTP error",
+        "limit": 5
+      },
+      "error_code": null
+    },
+    {
+      "name": "config__read",
+      "status": "failed",
+      "duration_ms": 0,
+      "arguments": {
+        "path": "config/application.yml",
+        "start_line": 1,
+        "end_line": 120
+      },
+      "error_code": "config_read_filenotfounderror"
+    }
+  ],
+  "cited_evidence_types": [],
+  "code_evidence_references": [],
+  "evidence_references": [
+    "",
+    "submitted_log:1/1",
+    "generic-connection-refused",
+    "generic-connection-pool-exhausted",
+    "generic-downstream-failure",
+    "generic-timeout",
+    "src/main/resources/application.yml:1-12",
+    "src/main/resources/application.yml:12-12",
+    "generic-oom",
+    "generic-http-500"
+  ],
+  "expected_code_paths": [
+    "PaymentClient.java",
+    "application.yml"
+  ],
+  "expected_root_cause_keywords": [
+    "connection refused",
+    "downstream",
+    "65534"
+  ],
+  "expected_tools": [
+    "config__read"
+  ],
+  "expected_evidence_types": [
+    "config_excerpt",
+    "log_excerpt"
+  ],
+  "log_source_reference": "diagnosis-java-lab.log:69-148",
+  "external_model_called": true,
+  "report": "D:\\AgentStudy\\application-diagnosis-platform\\evals\\results\\real-model-v2\\runs\\connection-refused\\diagnosis-report.md",
+  "acceptance_failures": [
+    "termination=time_budget_exhausted",
+    "missing expected cited evidence: config_excerpt, log_excerpt",
+    "root cause does not match case vocabulary"
+  ]
+}

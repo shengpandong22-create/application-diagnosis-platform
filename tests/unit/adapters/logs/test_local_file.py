@@ -46,6 +46,28 @@ def test_stops_at_next_timestamped_log_event(tmp_path: Path) -> None:
     assert excerpt.source_reference == "application.log:1-3"
 
 
+def test_unique_stack_frame_avoids_later_same_exception_type(tmp_path: Path) -> None:
+    (tmp_path / "application.log").write_text(
+        "\n".join(
+            [
+                "2026-07-17 10:00:00.000 ERROR TimeoutException",
+                "java.util.concurrent.TimeoutException",
+                "\tat app.InventoryClient.loadInventory(InventoryClient.java:27)",
+                "2026-07-17 10:00:01.000 ERROR TimeoutException: pool exhausted",
+                "java.util.concurrent.TimeoutException: Connection pool exhausted",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    excerpt = LocalLogFileReader(tmp_path).read_latest(
+        relative_path="application.log", keyword="InventoryClient.loadInventory"
+    )
+
+    assert "InventoryClient.java:27" in excerpt.content
+    assert "Connection pool exhausted" not in excerpt.content
+
+
 @pytest.mark.parametrize("path", ["../outside.log", "absolute.json", "."])
 def test_rejects_unsafe_or_unsupported_paths(tmp_path: Path, path: str) -> None:
     (tmp_path / "absolute.json").write_text("error", encoding="utf-8")

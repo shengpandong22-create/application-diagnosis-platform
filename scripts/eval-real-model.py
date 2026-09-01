@@ -26,7 +26,9 @@ def select_scenarios(
     return selected[:limit]
 
 
-def build_scored_case(scenario: Any, summary: dict[str, Any]) -> dict[str, Any]:
+def build_scored_case(
+    scenario: Any, summary: dict[str, Any], evaluation_version: str = "real-v1"
+) -> dict[str, Any]:
     observation = {
         "termination_reason": summary.get("termination_reason", "runner_error"),
         "tool_statuses": [item["status"] for item in summary.get("tool_trace", [])],
@@ -51,7 +53,7 @@ def build_scored_case(scenario: Any, summary: dict[str, Any]) -> dict[str, Any]:
             "strategy_version": "phase3-router-v1",
             "tool_schema_version": "phase4-v1",
             "citation_policy_version": "phase0b-v1",
-            "code_revision": "d3-real-model-baseline",
+            "code_revision": evaluation_version,
         },
         "expected_termination_reason": "completed",
         # DiagnosisConclusion does not currently emit a category. Keep category
@@ -79,6 +81,7 @@ def main() -> None:
     parser.add_argument("--cases", help="comma-separated scenario ids")
     parser.add_argument("--limit", type=int, default=4)
     parser.add_argument("--llm-timeout-seconds", type=float, default=30.0)
+    parser.add_argument("--evaluation-version", default="real-v1")
     parser.add_argument("--no-resume", action="store_true")
     parser.add_argument(
         "--rebuild-only",
@@ -138,7 +141,9 @@ def main() -> None:
                 "summary": summary,
             }
         )
-        scored_cases.append(build_scored_case(scenario, summary))
+        scored_cases.append(
+            build_scored_case(scenario, summary, args.evaluation_version)
+        )
 
     (args.output / "observations.json").write_text(
         json.dumps(

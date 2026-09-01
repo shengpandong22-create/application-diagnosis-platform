@@ -29,7 +29,7 @@
       "id": "timeout",
       "title": "Inventory operation timeout",
       "trigger_path": "/lab/inventory/timeout",
-      "keyword": "TimeoutException",
+      "keyword": "InventoryClient.loadInventory",
       "expected_category": "dependency",
       "expected_context_depth": "config",
       "expected_code_paths": ["InventoryClient.java", "application.yml"],

@@ -17,7 +17,7 @@
     {
       "id": "timeout",
       "title": "Inventory operation timeout",
-      "keyword": "TimeoutException",
+      "keyword": "InventoryClient.loadInventory",
       "expected_code_paths": ["InventoryClient.java"],
       "allowed_root_cause_keywords": ["timeout", "inventory", "50"]
     }

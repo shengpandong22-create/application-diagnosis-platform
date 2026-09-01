@@ -1,0 +1,133 @@
+{
+  "total": 3,
+  "passed": 0,
+  "pass_rate": 0.0,
+  "dataset_versions": [
+    "java-lab-real-v1"
+  ],
+  "structured_output_valid_rate": 0.6667,
+  "citation_valid_rate": 0.6667,
+  "required_evidence_rate": 0.3333,
+  "termination_reason_match_rate": 0.6667,
+  "category_accuracy": null,
+  "category_confusion_matrix": {},
+  "root_cause_top1_rate": 0.6667,
+  "root_cause_top3_rate": 0.6667,
+  "information_sufficiency_accuracy": 0.6667,
+  "tool_selection_accuracy": 1.0,
+  "citation_precision": 1.0,
+  "citation_recall": 1.0,
+  "unsupported_claim_rate": 0.0,
+  "high_confidence_error_rate": 0.0,
+  "tool_success_rate": 0.5,
+  "average_latency_ms": 82127.67,
+  "total_tokens": 82233,
+  "estimated_cost_usd": 0.0,
+  "results": [
+    {
+      "case_id": "connection-refused",
+      "versions": {
+        "dataset_version": "java-lab-real-v1",
+        "model_id": "deepseek-v4-pro",
+        "prompt_version": "real-v1",
+        "strategy_version": "phase3-router-v1",
+        "tool_schema_version": "phase4-v1",
+        "citation_policy_version": "phase0b-v1",
+        "code_revision": "real-v2-timeout60"
+      },
+      "passed": false,
+      "structured_output_valid": false,
+      "citations_valid": false,
+      "required_evidence_present": true,
+      "termination_reason_matches": false,
+      "category_matches": null,
+      "root_cause_matches": false,
+      "root_cause_top1_matches": false,
+      "root_cause_top3_matches": false,
+      "information_sufficiency_matches": false,
+      "tool_selection_matches": true,
+      "citation_precision": 1.0,
+      "citation_recall": 1.0,
+      "unsupported_claim_rate": 0.0,
+      "high_confidence_error": false,
+      "tool_success_rate": 0.5,
+      "latency_ms": 120189,
+      "total_tokens": 40797,
+      "estimated_cost_usd": 0.0,
+      "failures": [
+        "invalid_evidence_citations",
+        "unexpected_termination_reason",
+        "root_cause_mismatch",
+        "information_sufficiency_mismatch"
+      ]
+    },
+    {
+      "case_id": "timeout",
+      "versions": {
+        "dataset_version": "java-lab-real-v1",
+        "model_id": "deepseek-v4-pro",
+        "prompt_version": "real-v1",
+        "strategy_version": "phase3-router-v1",
+        "tool_schema_version": "phase4-v1",
+        "citation_policy_version": "phase0b-v1",
+        "code_revision": "real-v2-timeout60"
+      },
+      "passed": false,
+      "structured_output_valid": true,
+      "citations_valid": true,
+      "required_evidence_present": false,
+      "termination_reason_matches": true,
+      "category_matches": null,
+      "root_cause_matches": true,
+      "root_cause_top1_matches": true,
+      "root_cause_top3_matches": true,
+      "information_sufficiency_matches": true,
+      "tool_selection_matches": true,
+      "citation_precision": 1.0,
+      "citation_recall": 1.0,
+      "unsupported_claim_rate": 0.0,
+      "high_confidence_error": false,
+      "tool_success_rate": 0.5,
+      "latency_ms": 48211,
+      "total_tokens": 21991,
+      "estimated_cost_usd": 0.0,
+      "failures": [
+        "missing_required_evidence"
+      ]
+    },
+    {
+      "case_id": "pool-exhausted",
+      "versions": {
+        "dataset_version": "java-lab-real-v1",
+        "model_id": "deepseek-v4-pro",
+        "prompt_version": "real-v1",
+        "strategy_version": "phase3-router-v1",
+        "tool_schema_version": "phase4-v1",
+        "citation_policy_version": "phase0b-v1",
+        "code_revision": "real-v2-timeout60"
+      },
+      "passed": false,
+      "structured_output_valid": true,
+      "citations_valid": true,
+      "required_evidence_present": false,
+      "termination_reason_matches": true,
+      "category_matches": null,
+      "root_cause_matches": true,
+      "root_cause_top1_matches": true,
+      "root_cause_top3_matches": true,
+      "information_sufficiency_matches": true,
+      "tool_selection_matches": true,
+      "citation_precision": 1.0,
+      "citation_recall": 1.0,
+      "unsupported_claim_rate": 0.0,
+      "high_confidence_error": false,
+      "tool_success_rate": 0.5,
+      "latency_ms": 77983,
+      "total_tokens": 19445,
+      "estimated_cost_usd": 0.0,
+      "failures": [
+        "missing_required_evidence"
+      ]
+    }
+  ]
+}

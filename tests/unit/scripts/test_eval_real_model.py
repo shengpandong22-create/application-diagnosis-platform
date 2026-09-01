@@ -43,11 +43,12 @@ def test_scored_case_preserves_observed_facts() -> None:
         "evidence": [{"id": "11111111-1111-4111-8111-111111111111", "type": "code_excerpt"}],
         "conclusion": {"root_causes": []},
     }
-    case = module.build_scored_case(scenario, summary)
+    case = module.build_scored_case(scenario, summary, "real-v2-timeout60")
     encoded = json.dumps(case)
     assert case["observation"]["latency_ms"] == 123
     assert case["observation"]["observed_category"] is None
     assert case["expected_category"] is None
+    assert case["versions"]["code_revision"] == "real-v2-timeout60"
     assert "deepseek-chat" in encoded
 
 

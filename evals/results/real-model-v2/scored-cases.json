@@ -1,0 +1,324 @@
+{
+  "dataset_version": "java-lab-real-v1",
+  "cases": [
+    {
+      "id": "connection-refused",
+      "title": "Downstream connection refused",
+      "source": "java-lab",
+      "versions": {
+        "dataset_version": "java-lab-real-v1",
+        "model_id": "deepseek-v4-pro",
+        "prompt_version": "real-v1",
+        "strategy_version": "phase3-router-v1",
+        "tool_schema_version": "phase4-v1",
+        "citation_policy_version": "phase0b-v1",
+        "code_revision": "real-v2-timeout60"
+      },
+      "expected_termination_reason": "completed",
+      "expected_category": null,
+      "expected_information_sufficient": true,
+      "expected_tool_names": [
+        "config__read"
+      ],
+      "required_evidence_types": [
+        "log_excerpt",
+        "config_excerpt"
+      ],
+      "required_evidence_ids": [],
+      "allowed_root_cause_keywords": [
+        "connection refused",
+        "downstream",
+        "65534"
+      ],
+      "forbidden_root_cause_keywords": [],
+      "observation": {
+        "termination_reason": "time_budget_exhausted",
+        "tool_statuses": [
+          "success",
+          "failed",
+          "failed",
+          "failed",
+          "success",
+          "success",
+          "success",
+          "failed"
+        ],
+        "tool_names": [
+          "knowledge__search",
+          "config__read",
+          "config__read",
+          "config__read",
+          "config__read",
+          "config__read",
+          "knowledge__search",
+          "config__read"
+        ],
+        "evidence": [
+          {
+            "id": "9efdf680-d7ef-4e90-990c-fc69dafbd033",
+            "type": "user_statement"
+          },
+          {
+            "id": "ffe0cb44-a674-416a-a0a5-9ca801b75032",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "cdedd6ac-1435-4423-954e-880f3fe85dfb",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "51b51be2-60ad-48f7-a71b-0babbb87d491",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "5eaf3b19-3c6e-4570-9dce-950413a1f305",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "dab97d20-41eb-4356-82c4-88f0ba1d7e7a",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "1d8c4e85-2c33-4818-aa20-a1e6f78b8647",
+            "type": "config_excerpt"
+          },
+          {
+            "id": "cb33cae8-dfd1-4d48-8026-b863dab491a6",
+            "type": "config_excerpt"
+          },
+          {
+            "id": "d74e2bd7-81ff-48c6-9bba-2508c75c1493",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "d4435c52-b662-4b8d-81db-8361f5e46ed4",
+            "type": "knowledge_entry"
+          }
+        ],
+        "conclusion": null,
+        "observed_category": null,
+        "confidence": null,
+        "latency_ms": 120189,
+        "prompt_tokens": 31587,
+        "completion_tokens": 9210,
+        "estimated_cost_usd": 0.0
+      }
+    },
+    {
+      "id": "timeout",
+      "title": "Inventory operation timeout",
+      "source": "java-lab",
+      "versions": {
+        "dataset_version": "java-lab-real-v1",
+        "model_id": "deepseek-v4-pro",
+        "prompt_version": "real-v1",
+        "strategy_version": "phase3-router-v1",
+        "tool_schema_version": "phase4-v1",
+        "citation_policy_version": "phase0b-v1",
+        "code_revision": "real-v2-timeout60"
+      },
+      "expected_termination_reason": "completed",
+      "expected_category": null,
+      "expected_information_sufficient": true,
+      "expected_tool_names": [
+        "config__read"
+      ],
+      "required_evidence_types": [
+        "log_excerpt",
+        "config_excerpt"
+      ],
+      "required_evidence_ids": [],
+      "allowed_root_cause_keywords": [
+        "timeout",
+        "inventory",
+        "50"
+      ],
+      "forbidden_root_cause_keywords": [],
+      "observation": {
+        "termination_reason": "completed",
+        "tool_statuses": [
+          "success",
+          "success",
+          "failed",
+          "failed"
+        ],
+        "tool_names": [
+          "knowledge__search",
+          "knowledge__search",
+          "config__read",
+          "config__read"
+        ],
+        "evidence": [
+          {
+            "id": "8381604f-0e97-4ba0-8af5-00f2ece3ffff",
+            "type": "user_statement"
+          },
+          {
+            "id": "fda94c48-6772-417e-9ddc-cc51ae64c434",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "ede93ebf-13d1-4379-b719-750f2c54f3af",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "e197e633-72e0-4940-add1-4d7c6730508a",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "1eb9c0ea-7b23-48fc-aa2d-abf55caec9e2",
+            "type": "knowledge_entry"
+          }
+        ],
+        "conclusion": {
+          "symptom_summary": "Inventory lookup failed before response with java.util.concurrent.TimeoutException: Connection pool exhausted: size=1, waitMs=10.",
+          "facts": [
+            {
+              "statement": "The submitted log shows TimeoutException 'Connection pool exhausted: size=1, waitMs=10' thrown from ConnectionPoolService.borrowConnectionTwice.",
+              "status": "probable",
+              "evidence_ids": [
+                "fda94c48-6772-417e-9ddc-cc51ae64c434"
+              ]
+            },
+            {
+              "statement": "The failing request path is FailureController.poolExhausted calling ConnectionPoolService.borrowConnectionTwice.",
+              "status": "probable",
+              "evidence_ids": [
+                "fda94c48-6772-417e-9ddc-cc51ae64c434"
+              ]
+            }
+          ],
+          "root_causes": [
+            {
+              "statement": "Borrowing a second connection while the first borrowed connection is not yet returned likely exhausts the single-connection pool, causing the 10ms acquisition timeout.",
+              "status": "probable",
+              "evidence_ids": [
+                "fda94c48-6772-417e-9ddc-cc51ae64c434",
+                "ede93ebf-13d1-4379-b719-750f2c54f3af"
+              ]
+            }
+          ],
+          "recommendations": [
+            "Add try/finally in borrowConnectionTwice to return the first connection before the second borrow.",
+            "Inspect pool configuration for size and wait timeout; treat size=1 and waitMs=10 as runtime values.",
+            "Add connection leak detection or reuse a single connection for the inventory lookup."
+          ],
+          "missing_information": [
+            "Source code of ConnectionPoolService.borrowConnectionTwice and FailureController.poolExhausted.",
+            "Actual pool configuration and whether poolExhausted is an intentional failure endpoint."
+          ]
+        },
+        "observed_category": null,
+        "confidence": null,
+        "latency_ms": 48211,
+        "prompt_tokens": 17857,
+        "completion_tokens": 4134,
+        "estimated_cost_usd": 0.0
+      }
+    },
+    {
+      "id": "pool-exhausted",
+      "title": "Connection pool capacity exhausted",
+      "source": "java-lab",
+      "versions": {
+        "dataset_version": "java-lab-real-v1",
+        "model_id": "deepseek-v4-pro",
+        "prompt_version": "real-v1",
+        "strategy_version": "phase3-router-v1",
+        "tool_schema_version": "phase4-v1",
+        "citation_policy_version": "phase0b-v1",
+        "code_revision": "real-v2-timeout60"
+      },
+      "expected_termination_reason": "completed",
+      "expected_category": null,
+      "expected_information_sufficient": true,
+      "expected_tool_names": [
+        "config__read"
+      ],
+      "required_evidence_types": [
+        "log_excerpt",
+        "config_excerpt"
+      ],
+      "required_evidence_ids": [],
+      "allowed_root_cause_keywords": [
+        "pool",
+        "size=1",
+        "wait"
+      ],
+      "forbidden_root_cause_keywords": [],
+      "observation": {
+        "termination_reason": "completed",
+        "tool_statuses": [
+          "success",
+          "failed"
+        ],
+        "tool_names": [
+          "knowledge__search",
+          "config__read"
+        ],
+        "evidence": [
+          {
+            "id": "aca58d4d-fae7-4e8c-95cd-99754a234659",
+            "type": "user_statement"
+          },
+          {
+            "id": "3d4f39e0-f086-4fb7-a503-4d8068fbb81c",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "ad8448ab-0bb8-499f-90be-fba94fad9e20",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "61b1c1e5-6dc9-47c7-a76a-ba9f8f493854",
+            "type": "knowledge_entry"
+          }
+        ],
+        "conclusion": {
+          "symptom_summary": "A request failed with TimeoutException 'Connection pool exhausted: size=1, waitMs=10', thrown from ConnectionPoolService.borrowConnectionTwice and called by FailureController.poolExhausted.",
+          "facts": [
+            {
+              "statement": "The submitted log records TimeoutException 'Connection pool exhausted: size=1, waitMs=10' at ConnectionPoolService.borrowConnectionTwice(ConnectionPoolService.java:22).",
+              "status": "probable",
+              "evidence_ids": [
+                "3d4f39e0-f086-4fb7-a503-4d8068fbb81c"
+              ]
+            },
+            {
+              "statement": "The method name borrowConnectionTwice suggests the failing code path tries to acquire two connections from a pool with max size 1.",
+              "status": "possible",
+              "evidence_ids": [
+                "3d4f39e0-f086-4fb7-a503-4d8068fbb81c"
+              ]
+            }
+          ],
+          "root_causes": [
+            {
+              "statement": "The failure path likely borrows a second connection while the pool max size equals 1, so the second acquire times out after 10 ms.",
+              "status": "probable",
+              "evidence_ids": [
+                "3d4f39e0-f086-4fb7-a503-4d8068fbb81c",
+                "ad8448ab-0bb8-499f-90be-fba94fad9e20"
+              ]
+            }
+          ],
+          "recommendations": [
+            "Inspect ConnectionPoolService.borrowConnectionTwice and FailureController.poolExhausted to confirm whether the first connection is held during the second borrow.",
+            "Check the pool configuration for max pool size and acquisition timeout.",
+            "Return the first connection before borrowing the second, or raise max size and timeout if two connections are needed."
+          ],
+          "missing_information": [
+            "Source code of ConnectionPoolService.borrowConnectionTwice near line 22.",
+            "Configured connection pool maximum size and acquisition timeout values."
+          ]
+        },
+        "observed_category": null,
+        "confidence": null,
+        "latency_ms": 77983,
+        "prompt_tokens": 12501,
+        "completion_tokens": 6944,
+        "estimated_cost_usd": 0.0
+      }
+    }
+  ]
+}

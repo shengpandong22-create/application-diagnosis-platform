@@ -1,0 +1,139 @@
+{
+  "diagnosis_id": "630534a9-3b5f-4c90-b6fc-c6477fe26699",
+  "case_id": "pool-exhausted",
+  "keyword": "Connection pool exhausted",
+  "termination_reason": "completed",
+  "run_error_code": null,
+  "model": "deepseek-v4-pro",
+  "round_count": 3,
+  "tool_call_count": 2,
+  "plan_id": "29bb1908-3071-4c5f-9d50-7da7098a54fd",
+  "plan_steps": [
+    "整理用户事实与初始日志",
+    "检索本地知识库",
+    "检查受限配置",
+    "综合证据并生成可审核结论"
+  ],
+  "plan_allowed_tools": [
+    "config__read",
+    "knowledge__search"
+  ],
+  "input_tokens": 12501,
+  "output_tokens": 6944,
+  "elapsed_ms": 77983,
+  "llm_timeout_seconds": 60.0,
+  "conclusion": {
+    "symptom_summary": "A request failed with TimeoutException 'Connection pool exhausted: size=1, waitMs=10', thrown from ConnectionPoolService.borrowConnectionTwice and called by FailureController.poolExhausted.",
+    "facts": [
+      {
+        "statement": "The submitted log records TimeoutException 'Connection pool exhausted: size=1, waitMs=10' at ConnectionPoolService.borrowConnectionTwice(ConnectionPoolService.java:22).",
+        "status": "probable",
+        "evidence_ids": [
+          "3d4f39e0-f086-4fb7-a503-4d8068fbb81c"
+        ]
+      },
+      {
+        "statement": "The method name borrowConnectionTwice suggests the failing code path tries to acquire two connections from a pool with max size 1.",
+        "status": "possible",
+        "evidence_ids": [
+          "3d4f39e0-f086-4fb7-a503-4d8068fbb81c"
+        ]
+      }
+    ],
+    "root_causes": [
+      {
+        "statement": "The failure path likely borrows a second connection while the pool max size equals 1, so the second acquire times out after 10 ms.",
+        "status": "probable",
+        "evidence_ids": [
+          "3d4f39e0-f086-4fb7-a503-4d8068fbb81c",
+          "ad8448ab-0bb8-499f-90be-fba94fad9e20"
+        ]
+      }
+    ],
+    "recommendations": [
+      "Inspect ConnectionPoolService.borrowConnectionTwice and FailureController.poolExhausted to confirm whether the first connection is held during the second borrow.",
+      "Check the pool configuration for max pool size and acquisition timeout.",
+      "Return the first connection before borrowing the second, or raise max size and timeout if two connections are needed."
+    ],
+    "missing_information": [
+      "Source code of ConnectionPoolService.borrowConnectionTwice near line 22.",
+      "Configured connection pool maximum size and acquisition timeout values."
+    ]
+  },
+  "evidence": [
+    {
+      "id": "aca58d4d-fae7-4e8c-95cd-99754a234659",
+      "type": "user_statement"
+    },
+    {
+      "id": "3d4f39e0-f086-4fb7-a503-4d8068fbb81c",
+      "type": "log_excerpt"
+    },
+    {
+      "id": "ad8448ab-0bb8-499f-90be-fba94fad9e20",
+      "type": "knowledge_entry"
+    },
+    {
+      "id": "61b1c1e5-6dc9-47c7-a76a-ba9f8f493854",
+      "type": "knowledge_entry"
+    }
+  ],
+  "tool_trace": [
+    {
+      "name": "knowledge__search",
+      "status": "success",
+      "duration_ms": 35,
+      "arguments": {
+        "query": "Connection pool exhausted size waitMs borrowConnectionTwice",
+        "limit": 5
+      },
+      "error_code": null
+    },
+    {
+      "name": "config__read",
+      "status": "failed",
+      "duration_ms": 0,
+      "arguments": {
+        "path": "application.properties",
+        "start_line": 1,
+        "end_line": 120
+      },
+      "error_code": "config_read_filenotfounderror"
+    }
+  ],
+  "cited_evidence_types": [
+    "knowledge_entry",
+    "log_excerpt"
+  ],
+  "code_evidence_references": [],
+  "evidence_references": [
+    "",
+    "submitted_log:1/1",
+    "generic-connection-pool-exhausted",
+    "generic-connection-refused"
+  ],
+  "expected_code_paths": [
+    "ConnectionPoolService.java",
+    "application.yml"
+  ],
+  "expected_root_cause_keywords": [
+    "pool",
+    "size=1",
+    "wait"
+  ],
+  "expected_tools": [
+    "config__read"
+  ],
+  "expected_evidence_types": [
+    "config_excerpt",
+    "log_excerpt"
+  ],
+  "log_source_reference": "diagnosis-java-lab.log:206-261",
+  "external_model_called": true,
+  "report": "D:\\AgentStudy\\application-diagnosis-platform\\evals\\results\\real-model-v2\\runs\\pool-exhausted\\diagnosis-report.md",
+  "acceptance_failures": [
+    "missing expected successful tools: config__read",
+    "missing expected cited evidence: config_excerpt",
+    "expected source file was not captured as evidence"
+  ]
+}

@@ -1,0 +1,515 @@
+{
+  "dataset_version": "java-lab-real-v1",
+  "runs": [
+    {
+      "case_id": "connection-refused",
+      "status": "time_budget_exhausted",
+      "summary": {
+        "diagnosis_id": "7e592af5-2448-4f34-a439-c5a116315c51",
+        "case_id": "connection-refused",
+        "keyword": "ConnectException",
+        "termination_reason": "time_budget_exhausted",
+        "run_error_code": null,
+        "model": "deepseek-v4-pro",
+        "round_count": 5,
+        "tool_call_count": 8,
+        "plan_id": "03be05e0-3daa-439e-8231-fd3b708aa664",
+        "plan_steps": [
+          "整理用户事实与初始日志",
+          "检索本地知识库",
+          "检查受限配置",
+          "综合证据并生成可审核结论"
+        ],
+        "plan_allowed_tools": [
+          "config__read",
+          "knowledge__search"
+        ],
+        "input_tokens": 31587,
+        "output_tokens": 9210,
+        "elapsed_ms": 120189,
+        "llm_timeout_seconds": 60.0,
+        "conclusion": null,
+        "evidence": [
+          {
+            "id": "9efdf680-d7ef-4e90-990c-fc69dafbd033",
+            "type": "user_statement"
+          },
+          {
+            "id": "ffe0cb44-a674-416a-a0a5-9ca801b75032",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "cdedd6ac-1435-4423-954e-880f3fe85dfb",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "51b51be2-60ad-48f7-a71b-0babbb87d491",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "5eaf3b19-3c6e-4570-9dce-950413a1f305",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "dab97d20-41eb-4356-82c4-88f0ba1d7e7a",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "1d8c4e85-2c33-4818-aa20-a1e6f78b8647",
+            "type": "config_excerpt"
+          },
+          {
+            "id": "cb33cae8-dfd1-4d48-8026-b863dab491a6",
+            "type": "config_excerpt"
+          },
+          {
+            "id": "d74e2bd7-81ff-48c6-9bba-2508c75c1493",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "d4435c52-b662-4b8d-81db-8361f5e46ed4",
+            "type": "knowledge_entry"
+          }
+        ],
+        "tool_trace": [
+          {
+            "name": "knowledge__search",
+            "status": "success",
+            "duration_ms": 42,
+            "arguments": {
+              "query": "ConnectException Connection refused downstream endpoint timeout SocketTimeoutException",
+              "limit": 5
+            },
+            "error_code": null
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "application.properties",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 1,
+            "arguments": {
+              "path": "src/main/resources/application.properties",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "application.yml",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          },
+          {
+            "name": "config__read",
+            "status": "success",
+            "duration_ms": 1,
+            "arguments": {
+              "path": "src/main/resources/application.yml",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": null
+          },
+          {
+            "name": "config__read",
+            "status": "success",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "src/main/resources/application.yml",
+              "start_line": 12,
+              "end_line": 80
+            },
+            "error_code": null
+          },
+          {
+            "name": "knowledge__search",
+            "status": "success",
+            "duration_ms": 4,
+            "arguments": {
+              "query": "distinguish Connection refused versus connect timed out SocketTimeoutException HTTP error",
+              "limit": 5
+            },
+            "error_code": null
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "config/application.yml",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          }
+        ],
+        "cited_evidence_types": [],
+        "code_evidence_references": [],
+        "evidence_references": [
+          "",
+          "submitted_log:1/1",
+          "generic-connection-refused",
+          "generic-connection-pool-exhausted",
+          "generic-downstream-failure",
+          "generic-timeout",
+          "src/main/resources/application.yml:1-12",
+          "src/main/resources/application.yml:12-12",
+          "generic-oom",
+          "generic-http-500"
+        ],
+        "expected_code_paths": [
+          "PaymentClient.java",
+          "application.yml"
+        ],
+        "expected_root_cause_keywords": [
+          "connection refused",
+          "downstream",
+          "65534"
+        ],
+        "expected_tools": [
+          "config__read"
+        ],
+        "expected_evidence_types": [
+          "config_excerpt",
+          "log_excerpt"
+        ],
+        "log_source_reference": "diagnosis-java-lab.log:69-148",
+        "external_model_called": true,
+        "report": "D:\\AgentStudy\\application-diagnosis-platform\\evals\\results\\real-model-v2\\runs\\connection-refused\\diagnosis-report.md",
+        "acceptance_failures": [
+          "termination=time_budget_exhausted",
+          "missing expected cited evidence: config_excerpt, log_excerpt",
+          "root cause does not match case vocabulary"
+        ]
+      }
+    },
+    {
+      "case_id": "timeout",
+      "status": "completed",
+      "summary": {
+        "diagnosis_id": "34547c81-8bed-4e72-9865-52e3b0ee5980",
+        "case_id": "timeout",
+        "keyword": "TimeoutException",
+        "termination_reason": "completed",
+        "run_error_code": null,
+        "model": "deepseek-v4-pro",
+        "round_count": 4,
+        "tool_call_count": 4,
+        "plan_id": "c15803b0-9d98-49ab-9e6f-e1bd9636cd19",
+        "plan_steps": [
+          "整理用户事实与初始日志",
+          "检索本地知识库",
+          "检查受限配置",
+          "综合证据并生成可审核结论"
+        ],
+        "plan_allowed_tools": [
+          "config__read",
+          "knowledge__search"
+        ],
+        "input_tokens": 17857,
+        "output_tokens": 4134,
+        "elapsed_ms": 48211,
+        "llm_timeout_seconds": 60.0,
+        "conclusion": {
+          "symptom_summary": "Inventory lookup failed before response with java.util.concurrent.TimeoutException: Connection pool exhausted: size=1, waitMs=10.",
+          "facts": [
+            {
+              "statement": "The submitted log shows TimeoutException 'Connection pool exhausted: size=1, waitMs=10' thrown from ConnectionPoolService.borrowConnectionTwice.",
+              "status": "probable",
+              "evidence_ids": [
+                "fda94c48-6772-417e-9ddc-cc51ae64c434"
+              ]
+            },
+            {
+              "statement": "The failing request path is FailureController.poolExhausted calling ConnectionPoolService.borrowConnectionTwice.",
+              "status": "probable",
+              "evidence_ids": [
+                "fda94c48-6772-417e-9ddc-cc51ae64c434"
+              ]
+            }
+          ],
+          "root_causes": [
+            {
+              "statement": "Borrowing a second connection while the first borrowed connection is not yet returned likely exhausts the single-connection pool, causing the 10ms acquisition timeout.",
+              "status": "probable",
+              "evidence_ids": [
+                "fda94c48-6772-417e-9ddc-cc51ae64c434",
+                "ede93ebf-13d1-4379-b719-750f2c54f3af"
+              ]
+            }
+          ],
+          "recommendations": [
+            "Add try/finally in borrowConnectionTwice to return the first connection before the second borrow.",
+            "Inspect pool configuration for size and wait timeout; treat size=1 and waitMs=10 as runtime values.",
+            "Add connection leak detection or reuse a single connection for the inventory lookup."
+          ],
+          "missing_information": [
+            "Source code of ConnectionPoolService.borrowConnectionTwice and FailureController.poolExhausted.",
+            "Actual pool configuration and whether poolExhausted is an intentional failure endpoint."
+          ]
+        },
+        "evidence": [
+          {
+            "id": "8381604f-0e97-4ba0-8af5-00f2ece3ffff",
+            "type": "user_statement"
+          },
+          {
+            "id": "fda94c48-6772-417e-9ddc-cc51ae64c434",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "ede93ebf-13d1-4379-b719-750f2c54f3af",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "e197e633-72e0-4940-add1-4d7c6730508a",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "1eb9c0ea-7b23-48fc-aa2d-abf55caec9e2",
+            "type": "knowledge_entry"
+          }
+        ],
+        "tool_trace": [
+          {
+            "name": "knowledge__search",
+            "status": "success",
+            "duration_ms": 34,
+            "arguments": {
+              "query": "Connection pool exhausted size=1 waitMs=10 borrowConnectionTwice",
+              "limit": 5
+            },
+            "error_code": null
+          },
+          {
+            "name": "knowledge__search",
+            "status": "success",
+            "duration_ms": 1,
+            "arguments": {
+              "query": "TimeoutException Connection pool exhausted FailureController poolExhausted",
+              "limit": 5
+            },
+            "error_code": null
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "application.properties",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "application.yml",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          }
+        ],
+        "cited_evidence_types": [
+          "knowledge_entry",
+          "log_excerpt"
+        ],
+        "code_evidence_references": [],
+        "evidence_references": [
+          "",
+          "submitted_log:1/1",
+          "generic-connection-pool-exhausted",
+          "generic-connection-refused",
+          "generic-timeout"
+        ],
+        "expected_code_paths": [
+          "InventoryClient.java",
+          "application.yml"
+        ],
+        "expected_root_cause_keywords": [
+          "timeout",
+          "inventory",
+          "50"
+        ],
+        "expected_tools": [
+          "config__read"
+        ],
+        "expected_evidence_types": [
+          "config_excerpt",
+          "log_excerpt"
+        ],
+        "log_source_reference": "diagnosis-java-lab.log:206-261",
+        "external_model_called": true,
+        "report": "D:\\AgentStudy\\application-diagnosis-platform\\evals\\results\\real-model-v2\\runs\\timeout\\diagnosis-report.md",
+        "acceptance_failures": [
+          "missing expected successful tools: config__read",
+          "missing expected cited evidence: config_excerpt",
+          "expected source file was not captured as evidence"
+        ]
+      }
+    },
+    {
+      "case_id": "pool-exhausted",
+      "status": "completed",
+      "summary": {
+        "diagnosis_id": "630534a9-3b5f-4c90-b6fc-c6477fe26699",
+        "case_id": "pool-exhausted",
+        "keyword": "Connection pool exhausted",
+        "termination_reason": "completed",
+        "run_error_code": null,
+        "model": "deepseek-v4-pro",
+        "round_count": 3,
+        "tool_call_count": 2,
+        "plan_id": "29bb1908-3071-4c5f-9d50-7da7098a54fd",
+        "plan_steps": [
+          "整理用户事实与初始日志",
+          "检索本地知识库",
+          "检查受限配置",
+          "综合证据并生成可审核结论"
+        ],
+        "plan_allowed_tools": [
+          "config__read",
+          "knowledge__search"
+        ],
+        "input_tokens": 12501,
+        "output_tokens": 6944,
+        "elapsed_ms": 77983,
+        "llm_timeout_seconds": 60.0,
+        "conclusion": {
+          "symptom_summary": "A request failed with TimeoutException 'Connection pool exhausted: size=1, waitMs=10', thrown from ConnectionPoolService.borrowConnectionTwice and called by FailureController.poolExhausted.",
+          "facts": [
+            {
+              "statement": "The submitted log records TimeoutException 'Connection pool exhausted: size=1, waitMs=10' at ConnectionPoolService.borrowConnectionTwice(ConnectionPoolService.java:22).",
+              "status": "probable",
+              "evidence_ids": [
+                "3d4f39e0-f086-4fb7-a503-4d8068fbb81c"
+              ]
+            },
+            {
+              "statement": "The method name borrowConnectionTwice suggests the failing code path tries to acquire two connections from a pool with max size 1.",
+              "status": "possible",
+              "evidence_ids": [
+                "3d4f39e0-f086-4fb7-a503-4d8068fbb81c"
+              ]
+            }
+          ],
+          "root_causes": [
+            {
+              "statement": "The failure path likely borrows a second connection while the pool max size equals 1, so the second acquire times out after 10 ms.",
+              "status": "probable",
+              "evidence_ids": [
+                "3d4f39e0-f086-4fb7-a503-4d8068fbb81c",
+                "ad8448ab-0bb8-499f-90be-fba94fad9e20"
+              ]
+            }
+          ],
+          "recommendations": [
+            "Inspect ConnectionPoolService.borrowConnectionTwice and FailureController.poolExhausted to confirm whether the first connection is held during the second borrow.",
+            "Check the pool configuration for max pool size and acquisition timeout.",
+            "Return the first connection before borrowing the second, or raise max size and timeout if two connections are needed."
+          ],
+          "missing_information": [
+            "Source code of ConnectionPoolService.borrowConnectionTwice near line 22.",
+            "Configured connection pool maximum size and acquisition timeout values."
+          ]
+        },
+        "evidence": [
+          {
+            "id": "aca58d4d-fae7-4e8c-95cd-99754a234659",
+            "type": "user_statement"
+          },
+          {
+            "id": "3d4f39e0-f086-4fb7-a503-4d8068fbb81c",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "ad8448ab-0bb8-499f-90be-fba94fad9e20",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "61b1c1e5-6dc9-47c7-a76a-ba9f8f493854",
+            "type": "knowledge_entry"
+          }
+        ],
+        "tool_trace": [
+          {
+            "name": "knowledge__search",
+            "status": "success",
+            "duration_ms": 35,
+            "arguments": {
+              "query": "Connection pool exhausted size waitMs borrowConnectionTwice",
+              "limit": 5
+            },
+            "error_code": null
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "application.properties",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          }
+        ],
+        "cited_evidence_types": [
+          "knowledge_entry",
+          "log_excerpt"
+        ],
+        "code_evidence_references": [],
+        "evidence_references": [
+          "",
+          "submitted_log:1/1",
+          "generic-connection-pool-exhausted",
+          "generic-connection-refused"
+        ],
+        "expected_code_paths": [
+          "ConnectionPoolService.java",
+          "application.yml"
+        ],
+        "expected_root_cause_keywords": [
+          "pool",
+          "size=1",
+          "wait"
+        ],
+        "expected_tools": [
+          "config__read"
+        ],
+        "expected_evidence_types": [
+          "config_excerpt",
+          "log_excerpt"
+        ],
+        "log_source_reference": "diagnosis-java-lab.log:206-261",
+        "external_model_called": true,
+        "report": "D:\\AgentStudy\\application-diagnosis-platform\\evals\\results\\real-model-v2\\runs\\pool-exhausted\\diagnosis-report.md",
+        "acceptance_failures": [
+          "missing expected successful tools: config__read",
+          "missing expected cited evidence: config_excerpt",
+          "expected source file was not captured as evidence"
+        ]
+      }
+    }
+  ]
+}
