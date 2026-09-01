@@ -132,6 +132,7 @@
 - [ADR-0003：有界诊断工具与显式 Registry](./05-decisions/0003-bounded-diagnostic-tools.md)
 - [ADR-0004：可持久化的有界 Tool Loop](./05-decisions/0004-durable-bounded-tool-loop.md)
 - [ADR-0005：将应用时间作为可注入依赖](./05-decisions/0005-injectable-application-clock.md)
+- [ADR-0006：在生产信号出现前暂缓 Phase 5](./05-decisions/0006-defer-phase5-until-production-signals.md)
 
 ### 6. 学习教案
 
