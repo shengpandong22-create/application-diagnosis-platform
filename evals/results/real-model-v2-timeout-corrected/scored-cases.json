@@ -1,0 +1,84 @@
+{
+  "dataset_version": "java-lab-real-v1",
+  "cases": [
+    {
+      "id": "timeout",
+      "title": "Inventory operation timeout",
+      "source": "java-lab",
+      "versions": {
+        "dataset_version": "java-lab-real-v1",
+        "model_id": "deepseek-v4-pro",
+        "prompt_version": "real-v1",
+        "strategy_version": "phase3-router-v1",
+        "tool_schema_version": "phase4-v1",
+        "citation_policy_version": "phase0b-v1",
+        "code_revision": "real-v2-timeout60-corrected"
+      },
+      "expected_termination_reason": "completed",
+      "expected_category": null,
+      "expected_information_sufficient": true,
+      "expected_tool_names": [
+        "config__read"
+      ],
+      "required_evidence_types": [
+        "log_excerpt",
+        "config_excerpt"
+      ],
+      "required_evidence_ids": [],
+      "allowed_root_cause_keywords": [
+        "timeout",
+        "inventory",
+        "50"
+      ],
+      "forbidden_root_cause_keywords": [],
+      "observation": {
+        "termination_reason": "max_rounds_reached",
+        "tool_statuses": [
+          "success",
+          "failed",
+          "failed",
+          "failed",
+          "success",
+          "failed",
+          "failed",
+          "success"
+        ],
+        "tool_names": [
+          "knowledge__search",
+          "config__read",
+          "config__read",
+          "config__read",
+          "config__read",
+          "config__read",
+          "config__read",
+          "config__read"
+        ],
+        "evidence": [
+          {
+            "id": "2569f257-1d3d-41e5-9cc1-b1916603ddb5",
+            "type": "user_statement"
+          },
+          {
+            "id": "b0cb54ee-a6f1-42da-b2dd-70651c390d84",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "38a25244-227e-4dac-91a4-87170ea63bd2",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "905406aa-2537-4bd0-ae60-379b941bdb40",
+            "type": "config_excerpt"
+          }
+        ],
+        "conclusion": null,
+        "observed_category": null,
+        "confidence": null,
+        "latency_ms": 78562,
+        "prompt_tokens": 28631,
+        "completion_tokens": 5841,
+        "estimated_cost_usd": 0.0
+      }
+    }
+  ]
+}

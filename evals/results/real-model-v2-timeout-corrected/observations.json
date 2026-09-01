@@ -1,0 +1,174 @@
+{
+  "dataset_version": "java-lab-real-v1",
+  "runs": [
+    {
+      "case_id": "timeout",
+      "status": "max_rounds_reached",
+      "summary": {
+        "diagnosis_id": "adee1c29-59b4-410f-9742-3f833ebeabce",
+        "case_id": "timeout",
+        "keyword": "InventoryClient.loadInventory",
+        "termination_reason": "max_rounds_reached",
+        "run_error_code": null,
+        "model": "deepseek-v4-pro",
+        "round_count": 6,
+        "tool_call_count": 8,
+        "plan_id": "c0702eaa-bda0-4e9a-905e-7feb2020fd8a",
+        "plan_steps": [
+          "整理用户事实与初始日志",
+          "检索本地知识库",
+          "检查受限配置",
+          "综合证据并生成可审核结论"
+        ],
+        "plan_allowed_tools": [
+          "config__read",
+          "knowledge__search"
+        ],
+        "input_tokens": 28631,
+        "output_tokens": 5841,
+        "elapsed_ms": 78562,
+        "llm_timeout_seconds": 60.0,
+        "conclusion": null,
+        "evidence": [
+          {
+            "id": "2569f257-1d3d-41e5-9cc1-b1916603ddb5",
+            "type": "user_statement"
+          },
+          {
+            "id": "b0cb54ee-a6f1-42da-b2dd-70651c390d84",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "38a25244-227e-4dac-91a4-87170ea63bd2",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "905406aa-2537-4bd0-ae60-379b941bdb40",
+            "type": "config_excerpt"
+          }
+        ],
+        "tool_trace": [
+          {
+            "name": "knowledge__search",
+            "status": "success",
+            "duration_ms": 64,
+            "arguments": {
+              "query": "InventoryClient loadInventory TimeoutException FutureTask.get",
+              "limit": 5
+            },
+            "error_code": null
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "application.properties",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "src/main/resources/application.properties",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "application.yml",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          },
+          {
+            "name": "config__read",
+            "status": "success",
+            "duration_ms": 1,
+            "arguments": {
+              "path": "src/main/resources/application.yml",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": null
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "README.md",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_permissionerror"
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "src/main/resources/application.properties",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          },
+          {
+            "name": "config__read",
+            "status": "success",
+            "duration_ms": 1,
+            "arguments": {
+              "path": "src/main/resources/application.yml",
+              "start_line": 1,
+              "end_line": 60
+            },
+            "error_code": null
+          }
+        ],
+        "cited_evidence_types": [],
+        "code_evidence_references": [],
+        "evidence_references": [
+          "",
+          "submitted_log:1/1",
+          "generic-timeout",
+          "src/main/resources/application.yml:1-12"
+        ],
+        "expected_code_paths": [
+          "InventoryClient.java",
+          "application.yml"
+        ],
+        "expected_root_cause_keywords": [
+          "timeout",
+          "inventory",
+          "50"
+        ],
+        "expected_tools": [
+          "config__read"
+        ],
+        "expected_evidence_types": [
+          "config_excerpt",
+          "log_excerpt"
+        ],
+        "log_source_reference": "diagnosis-java-lab.log:149-205",
+        "external_model_called": true,
+        "report": "D:\\AgentStudy\\application-diagnosis-platform\\evals\\results\\real-model-v2-timeout-corrected\\runs\\timeout\\diagnosis-report.md",
+        "acceptance_failures": [
+          "termination=max_rounds_reached",
+          "missing expected cited evidence: config_excerpt, log_excerpt",
+          "root cause does not match case vocabulary"
+        ]
+      }
+    }
+  ]
+}

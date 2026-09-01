@@ -1,0 +1,65 @@
+{
+  "total": 1,
+  "passed": 0,
+  "pass_rate": 0.0,
+  "dataset_versions": [
+    "java-lab-real-v1"
+  ],
+  "structured_output_valid_rate": 0.0,
+  "citation_valid_rate": 0.0,
+  "required_evidence_rate": 1.0,
+  "termination_reason_match_rate": 0.0,
+  "category_accuracy": null,
+  "category_confusion_matrix": {},
+  "root_cause_top1_rate": 0.0,
+  "root_cause_top3_rate": 0.0,
+  "information_sufficiency_accuracy": 0.0,
+  "tool_selection_accuracy": 1.0,
+  "citation_precision": 1.0,
+  "citation_recall": 1.0,
+  "unsupported_claim_rate": 0.0,
+  "high_confidence_error_rate": 0.0,
+  "tool_success_rate": 0.375,
+  "average_latency_ms": 78562.0,
+  "total_tokens": 34472,
+  "estimated_cost_usd": 0.0,
+  "results": [
+    {
+      "case_id": "timeout",
+      "versions": {
+        "dataset_version": "java-lab-real-v1",
+        "model_id": "deepseek-v4-pro",
+        "prompt_version": "real-v1",
+        "strategy_version": "phase3-router-v1",
+        "tool_schema_version": "phase4-v1",
+        "citation_policy_version": "phase0b-v1",
+        "code_revision": "real-v2-timeout60-corrected"
+      },
+      "passed": false,
+      "structured_output_valid": false,
+      "citations_valid": false,
+      "required_evidence_present": true,
+      "termination_reason_matches": false,
+      "category_matches": null,
+      "root_cause_matches": false,
+      "root_cause_top1_matches": false,
+      "root_cause_top3_matches": false,
+      "information_sufficiency_matches": false,
+      "tool_selection_matches": true,
+      "citation_precision": 1.0,
+      "citation_recall": 1.0,
+      "unsupported_claim_rate": 0.0,
+      "high_confidence_error": false,
+      "tool_success_rate": 0.375,
+      "latency_ms": 78562,
+      "total_tokens": 34472,
+      "estimated_cost_usd": 0.0,
+      "failures": [
+        "invalid_evidence_citations",
+        "unexpected_termination_reason",
+        "root_cause_mismatch",
+        "information_sufficiency_mismatch"
+      ]
+    }
+  ]
+}
