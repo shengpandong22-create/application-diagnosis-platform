@@ -43,7 +43,10 @@ def main() -> None:
     parser.add_argument(
         "--output", type=Path, default=PROJECT_ROOT / "demo-output" / "phase1-real-model"
     )
+    parser.add_argument("--llm-timeout-seconds", type=float, default=30.0)
     args = parser.parse_args()
+    if args.llm_timeout_seconds <= 0:
+        raise ValueError("--llm-timeout-seconds must be positive")
 
     case = load_case(args.cases, args.case) if args.case else None
     keyword = args.keyword or (case or {}).get("keyword")
@@ -80,7 +83,7 @@ def main() -> None:
             agent_max_rounds=6,
             agent_max_tool_calls=8,
             agent_total_timeout_seconds=120,
-            llm_timeout_seconds=30,
+            llm_timeout_seconds=args.llm_timeout_seconds,
         )
         if not settings.llm_model.strip() or not settings.llm_api_key.get_secret_value():
             raise RuntimeError("APP_LLM_MODEL and APP_LLM_API_KEY must be configured in .env")
@@ -184,6 +187,7 @@ def main() -> None:
             "input_tokens": run["input_tokens"],
             "output_tokens": run["output_tokens"],
             "elapsed_ms": elapsed_ms,
+            "llm_timeout_seconds": args.llm_timeout_seconds,
             "conclusion": result.get("conclusion"),
             "evidence": [
                 {"id": item["id"], "type": item["type"]} for item in evidence

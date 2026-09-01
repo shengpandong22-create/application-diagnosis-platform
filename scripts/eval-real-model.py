@@ -10,6 +10,12 @@ from app_diagnosis.evaluation.scenarios import EvaluationScenarioDataset
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
+def validate_timeout(value: float) -> float:
+    if value <= 0:
+        raise ValueError("--llm-timeout-seconds must be positive")
+    return value
+
+
 def select_scenarios(
     dataset: EvaluationScenarioDataset, case_ids: set[str], limit: int
 ) -> list[Any]:
@@ -72,6 +78,7 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "evals/results/real-model-v1")
     parser.add_argument("--cases", help="comma-separated scenario ids")
     parser.add_argument("--limit", type=int, default=4)
+    parser.add_argument("--llm-timeout-seconds", type=float, default=30.0)
     parser.add_argument("--no-resume", action="store_true")
     parser.add_argument(
         "--rebuild-only",
@@ -81,6 +88,7 @@ def main() -> None:
     args = parser.parse_args()
     if not 1 <= args.limit <= 12:
         raise ValueError("--limit must be between 1 and 12")
+    validate_timeout(args.llm_timeout_seconds)
 
     dataset = EvaluationScenarioDataset.model_validate_json(
         args.definitions.read_text(encoding="utf-8")
@@ -109,6 +117,8 @@ def main() -> None:
                 str(args.definitions),
                 "--output",
                 str(runs_dir),
+                "--llm-timeout-seconds",
+                str(args.llm_timeout_seconds),
             ]
             completed = subprocess.run(command, cwd=PROJECT_ROOT, check=False)
             if not summary_path.exists():

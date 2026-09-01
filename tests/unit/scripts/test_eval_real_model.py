@@ -67,3 +67,10 @@ def test_model_error_is_a_scoreable_observation() -> None:
 
     assert case["observation"]["termination_reason"] == "model_error"
     assert case["observation"]["conclusion"] is None
+
+
+def test_runtime_timeout_must_be_positive() -> None:
+    module = load_script()
+    assert module.validate_timeout(60.0) == 60.0
+    with pytest.raises(ValueError, match="must be positive"):
+        module.validate_timeout(0)
