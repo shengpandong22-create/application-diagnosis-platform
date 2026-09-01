@@ -1,0 +1,89 @@
+{
+  "diagnosis_id": "294186f5-f286-4f7a-a61c-d42d137ff869",
+  "case_id": "pool-exhausted",
+  "keyword": "Connection pool exhausted",
+  "termination_reason": "model_error",
+  "run_error_code": "LLMTimeoutError",
+  "model": "deepseek-v4-pro",
+  "round_count": 1,
+  "tool_call_count": 1,
+  "plan_id": "c9c8e929-28c2-4d20-b6a0-55d2258843bb",
+  "plan_steps": [
+    "整理用户事实与初始日志",
+    "检索本地知识库",
+    "检查受限配置",
+    "综合证据并生成可审核结论"
+  ],
+  "plan_allowed_tools": [
+    "config__read",
+    "knowledge__search"
+  ],
+  "input_tokens": 3482,
+  "output_tokens": 436,
+  "elapsed_ms": 37907,
+  "conclusion": null,
+  "evidence": [
+    {
+      "id": "aa7f9b55-c303-4b7c-9766-89c0695aca97",
+      "type": "user_statement"
+    },
+    {
+      "id": "f29e5e73-5b31-46ed-996d-b74e0379fff3",
+      "type": "log_excerpt"
+    },
+    {
+      "id": "ad309e48-b636-417b-94a0-1facfb9b8696",
+      "type": "knowledge_entry"
+    },
+    {
+      "id": "1581e215-d5ff-416c-9f5f-c24cf9307adf",
+      "type": "knowledge_entry"
+    }
+  ],
+  "tool_trace": [
+    {
+      "name": "knowledge__search",
+      "status": "success",
+      "duration_ms": 64,
+      "arguments": {
+        "query": "Connection pool exhausted size=1 waitMs=10 borrowConnectionTwice FailureController poolExhausted",
+        "limit": 5
+      },
+      "error_code": null
+    }
+  ],
+  "cited_evidence_types": [],
+  "code_evidence_references": [],
+  "evidence_references": [
+    "",
+    "submitted_log:1/1",
+    "generic-connection-pool-exhausted",
+    "generic-connection-refused"
+  ],
+  "expected_code_paths": [
+    "ConnectionPoolService.java",
+    "application.yml"
+  ],
+  "expected_root_cause_keywords": [
+    "pool",
+    "size=1",
+    "wait"
+  ],
+  "expected_tools": [
+    "config__read"
+  ],
+  "expected_evidence_types": [
+    "config_excerpt",
+    "log_excerpt"
+  ],
+  "log_source_reference": "diagnosis-java-lab.log:206-261",
+  "external_model_called": true,
+  "report": "D:\\AgentStudy\\application-diagnosis-platform\\evals\\results\\real-model-v1\\runs\\pool-exhausted\\diagnosis-report.md",
+  "acceptance_failures": [
+    "termination=model_error",
+    "missing expected successful tools: config__read",
+    "missing expected cited evidence: config_excerpt, log_excerpt",
+    "expected source file was not captured as evidence",
+    "root cause does not match case vocabulary"
+  ]
+}

@@ -1,0 +1,353 @@
+{
+  "dataset_version": "java-lab-real-v1",
+  "cases": [
+    {
+      "id": "npe",
+      "title": "Null customer dereference",
+      "source": "java-lab",
+      "versions": {
+        "dataset_version": "java-lab-real-v1",
+        "model_id": "deepseek-v4-pro",
+        "prompt_version": "real-v1",
+        "strategy_version": "phase3-router-v1",
+        "tool_schema_version": "phase4-v1",
+        "citation_policy_version": "phase0b-v1",
+        "code_revision": "d3-real-model-baseline"
+      },
+      "expected_termination_reason": "completed",
+      "expected_category": null,
+      "expected_information_sufficient": true,
+      "expected_tool_names": [
+        "code__search",
+        "code__read"
+      ],
+      "required_evidence_types": [
+        "log_excerpt",
+        "code_excerpt"
+      ],
+      "required_evidence_ids": [],
+      "allowed_root_cause_keywords": [
+        "null",
+        "trim",
+        "customer"
+      ],
+      "forbidden_root_cause_keywords": [
+        "database corruption"
+      ],
+      "observation": {
+        "termination_reason": "completed",
+        "tool_statuses": [
+          "success",
+          "success",
+          "success",
+          "success"
+        ],
+        "tool_names": [
+          "code__search",
+          "code__search",
+          "code__read",
+          "code__read"
+        ],
+        "evidence": [
+          {
+            "id": "8ff70561-55e1-418c-8e69-cf36010664ca",
+            "type": "user_statement"
+          },
+          {
+            "id": "cbb1f6ff-5631-4d92-8942-65adc99b28d0",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "a019423f-ed08-4b58-8800-d6dc1c5d9e8e",
+            "type": "code_excerpt"
+          },
+          {
+            "id": "cdc58d80-335b-46da-9d85-9b3bfc95748f",
+            "type": "code_excerpt"
+          }
+        ],
+        "conclusion": {
+          "symptom_summary": "A request to the Java Lab order endpoint fails with NullPointerException while creating an order; the runtime log points to OrderService.createOrder(OrderService.java:8).",
+          "facts": [
+            {
+              "statement": "The submitted runtime log shows NullPointerException at dev.agentstudy.lab.OrderService.createOrder(OrderService.java:8).",
+              "status": "probable",
+              "evidence_ids": [
+                "cbb1f6ff-5631-4d92-8942-65adc99b28d0"
+              ]
+            },
+            {
+              "statement": "Source inspection shows FailureController.npe() creates OrderService.OrderDraft(null) and OrderService.createOrder calls draft.getCustomer().trim() without a null check.",
+              "status": "possible",
+              "evidence_ids": [
+                "cdc58d80-335b-46da-9d85-9b3bfc95748f",
+                "a019423f-ed08-4b58-8800-d6dc1c5d9e8e"
+              ]
+            }
+          ],
+          "root_causes": [
+            {
+              "statement": "FailureController.npe() passes a null customer draft into OrderService.createOrder, which dereferences it with getCustomer().trim(), producing the NullPointerException captured in the runtime log.",
+              "status": "probable",
+              "evidence_ids": [
+                "cbb1f6ff-5631-4d92-8942-65adc99b28d0",
+                "cdc58d80-335b-46da-9d85-9b3bfc95748f",
+                "a019423f-ed08-4b58-8800-d6dc1c5d9e8e"
+              ]
+            }
+          ],
+          "recommendations": [
+            "Add null validation in OrderService.createOrder before calling getCustomer().trim().",
+            "Make FailureController.npe() reject null customer input with a clear 4xx response instead of passing it downstream.",
+            "Add a unit test that constructs an OrderDraft with null and asserts a handled error or validation failure."
+          ],
+          "missing_information": [
+            "Confirm whether /orders/npe is expected to support null customer or should reject invalid input.",
+            "No request parameters or body from the failing request are included in the submitted log, making endpoint input validation unclear."
+          ]
+        },
+        "observed_category": null,
+        "confidence": null,
+        "latency_ms": 55084,
+        "prompt_tokens": 17028,
+        "completion_tokens": 3301,
+        "estimated_cost_usd": 0.0
+      }
+    },
+    {
+      "id": "connection-refused",
+      "title": "Downstream connection refused",
+      "source": "java-lab",
+      "versions": {
+        "dataset_version": "java-lab-real-v1",
+        "model_id": "deepseek-v4-pro",
+        "prompt_version": "real-v1",
+        "strategy_version": "phase3-router-v1",
+        "tool_schema_version": "phase4-v1",
+        "citation_policy_version": "phase0b-v1",
+        "code_revision": "d3-real-model-baseline"
+      },
+      "expected_termination_reason": "completed",
+      "expected_category": null,
+      "expected_information_sufficient": true,
+      "expected_tool_names": [
+        "config__read"
+      ],
+      "required_evidence_types": [
+        "log_excerpt",
+        "config_excerpt"
+      ],
+      "required_evidence_ids": [],
+      "allowed_root_cause_keywords": [
+        "connection refused",
+        "downstream",
+        "65534"
+      ],
+      "forbidden_root_cause_keywords": [],
+      "observation": {
+        "termination_reason": "model_error",
+        "tool_statuses": [
+          "success",
+          "failed",
+          "failed",
+          "success",
+          "failed",
+          "success",
+          "success",
+          "failed"
+        ],
+        "tool_names": [
+          "knowledge__search",
+          "config__read",
+          "config__read",
+          "config__read",
+          "config__read",
+          "knowledge__search",
+          "knowledge__search",
+          "config__read"
+        ],
+        "evidence": [
+          {
+            "id": "542c2220-d1c2-4fb1-908d-0765bbceb88a",
+            "type": "user_statement"
+          },
+          {
+            "id": "ae396125-0dcc-4589-ade5-3b12d5fa7047",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "a3fe4e3d-545d-4133-8a91-63530fd7efc0",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "f3f23a0f-e17b-44bf-abf9-912f9ac4e13c",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "58edefc7-6fb8-42f7-9723-9dde619eb963",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "6d8891de-f082-4a92-8a92-73982aeb91ef",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "005d5617-68d9-40d6-a61c-a8b7acfc540b",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "996fa713-a731-4ea4-9d37-a9f5e09f3ebe",
+            "type": "config_excerpt"
+          },
+          {
+            "id": "294474ab-23d8-44a9-8fda-bdfdff256b66",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "633b8ac3-c773-4001-87df-93e0173f2b57",
+            "type": "knowledge_entry"
+          }
+        ],
+        "conclusion": null,
+        "observed_category": null,
+        "confidence": null,
+        "latency_ms": 81962,
+        "prompt_tokens": 22091,
+        "completion_tokens": 3096,
+        "estimated_cost_usd": 0.0
+      }
+    },
+    {
+      "id": "timeout",
+      "title": "Inventory operation timeout",
+      "source": "java-lab",
+      "versions": {
+        "dataset_version": "java-lab-real-v1",
+        "model_id": "deepseek-v4-pro",
+        "prompt_version": "real-v1",
+        "strategy_version": "phase3-router-v1",
+        "tool_schema_version": "phase4-v1",
+        "citation_policy_version": "phase0b-v1",
+        "code_revision": "d3-real-model-baseline"
+      },
+      "expected_termination_reason": "completed",
+      "expected_category": null,
+      "expected_information_sufficient": true,
+      "expected_tool_names": [
+        "config__read"
+      ],
+      "required_evidence_types": [
+        "log_excerpt",
+        "config_excerpt"
+      ],
+      "required_evidence_ids": [],
+      "allowed_root_cause_keywords": [
+        "timeout",
+        "inventory",
+        "50"
+      ],
+      "forbidden_root_cause_keywords": [],
+      "observation": {
+        "termination_reason": "model_error",
+        "tool_statuses": [
+          "success",
+          "failed"
+        ],
+        "tool_names": [
+          "knowledge__search",
+          "config__read"
+        ],
+        "evidence": [
+          {
+            "id": "20ece277-4885-4300-83f6-17497657c88c",
+            "type": "user_statement"
+          },
+          {
+            "id": "0974e4d1-e986-4158-8756-4b162fca8563",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "b76a3a83-3941-4d67-90a9-792024ee99b7",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "76ad3ec6-b458-40f7-8daf-7952ae3cc11f",
+            "type": "knowledge_entry"
+          }
+        ],
+        "conclusion": null,
+        "observed_category": null,
+        "confidence": null,
+        "latency_ms": 37876,
+        "prompt_tokens": 3481,
+        "completion_tokens": 464,
+        "estimated_cost_usd": 0.0
+      }
+    },
+    {
+      "id": "pool-exhausted",
+      "title": "Connection pool capacity exhausted",
+      "source": "java-lab",
+      "versions": {
+        "dataset_version": "java-lab-real-v1",
+        "model_id": "deepseek-v4-pro",
+        "prompt_version": "real-v1",
+        "strategy_version": "phase3-router-v1",
+        "tool_schema_version": "phase4-v1",
+        "citation_policy_version": "phase0b-v1",
+        "code_revision": "d3-real-model-baseline"
+      },
+      "expected_termination_reason": "completed",
+      "expected_category": null,
+      "expected_information_sufficient": true,
+      "expected_tool_names": [
+        "config__read"
+      ],
+      "required_evidence_types": [
+        "log_excerpt",
+        "config_excerpt"
+      ],
+      "required_evidence_ids": [],
+      "allowed_root_cause_keywords": [
+        "pool",
+        "size=1",
+        "wait"
+      ],
+      "forbidden_root_cause_keywords": [],
+      "observation": {
+        "termination_reason": "model_error",
+        "tool_statuses": [
+          "success"
+        ],
+        "tool_names": [
+          "knowledge__search"
+        ],
+        "evidence": [
+          {
+            "id": "aa7f9b55-c303-4b7c-9766-89c0695aca97",
+            "type": "user_statement"
+          },
+          {
+            "id": "f29e5e73-5b31-46ed-996d-b74e0379fff3",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "ad309e48-b636-417b-94a0-1facfb9b8696",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "1581e215-d5ff-416c-9f5f-c24cf9307adf",
+            "type": "knowledge_entry"
+          }
+        ],
+        "conclusion": null,
+        "observed_category": null,
+        "confidence": null,
+        "latency_ms": 37907,
+        "prompt_tokens": 3482,
+        "completion_tokens": 436,
+        "estimated_cost_usd": 0.0
+      }
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "diagnosis_id": "fe90c78d-deed-4b11-96dc-d2ef5fcaf42f",
+  "case_id": "timeout",
+  "keyword": "TimeoutException",
+  "termination_reason": "model_error",
+  "run_error_code": "LLMTimeoutError",
+  "model": "deepseek-v4-pro",
+  "round_count": 1,
+  "tool_call_count": 2,
+  "plan_id": "2b3f4407-048d-4087-802b-e0eec7b3289f",
+  "plan_steps": [
+    "整理用户事实与初始日志",
+    "检索本地知识库",
+    "检查受限配置",
+    "综合证据并生成可审核结论"
+  ],
+  "plan_allowed_tools": [
+    "config__read",
+    "knowledge__search"
+  ],
+  "input_tokens": 3481,
+  "output_tokens": 464,
+  "elapsed_ms": 37876,
+  "conclusion": null,
+  "evidence": [
+    {
+      "id": "20ece277-4885-4300-83f6-17497657c88c",
+      "type": "user_statement"
+    },
+    {
+      "id": "0974e4d1-e986-4158-8756-4b162fca8563",
+      "type": "log_excerpt"
+    },
+    {
+      "id": "b76a3a83-3941-4d67-90a9-792024ee99b7",
+      "type": "knowledge_entry"
+    },
+    {
+      "id": "76ad3ec6-b458-40f7-8daf-7952ae3cc11f",
+      "type": "knowledge_entry"
+    }
+  ],
+  "tool_trace": [
+    {
+      "name": "knowledge__search",
+      "status": "success",
+      "duration_ms": 59,
+      "arguments": {
+        "query": "Connection pool exhausted size=1 waitMs=10 borrowConnectionTwice poolExhausted",
+        "limit": 5
+      },
+      "error_code": null
+    },
+    {
+      "name": "config__read",
+      "status": "failed",
+      "duration_ms": 0,
+      "arguments": {
+        "path": "application.yml",
+        "start_line": 1,
+        "end_line": 120
+      },
+      "error_code": "config_read_filenotfounderror"
+    }
+  ],
+  "cited_evidence_types": [],
+  "code_evidence_references": [],
+  "evidence_references": [
+    "",
+    "submitted_log:1/1",
+    "generic-connection-pool-exhausted",
+    "generic-connection-refused"
+  ],
+  "expected_code_paths": [
+    "InventoryClient.java",
+    "application.yml"
+  ],
+  "expected_root_cause_keywords": [
+    "timeout",
+    "inventory",
+    "50"
+  ],
+  "expected_tools": [
+    "config__read"
+  ],
+  "expected_evidence_types": [
+    "config_excerpt",
+    "log_excerpt"
+  ],
+  "log_source_reference": "diagnosis-java-lab.log:206-261",
+  "external_model_called": true,
+  "report": "D:\\AgentStudy\\application-diagnosis-platform\\evals\\results\\real-model-v1\\runs\\timeout\\diagnosis-report.md",
+  "acceptance_failures": [
+    "termination=model_error",
+    "missing expected successful tools: config__read",
+    "missing expected cited evidence: config_excerpt, log_excerpt",
+    "expected source file was not captured as evidence",
+    "root cause does not match case vocabulary"
+  ]
+}

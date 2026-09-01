@@ -121,6 +121,7 @@
 - [Phase 3C-2 服务目录驱动工具上下文验收记录](./04-validation/phase3c-service-context-acceptance.md)
 - [面试收尾增强：服务历史、知识候选与企业演进设计验收](./04-validation/interview-readiness-enhancements-acceptance.md)
 - [Phase 4A 质量基线与故障靶场增强验收](./04-validation/phase4a-acceptance.md)
+- [真实模型 v1 基线评测](./04-validation/2026-09-01-真实模型v1基线评测.md)
 
 ### 5. 架构决策 ADR
 

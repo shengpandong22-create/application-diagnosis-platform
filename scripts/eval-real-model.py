@@ -48,7 +48,9 @@ def build_scored_case(scenario: Any, summary: dict[str, Any]) -> dict[str, Any]:
             "code_revision": "d3-real-model-baseline",
         },
         "expected_termination_reason": "completed",
-        "expected_category": scenario.expected_category,
+        # DiagnosisConclusion does not currently emit a category. Keep category
+        # ground truth in the Scenario, but do not score an unobserved field.
+        "expected_category": None,
         "expected_information_sufficient": True,
         "expected_tool_names": scenario.expected_tool_names,
         "required_evidence_types": scenario.required_evidence_types,
@@ -71,6 +73,11 @@ def main() -> None:
     parser.add_argument("--cases", help="comma-separated scenario ids")
     parser.add_argument("--limit", type=int, default=4)
     parser.add_argument("--no-resume", action="store_true")
+    parser.add_argument(
+        "--rebuild-only",
+        action="store_true",
+        help="Rebuild aggregate files from existing summaries without running the model",
+    )
     args = parser.parse_args()
     if not 1 <= args.limit <= 12:
         raise ValueError("--limit must be between 1 and 12")
@@ -87,6 +94,9 @@ def main() -> None:
 
     for scenario in selected:
         summary_path = runs_dir / scenario.id / "demo-summary.json"
+        if args.rebuild_only and not summary_path.exists():
+            records.append({"case_id": scenario.id, "status": "summary_missing"})
+            continue
         if args.no_resume or not summary_path.exists():
             command = [
                 sys.executable,
@@ -101,11 +111,23 @@ def main() -> None:
                 str(runs_dir),
             ]
             completed = subprocess.run(command, cwd=PROJECT_ROOT, check=False)
-            if completed.returncode != 0 or not summary_path.exists():
-                records.append({"case_id": scenario.id, "status": "runner_error"})
+            if not summary_path.exists():
+                records.append(
+                    {
+                        "case_id": scenario.id,
+                        "status": "runner_error",
+                        "process_return_code": completed.returncode,
+                    }
+                )
                 continue
         summary = json.loads(summary_path.read_text(encoding="utf-8"))
-        records.append({"case_id": scenario.id, "status": "completed", "summary": summary})
+        records.append(
+            {
+                "case_id": scenario.id,
+                "status": summary.get("termination_reason", "unknown"),
+                "summary": summary,
+            }
+        )
         scored_cases.append(build_scored_case(scenario, summary))
 
     (args.output / "observations.json").write_text(

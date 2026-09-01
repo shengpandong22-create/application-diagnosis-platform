@@ -47,4 +47,23 @@ def test_scored_case_preserves_observed_facts() -> None:
     encoded = json.dumps(case)
     assert case["observation"]["latency_ms"] == 123
     assert case["observation"]["observed_category"] is None
+    assert case["expected_category"] is None
     assert "deepseek-chat" in encoded
+
+
+def test_model_error_is_a_scoreable_observation() -> None:
+    module = load_script()
+    scenario = dataset().scenarios[0]
+    case = module.build_scored_case(
+        scenario,
+        {
+            "termination_reason": "model_error",
+            "run_error_code": "LLMTimeoutError",
+            "tool_trace": [],
+            "evidence": [],
+            "conclusion": None,
+        },
+    )
+
+    assert case["observation"]["termination_reason"] == "model_error"
+    assert case["observation"]["conclusion"] is None

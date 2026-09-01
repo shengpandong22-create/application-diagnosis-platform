@@ -1,0 +1,567 @@
+{
+  "dataset_version": "java-lab-real-v1",
+  "runs": [
+    {
+      "case_id": "npe",
+      "status": "completed",
+      "summary": {
+        "diagnosis_id": "1b1b1b60-3689-46ec-8e02-109036fc9e94",
+        "case_id": "npe",
+        "keyword": "NullPointerException",
+        "termination_reason": "completed",
+        "run_error_code": null,
+        "model": "deepseek-v4-pro",
+        "round_count": 4,
+        "tool_call_count": 4,
+        "plan_id": "142d6a5d-3cea-4a4b-bc9d-28cac3182fb9",
+        "plan_steps": [
+          "整理用户事实与初始日志",
+          "检索本地知识库",
+          "搜索受限源码",
+          "读取关键源码片段",
+          "检查受限配置",
+          "综合证据并生成可审核结论"
+        ],
+        "plan_allowed_tools": [
+          "code__read",
+          "code__search",
+          "config__read",
+          "knowledge__search"
+        ],
+        "input_tokens": 17028,
+        "output_tokens": 3301,
+        "elapsed_ms": 55084,
+        "conclusion": {
+          "symptom_summary": "A request to the Java Lab order endpoint fails with NullPointerException while creating an order; the runtime log points to OrderService.createOrder(OrderService.java:8).",
+          "facts": [
+            {
+              "statement": "The submitted runtime log shows NullPointerException at dev.agentstudy.lab.OrderService.createOrder(OrderService.java:8).",
+              "status": "probable",
+              "evidence_ids": [
+                "cbb1f6ff-5631-4d92-8942-65adc99b28d0"
+              ]
+            },
+            {
+              "statement": "Source inspection shows FailureController.npe() creates OrderService.OrderDraft(null) and OrderService.createOrder calls draft.getCustomer().trim() without a null check.",
+              "status": "possible",
+              "evidence_ids": [
+                "cdc58d80-335b-46da-9d85-9b3bfc95748f",
+                "a019423f-ed08-4b58-8800-d6dc1c5d9e8e"
+              ]
+            }
+          ],
+          "root_causes": [
+            {
+              "statement": "FailureController.npe() passes a null customer draft into OrderService.createOrder, which dereferences it with getCustomer().trim(), producing the NullPointerException captured in the runtime log.",
+              "status": "probable",
+              "evidence_ids": [
+                "cbb1f6ff-5631-4d92-8942-65adc99b28d0",
+                "cdc58d80-335b-46da-9d85-9b3bfc95748f",
+                "a019423f-ed08-4b58-8800-d6dc1c5d9e8e"
+              ]
+            }
+          ],
+          "recommendations": [
+            "Add null validation in OrderService.createOrder before calling getCustomer().trim().",
+            "Make FailureController.npe() reject null customer input with a clear 4xx response instead of passing it downstream.",
+            "Add a unit test that constructs an OrderDraft with null and asserts a handled error or validation failure."
+          ],
+          "missing_information": [
+            "Confirm whether /orders/npe is expected to support null customer or should reject invalid input.",
+            "No request parameters or body from the failing request are included in the submitted log, making endpoint input validation unclear."
+          ]
+        },
+        "evidence": [
+          {
+            "id": "8ff70561-55e1-418c-8e69-cf36010664ca",
+            "type": "user_statement"
+          },
+          {
+            "id": "cbb1f6ff-5631-4d92-8942-65adc99b28d0",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "a019423f-ed08-4b58-8800-d6dc1c5d9e8e",
+            "type": "code_excerpt"
+          },
+          {
+            "id": "cdc58d80-335b-46da-9d85-9b3bfc95748f",
+            "type": "code_excerpt"
+          }
+        ],
+        "tool_trace": [
+          {
+            "name": "code__search",
+            "status": "success",
+            "duration_ms": 44,
+            "arguments": {
+              "query": "createOrder",
+              "limit": 10
+            },
+            "error_code": null
+          },
+          {
+            "name": "code__search",
+            "status": "success",
+            "duration_ms": 22,
+            "arguments": {
+              "query": "class OrderService",
+              "limit": 10
+            },
+            "error_code": null
+          },
+          {
+            "name": "code__read",
+            "status": "success",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "src/main/java/dev/agentstudy/lab/OrderService.java",
+              "start_line": 1,
+              "end_line": 20
+            },
+            "error_code": null
+          },
+          {
+            "name": "code__read",
+            "status": "success",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "src/main/java/dev/agentstudy/lab/FailureController.java",
+              "start_line": 35,
+              "end_line": 50
+            },
+            "error_code": null
+          }
+        ],
+        "cited_evidence_types": [
+          "code_excerpt",
+          "log_excerpt"
+        ],
+        "code_evidence_references": [
+          "src/main/java/dev/agentstudy/lab/OrderService.java:1-20",
+          "src/main/java/dev/agentstudy/lab/FailureController.java:35-50"
+        ],
+        "evidence_references": [
+          "",
+          "submitted_log:1/1",
+          "src/main/java/dev/agentstudy/lab/OrderService.java:1-20",
+          "src/main/java/dev/agentstudy/lab/FailureController.java:35-50"
+        ],
+        "expected_code_paths": [
+          "OrderService.java",
+          "FailureController.java"
+        ],
+        "expected_root_cause_keywords": [
+          "null",
+          "trim",
+          "customer"
+        ],
+        "expected_tools": [
+          "code__read",
+          "code__search"
+        ],
+        "expected_evidence_types": [
+          "code_excerpt",
+          "log_excerpt"
+        ],
+        "log_source_reference": "diagnosis-java-lab.log:13-68",
+        "external_model_called": true,
+        "report": "D:\\AgentStudy\\application-diagnosis-platform\\evals\\results\\real-model-v1\\runs\\npe\\diagnosis-report.md",
+        "acceptance_failures": []
+      }
+    },
+    {
+      "case_id": "connection-refused",
+      "status": "model_error",
+      "summary": {
+        "diagnosis_id": "c0100876-97ac-411f-b417-d5bc5cd4bee8",
+        "case_id": "connection-refused",
+        "keyword": "ConnectException",
+        "termination_reason": "model_error",
+        "run_error_code": "LLMTimeoutError",
+        "model": "deepseek-v4-pro",
+        "round_count": 4,
+        "tool_call_count": 8,
+        "plan_id": "9b82dd63-cbae-4716-9b36-634878244c69",
+        "plan_steps": [
+          "整理用户事实与初始日志",
+          "检索本地知识库",
+          "检查受限配置",
+          "综合证据并生成可审核结论"
+        ],
+        "plan_allowed_tools": [
+          "config__read",
+          "knowledge__search"
+        ],
+        "input_tokens": 22091,
+        "output_tokens": 3096,
+        "elapsed_ms": 81962,
+        "conclusion": null,
+        "evidence": [
+          {
+            "id": "542c2220-d1c2-4fb1-908d-0765bbceb88a",
+            "type": "user_statement"
+          },
+          {
+            "id": "ae396125-0dcc-4589-ade5-3b12d5fa7047",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "a3fe4e3d-545d-4133-8a91-63530fd7efc0",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "f3f23a0f-e17b-44bf-abf9-912f9ac4e13c",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "58edefc7-6fb8-42f7-9723-9dde619eb963",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "6d8891de-f082-4a92-8a92-73982aeb91ef",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "005d5617-68d9-40d6-a61c-a8b7acfc540b",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "996fa713-a731-4ea4-9d37-a9f5e09f3ebe",
+            "type": "config_excerpt"
+          },
+          {
+            "id": "294474ab-23d8-44a9-8fda-bdfdff256b66",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "633b8ac3-c773-4001-87df-93e0173f2b57",
+            "type": "knowledge_entry"
+          }
+        ],
+        "tool_trace": [
+          {
+            "name": "knowledge__search",
+            "status": "success",
+            "duration_ms": 62,
+            "arguments": {
+              "query": "downstream connection refused 127.0.0.1:65534 payments endpoint Java ConnectException SocketTimeoutException",
+              "limit": 5
+            },
+            "error_code": null
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "application.yml",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "application.properties",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          },
+          {
+            "name": "config__read",
+            "status": "success",
+            "duration_ms": 1,
+            "arguments": {
+              "path": "src/main/resources/application.yml",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": null
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "src/main/resources/application.properties",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          },
+          {
+            "name": "knowledge__search",
+            "status": "success",
+            "duration_ms": 3,
+            "arguments": {
+              "query": "payment client endpoint 127.0.0.1:65534 configuration",
+              "limit": 5
+            },
+            "error_code": null
+          },
+          {
+            "name": "knowledge__search",
+            "status": "success",
+            "duration_ms": 5,
+            "arguments": {
+              "query": "HttpURLConnection SocketTimeoutException connect timed out wrapped ConnectException connection refused",
+              "limit": 5
+            },
+            "error_code": null
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 3,
+            "arguments": {
+              "path": "src/main/resources/application.yml",
+              "start_line": 13,
+              "end_line": 80
+            },
+            "error_code": "config_read_valueerror"
+          }
+        ],
+        "cited_evidence_types": [],
+        "code_evidence_references": [],
+        "evidence_references": [
+          "",
+          "submitted_log:1/1",
+          "generic-connection-refused",
+          "generic-connection-pool-exhausted",
+          "generic-downstream-failure",
+          "generic-npe",
+          "generic-oom",
+          "src/main/resources/application.yml:1-12",
+          "generic-missing-configuration",
+          "generic-timeout"
+        ],
+        "expected_code_paths": [
+          "PaymentClient.java",
+          "application.yml"
+        ],
+        "expected_root_cause_keywords": [
+          "connection refused",
+          "downstream",
+          "65534"
+        ],
+        "expected_tools": [
+          "config__read"
+        ],
+        "expected_evidence_types": [
+          "config_excerpt",
+          "log_excerpt"
+        ],
+        "log_source_reference": "diagnosis-java-lab.log:69-148",
+        "external_model_called": true,
+        "report": "D:\\AgentStudy\\application-diagnosis-platform\\evals\\results\\real-model-v1\\runs\\connection-refused\\diagnosis-report.md",
+        "acceptance_failures": [
+          "termination=model_error",
+          "missing expected cited evidence: config_excerpt, log_excerpt",
+          "root cause does not match case vocabulary"
+        ]
+      }
+    },
+    {
+      "case_id": "timeout",
+      "status": "model_error",
+      "summary": {
+        "diagnosis_id": "fe90c78d-deed-4b11-96dc-d2ef5fcaf42f",
+        "case_id": "timeout",
+        "keyword": "TimeoutException",
+        "termination_reason": "model_error",
+        "run_error_code": "LLMTimeoutError",
+        "model": "deepseek-v4-pro",
+        "round_count": 1,
+        "tool_call_count": 2,
+        "plan_id": "2b3f4407-048d-4087-802b-e0eec7b3289f",
+        "plan_steps": [
+          "整理用户事实与初始日志",
+          "检索本地知识库",
+          "检查受限配置",
+          "综合证据并生成可审核结论"
+        ],
+        "plan_allowed_tools": [
+          "config__read",
+          "knowledge__search"
+        ],
+        "input_tokens": 3481,
+        "output_tokens": 464,
+        "elapsed_ms": 37876,
+        "conclusion": null,
+        "evidence": [
+          {
+            "id": "20ece277-4885-4300-83f6-17497657c88c",
+            "type": "user_statement"
+          },
+          {
+            "id": "0974e4d1-e986-4158-8756-4b162fca8563",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "b76a3a83-3941-4d67-90a9-792024ee99b7",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "76ad3ec6-b458-40f7-8daf-7952ae3cc11f",
+            "type": "knowledge_entry"
+          }
+        ],
+        "tool_trace": [
+          {
+            "name": "knowledge__search",
+            "status": "success",
+            "duration_ms": 59,
+            "arguments": {
+              "query": "Connection pool exhausted size=1 waitMs=10 borrowConnectionTwice poolExhausted",
+              "limit": 5
+            },
+            "error_code": null
+          },
+          {
+            "name": "config__read",
+            "status": "failed",
+            "duration_ms": 0,
+            "arguments": {
+              "path": "application.yml",
+              "start_line": 1,
+              "end_line": 120
+            },
+            "error_code": "config_read_filenotfounderror"
+          }
+        ],
+        "cited_evidence_types": [],
+        "code_evidence_references": [],
+        "evidence_references": [
+          "",
+          "submitted_log:1/1",
+          "generic-connection-pool-exhausted",
+          "generic-connection-refused"
+        ],
+        "expected_code_paths": [
+          "InventoryClient.java",
+          "application.yml"
+        ],
+        "expected_root_cause_keywords": [
+          "timeout",
+          "inventory",
+          "50"
+        ],
+        "expected_tools": [
+          "config__read"
+        ],
+        "expected_evidence_types": [
+          "config_excerpt",
+          "log_excerpt"
+        ],
+        "log_source_reference": "diagnosis-java-lab.log:206-261",
+        "external_model_called": true,
+        "report": "D:\\AgentStudy\\application-diagnosis-platform\\evals\\results\\real-model-v1\\runs\\timeout\\diagnosis-report.md",
+        "acceptance_failures": [
+          "termination=model_error",
+          "missing expected successful tools: config__read",
+          "missing expected cited evidence: config_excerpt, log_excerpt",
+          "expected source file was not captured as evidence",
+          "root cause does not match case vocabulary"
+        ]
+      }
+    },
+    {
+      "case_id": "pool-exhausted",
+      "status": "model_error",
+      "summary": {
+        "diagnosis_id": "294186f5-f286-4f7a-a61c-d42d137ff869",
+        "case_id": "pool-exhausted",
+        "keyword": "Connection pool exhausted",
+        "termination_reason": "model_error",
+        "run_error_code": "LLMTimeoutError",
+        "model": "deepseek-v4-pro",
+        "round_count": 1,
+        "tool_call_count": 1,
+        "plan_id": "c9c8e929-28c2-4d20-b6a0-55d2258843bb",
+        "plan_steps": [
+          "整理用户事实与初始日志",
+          "检索本地知识库",
+          "检查受限配置",
+          "综合证据并生成可审核结论"
+        ],
+        "plan_allowed_tools": [
+          "config__read",
+          "knowledge__search"
+        ],
+        "input_tokens": 3482,
+        "output_tokens": 436,
+        "elapsed_ms": 37907,
+        "conclusion": null,
+        "evidence": [
+          {
+            "id": "aa7f9b55-c303-4b7c-9766-89c0695aca97",
+            "type": "user_statement"
+          },
+          {
+            "id": "f29e5e73-5b31-46ed-996d-b74e0379fff3",
+            "type": "log_excerpt"
+          },
+          {
+            "id": "ad309e48-b636-417b-94a0-1facfb9b8696",
+            "type": "knowledge_entry"
+          },
+          {
+            "id": "1581e215-d5ff-416c-9f5f-c24cf9307adf",
+            "type": "knowledge_entry"
+          }
+        ],
+        "tool_trace": [
+          {
+            "name": "knowledge__search",
+            "status": "success",
+            "duration_ms": 64,
+            "arguments": {
+              "query": "Connection pool exhausted size=1 waitMs=10 borrowConnectionTwice FailureController poolExhausted",
+              "limit": 5
+            },
+            "error_code": null
+          }
+        ],
+        "cited_evidence_types": [],
+        "code_evidence_references": [],
+        "evidence_references": [
+          "",
+          "submitted_log:1/1",
+          "generic-connection-pool-exhausted",
+          "generic-connection-refused"
+        ],
+        "expected_code_paths": [
+          "ConnectionPoolService.java",
+          "application.yml"
+        ],
+        "expected_root_cause_keywords": [
+          "pool",
+          "size=1",
+          "wait"
+        ],
+        "expected_tools": [
+          "config__read"
+        ],
+        "expected_evidence_types": [
+          "config_excerpt",
+          "log_excerpt"
+        ],
+        "log_source_reference": "diagnosis-java-lab.log:206-261",
+        "external_model_called": true,
+        "report": "D:\\AgentStudy\\application-diagnosis-platform\\evals\\results\\real-model-v1\\runs\\pool-exhausted\\diagnosis-report.md",
+        "acceptance_failures": [
+          "termination=model_error",
+          "missing expected successful tools: config__read",
+          "missing expected cited evidence: config_excerpt, log_excerpt",
+          "expected source file was not captured as evidence",
+          "root cause does not match case vocabulary"
+        ]
+      }
+    }
+  ]
+}
