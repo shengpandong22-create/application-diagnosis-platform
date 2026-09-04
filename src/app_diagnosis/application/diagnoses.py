@@ -111,6 +111,11 @@ def _build_tool_resources(
     health_targets: dict[str, str],
     redactor: Redactor,
 ) -> ToolResourceContext:
+    config_repository = (
+        LocalConfigRepository(Path(config_workspace_path))
+        if config_workspace_path.strip()
+        else None
+    )
     return ToolResourceContext(
         code_repository=(
             LocalCodeRepository(
@@ -123,10 +128,9 @@ def _build_tool_resources(
             else None
         ),
         log_reader=LocalLogFileReader(Path(log_directory)) if log_directory.strip() else None,
-        config_repository=(
-            LocalConfigRepository(Path(config_workspace_path))
-            if config_workspace_path.strip()
-            else None
+        config_repository=config_repository,
+        config_candidate_paths=(
+            config_repository.list_candidate_paths(limit=20) if config_repository else ()
         ),
         health_check_client=(
             HttpHealthCheckClient(health_targets, redactor) if health_targets else None

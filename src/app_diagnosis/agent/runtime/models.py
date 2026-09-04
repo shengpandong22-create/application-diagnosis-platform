@@ -32,6 +32,7 @@ class ToolResourceContext:
     code_repository: CodeRepository | None = None
     log_reader: LogReader | None = None
     config_repository: ConfigRepository | None = None
+    config_candidate_paths: tuple[str, ...] = ()
     health_check_client: HealthCheckClient | None = None
 
     @property

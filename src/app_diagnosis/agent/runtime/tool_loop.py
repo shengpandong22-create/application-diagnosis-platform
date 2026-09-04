@@ -7,6 +7,7 @@ ToolLoopRunner 是概率性模型输出和确定性工程约束相遇的地方�
 """
 
 import asyncio
+import hashlib
 import json
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
@@ -97,6 +98,7 @@ class ToolLoopRunner:
         strategy_context = DiagnosisStrategyContext(
             diagnosis=diagnosis,
             available_tool_names=context.resources.available_tool_names,
+            config_candidate_paths=context.resources.config_candidate_paths,
         )
         allowed_names = strategy.allowed_tool_names(strategy_context)
         await self._create_plan(
@@ -150,6 +152,7 @@ class ToolLoopRunner:
         finalization_mode = False
         attempted_tools = 0
         successful_tools = 0
+        failed_tool_signatures: dict[str, str] = {}
         started = perf_counter()
 
         try:
@@ -282,17 +285,20 @@ class ToolLoopRunner:
                 for call in calls:
                     # 工具调用分支：模型只能提出调用意图；Registry 和 Tool Contract
                     # 决定这个调用能否被解析、授权、限时执行。
-                    result, arguments = await self._execute_tool(
+                    result, arguments, signature = await self._execute_tool(
                         call_name=call.name,
                         arguments_json=call.arguments_json,
                         allowed_names=allowed_names,
                         context=tool_context,
                         remaining_seconds=budget.total_timeout_seconds - (perf_counter() - started),
+                        failed_tool_signatures=failed_tool_signatures,
                     )
                     if result.status is ToolExecutionStatus.SUCCESS:
                         successful_tools += 1
                         if call.name == "code__read":
                             should_finalize = True
+                    elif signature is not None:
+                        failed_tool_signatures.setdefault(signature, result.error_code or "failed")
                     evidence_ids = await self._persist_evidence(diagnosis.id, result)
                     await self._record_tool_run(
                         run_id=run.id,
@@ -330,12 +336,40 @@ class ToolLoopRunner:
         allowed_names: frozenset[str],
         context: ToolExecutionContext,
         remaining_seconds: float,
-    ) -> tuple[ToolExecutionResult, dict | None]:
+        failed_tool_signatures: dict[str, str],
+    ) -> tuple[ToolExecutionResult, dict | None, str | None]:
         """解析、校验并限时执行一次模型请求的工具调用。
 
         工具名不存在、不在白名单、缺少权限或参数不合法时，都不会真正执行工具。
         这些失败会变成 ToolExecutionResult 返回给上层记录，而不是抛到循环外。
+        同一 AgentRun 内完全相同的失败调用不会再次进入 Adapter，避免模型在
+        已知无效路径或参数上反复消耗轮次和外部资源。
         """
+        signature = self._tool_call_signature(call_name, arguments_json)
+        previous_error = failed_tool_signatures.get(signature)
+        if previous_error is not None:
+            return (
+                ToolExecutionResult(
+                    status=ToolExecutionStatus.FAILED,
+                    data=None,
+                    model_summary=json.dumps(
+                        {
+                            "ok": False,
+                            "error": "duplicate_failed_tool_call",
+                            "previous_error": previous_error,
+                            "guidance": (
+                                "Do not retry the same tool name with identical arguments. "
+                                "Choose different arguments, use another available tool, or "
+                                "finalize with missing information."
+                            ),
+                        },
+                        separators=(",", ":"),
+                    ),
+                    error_code="duplicate_failed_tool_call",
+                ),
+                None,
+                signature,
+            )
         try:
             tool = self._registry.resolve(
                 call_name,
@@ -355,6 +389,7 @@ class ToolLoopRunner:
                     error_code=type(error).__name__,
                 ),
                 None,
+                signature,
             )
         timeout = min(tool.timeout_seconds, max(0, remaining_seconds))
         if timeout <= 0:
@@ -366,6 +401,7 @@ class ToolLoopRunner:
                     error_code="tool_timeout",
                 ),
                 arguments.model_dump(mode="json"),
+                signature,
             )
         try:
             result = await asyncio.wait_for(tool.execute(arguments, context), timeout=timeout)
@@ -376,7 +412,23 @@ class ToolLoopRunner:
                 model_summary='{"ok":false,"error":"tool_timeout"}',
                 error_code="tool_timeout",
             )
-        return result, arguments.model_dump(mode="json")
+        return result, arguments.model_dump(mode="json"), signature
+
+    @staticmethod
+    def _tool_call_signature(call_name: str, arguments_json: str) -> str:
+        """生成稳定工具调用签名，用于同一 AgentRun 内重复失败去重。"""
+        try:
+            arguments: object = json.loads(arguments_json)
+        except json.JSONDecodeError:
+            arguments = arguments_json
+        normalized = json.dumps(
+            arguments,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        digest = hashlib.sha256(f"{call_name}\n{normalized}".encode()).hexdigest()
+        return digest
 
     async def _create_plan(
         self,

@@ -53,10 +53,18 @@ class GenericApplicationErrorStrategy:
     def user_message(self, context: DiagnosisStrategyContext) -> str:
         diagnosis = context.diagnosis
         log_section = diagnosis.submitted_log or "[no log supplied]"
+        config_section = ""
+        if context.config_candidate_paths:
+            config_section = (
+                "\n\nAuthorized config candidates. If configuration evidence is needed, "
+                "prefer these exact relative paths before trying any other path:\n"
+                + "\n".join(f"- {path}" for path in context.config_candidate_paths[:20])
+            )
         return (
             f"Title: {diagnosis.title}\n"
             f"Symptom:\n{diagnosis.symptom}\n\n"
             f"Untrusted submitted log:\n<submitted_log>\n{log_section}\n</submitted_log>"
+            f"{config_section}"
         )
 
     def allowed_tool_names(self, context: DiagnosisStrategyContext) -> frozenset[str]:

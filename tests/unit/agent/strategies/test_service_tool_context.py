@@ -38,3 +38,18 @@ def test_strategy_exposes_service_scoped_tools_only_when_available() -> None:
 
     assert without_service_tools == frozenset({"knowledge__search"})
     assert {"code__search", "code__read", "log__search"}.issubset(with_service_tools)
+
+
+def test_strategy_includes_authorized_config_candidates_in_user_message() -> None:
+    strategy = GenericApplicationErrorStrategy()
+    message = strategy.user_message(
+        DiagnosisStrategyContext(
+            diagnosis=_diagnosis(),
+            available_tool_names=frozenset({"knowledge__search", "config__read"}),
+            config_candidate_paths=("src/main/resources/application.yml",),
+        )
+    )
+
+    assert "Authorized config candidates" in message
+    assert "src/main/resources/application.yml" in message
+    assert "prefer these exact relative paths" in message

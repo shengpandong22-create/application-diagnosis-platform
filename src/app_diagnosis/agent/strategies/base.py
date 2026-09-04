@@ -9,6 +9,7 @@ from app_diagnosis.ports.llm import ResponseFormat
 class DiagnosisStrategyContext:
     diagnosis: DiagnosisCase
     available_tool_names: frozenset[str] = frozenset({"knowledge__search"})
+    config_candidate_paths: tuple[str, ...] = ()
 
 
 class DiagnosisStrategy(Protocol):

@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 import pytest
+from pydantic import BaseModel
 from tests.fakes.execution_repository import InMemoryAgentExecutionRepository
 from tests.fakes.llm import FakeLLMClient
 
@@ -23,6 +24,12 @@ from app_diagnosis.ports.llm import (
     ToolCall,
 )
 from app_diagnosis.tools import DiagnosticToolRegistry
+from app_diagnosis.tools.contracts import (
+    ToolExecutionContext,
+    ToolExecutionResult,
+    ToolExecutionStatus,
+    ToolRiskLevel,
+)
 from app_diagnosis.tools.knowledge_search import KnowledgeSearchTool
 
 NOW = datetime(2026, 7, 15, 12, 0, tzinfo=UTC)
@@ -272,6 +279,124 @@ async def test_partial_tool_failure_does_not_discard_successful_call() -> None:
         ToolRunStatus.FAILED,
         ToolRunStatus.SUCCESS,
     ]
+
+
+class AlwaysFailInput(BaseModel):
+    path: str
+
+
+class AlwaysFailTool:
+    name = "always_fail"
+    description = "Test-only failing tool."
+    input_model = AlwaysFailInput
+    output_model = AlwaysFailInput
+    risk_level = ToolRiskLevel.READ_ONLY
+    timeout_seconds = 1.0
+    required_permissions = frozenset({"knowledge:read"})
+    supported_problem_types = frozenset({diagnosis().problem_type})
+
+    def __init__(self) -> None:
+        self.calls = 0
+
+    async def execute(
+        self,
+        arguments: BaseModel,
+        context: ToolExecutionContext,
+    ) -> ToolExecutionResult:
+        self.calls += 1
+        return ToolExecutionResult(
+            status=ToolExecutionStatus.FAILED,
+            data=None,
+            model_summary='{"error":"missing_file"}',
+            error_code="missing_file",
+        )
+
+
+class AlwaysFailStrategy(GenericApplicationErrorStrategy):
+    def allowed_tool_names(self, context) -> frozenset[str]:
+        return frozenset({"always_fail"})
+
+
+async def test_repeated_failed_tool_call_is_not_executed_again() -> None:
+    first = ToolCall(id="call-1", name="always_fail", arguments_json='{"path":"missing.yml"}')
+    repeated = ToolCall(id="call-2", name="always_fail", arguments_json='{"path":"missing.yml"}')
+    fake = FakeLLMClient(
+        [
+            response(tool_calls=(first,)),
+            response(tool_calls=(repeated,)),
+            response(content=conclusion_json()),
+        ]
+    )
+    tool = AlwaysFailTool()
+    registry = DiagnosticToolRegistry()
+    registry.register(tool)
+    executions = InMemoryAgentExecutionRepository()
+    sequence = ids()
+    loop = ToolLoopRunner(
+        llm_client=fake,
+        registry=registry,
+        execution_repository=executions,
+        id_factory=lambda: next(sequence),
+        clock=lambda: NOW,
+    )
+
+    result = await loop.run(
+        diagnosis=diagnosis(),
+        strategy=AlwaysFailStrategy(),
+        context=context(),
+        budget=AgentBudget(max_rounds=3),
+    )
+
+    assert result.termination_reason is AgentTerminationReason.INCONCLUSIVE
+    assert tool.calls == 1
+    assert [item.error_code for item in executions.tool_runs] == [
+        "missing_file",
+        "duplicate_failed_tool_call",
+    ]
+    assert "duplicate_failed_tool_call" in fake.calls[2].request.messages[-1].content
+
+
+async def test_repeated_failed_tool_call_signature_ignores_json_key_order() -> None:
+    first = ToolCall(
+        id="call-1",
+        name="always_fail",
+        arguments_json='{"path":"missing.yml","unused":"a"}',
+    )
+    repeated = ToolCall(
+        id="call-2",
+        name="always_fail",
+        arguments_json='{"unused":"a","path":"missing.yml"}',
+    )
+    fake = FakeLLMClient(
+        [
+            response(tool_calls=(first,)),
+            response(tool_calls=(repeated,)),
+            response(content=conclusion_json()),
+        ]
+    )
+    tool = AlwaysFailTool()
+    registry = DiagnosticToolRegistry()
+    registry.register(tool)
+    executions = InMemoryAgentExecutionRepository()
+    sequence = ids()
+    loop = ToolLoopRunner(
+        llm_client=fake,
+        registry=registry,
+        execution_repository=executions,
+        id_factory=lambda: next(sequence),
+        clock=lambda: NOW,
+    )
+
+    result = await loop.run(
+        diagnosis=diagnosis(),
+        strategy=AlwaysFailStrategy(),
+        context=context(),
+        budget=AgentBudget(max_rounds=3),
+    )
+
+    assert result.termination_reason is AgentTerminationReason.INCONCLUSIVE
+    assert tool.calls == 1
+    assert executions.tool_runs[1].error_code == "duplicate_failed_tool_call"
 
 
 class SlowKnowledge:

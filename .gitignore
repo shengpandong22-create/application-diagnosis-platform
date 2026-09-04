@@ -20,3 +20,5 @@ build/
 .phase0c-acceptance/
 .phase4a-acceptance/
 demo-output/
+evals/results/local-*/
+evals/results/private-*/

@@ -186,6 +186,37 @@ def test_service_scoped_code_workspace_feeds_agent_tools(tmp_path: Path) -> None
         assert code_evidence[0]["metadata"]["workspace"] == "service-scoped-java-lab"
 
 
+def test_service_scoped_config_candidates_reach_first_llm_request(tmp_path: Path) -> None:
+    config_root = tmp_path / "java-lab-config"
+    (config_root / "src" / "main" / "resources").mkdir(parents=True)
+    (config_root / "src" / "main" / "resources" / "application.yml").write_text(
+        "inventory:\n  timeout-ms: 50\n",
+        encoding="utf-8",
+    )
+    fake = FakeLLMClient([response(content=conclusion_without_citations())])
+
+    with migrated_client(tmp_path, fake) as client:
+        service = client.post(
+            "/api/v1/services",
+            json={
+                "name": "service-scoped-config-lab",
+                "environment": "local",
+                "config_workspace_path": str(config_root),
+            },
+        ).json()
+        diagnosis = client.post(
+            f"/api/v1/services/{service['id']}/diagnoses",
+            json={"title": "Service scoped timeout", "symptom": "TimeoutException"},
+        ).json()
+
+        executed = client.post(f"/api/v1/diagnoses/{diagnosis['id']}/runs")
+
+    assert executed.status_code == 200
+    first_user_message = fake.calls[0].request.messages[1].content or ""
+    assert "Authorized config candidates" in first_user_message
+    assert "src/main/resources/application.yml" in first_user_message
+
+
 def test_service_diagnosis_history_and_summary(tmp_path: Path) -> None:
     with migrated_client(tmp_path) as client:
         service = client.post(

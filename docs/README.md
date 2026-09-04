@@ -125,6 +125,9 @@
 - [真实模型 v2 单变量复验](./04-validation/2026-09-01-真实模型v2单变量复验.md)
 - [真实模型迭代评测终版](./04-validation/2026-09-01-真实模型迭代评测终版.md)
 - [D1～D7 总验收](./04-validation/2026-09-01-D1-D7总验收.md)
+- [Phase 6A 工程审计基线报告](./04-validation/2026-09-04-Phase6A工程审计基线报告.md)
+- [Phase 6B Agent 失败行为加固验收](./04-validation/2026-09-04-Phase6B-Agent失败行为加固验收.md)
+- [timeout 失败诊断复盘样例](./04-validation/2026-09-04-timeout失败诊断复盘.md)
 
 ### 5. 架构决策 ADR
 
