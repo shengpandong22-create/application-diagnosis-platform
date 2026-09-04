@@ -52,16 +52,34 @@ class LocalConfigRepository:
         if limit < 1 or limit > 100:
             raise ValueError("config candidate limit must be between 1 and 100")
         candidates: list[str] = []
-        for path in sorted(self._root.rglob("*")):
+        for path in self._walk_allowed_files():
             if not self._is_allowed_file(path):
                 continue
             candidates.append(path.relative_to(self._root).as_posix())
         return tuple(sorted(candidates, key=_candidate_sort_key)[:limit])
 
+    def _walk_allowed_files(self) -> tuple[Path, ...]:
+        found: list[Path] = []
+        pending = [self._root]
+        while pending:
+            current = pending.pop()
+            try:
+                children = sorted(current.iterdir(), key=lambda item: item.name.casefold())
+            except OSError:
+                continue
+            for child in children:
+                if child.is_dir():
+                    if child.name.casefold() not in self._IGNORED_PARTS:
+                        pending.append(child)
+                else:
+                    found.append(child)
+        return tuple(found)
+
     def _is_allowed_file(self, path: Path) -> bool:
         if not path.is_file() or path.suffix.casefold() not in self.ALLOWED_SUFFIXES:
             return False
-        if any(part.casefold() in self._IGNORED_PARTS for part in path.parts):
+        relative = path.relative_to(self._root)
+        if any(part.casefold() in self._IGNORED_PARTS for part in relative.parts):
             return False
         try:
             return path.stat().st_size <= self.MAX_FILE_BYTES

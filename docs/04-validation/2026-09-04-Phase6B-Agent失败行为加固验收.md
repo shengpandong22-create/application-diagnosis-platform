@@ -137,7 +137,7 @@ uv run --frozen python -m pytest --collect-only -q
 
 - Ruff：通过；
 - Pytest：通过；
-- 当前测试数：259；
+- 当前测试数：259；Phase 6C 二轮加固后当前测试项为 260；
 - 唯一告警仍是 FastAPI/Starlette TestClient 的第三方弃用提示。
 
 ### 3.3 样例复盘生成

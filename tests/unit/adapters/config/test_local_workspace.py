@@ -34,6 +34,18 @@ def test_lists_candidate_paths_with_common_application_config_first(tmp_path: Pa
     assert "target/application.yml" not in candidates
 
 
+def test_candidate_paths_ignore_directory_names_inside_workspace_only(tmp_path: Path) -> None:
+    root = tmp_path / "build"
+    root.mkdir()
+    (root / "application.yml").write_text("server:\n  port: 8080\n", encoding="utf-8")
+    (root / "target").mkdir()
+    (root / "target" / "application.properties").write_text("ignored=true\n", encoding="utf-8")
+
+    candidates = LocalConfigRepository(root).list_candidate_paths()
+
+    assert candidates == ("application.yml",)
+
+
 @pytest.mark.parametrize("path", ["../secret.yml", "C:/secret.yml", "script.py"])
 async def test_rejects_unsafe_config_paths(tmp_path: Path, path: str) -> None:
     with pytest.raises((PermissionError, FileNotFoundError)):

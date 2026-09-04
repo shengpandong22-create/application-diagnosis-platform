@@ -128,6 +128,7 @@
 - [Phase 6A 工程审计基线报告](./04-validation/2026-09-04-Phase6A工程审计基线报告.md)
 - [Phase 6B Agent 失败行为加固验收](./04-validation/2026-09-04-Phase6B-Agent失败行为加固验收.md)
 - [timeout 失败诊断复盘样例](./04-validation/2026-09-04-timeout失败诊断复盘.md)
+- [Phase 6C 二轮审计与加固记录](./04-validation/2026-09-05-Phase6C二轮审计与加固记录.md)
 
 ### 5. 架构决策 ADR
 

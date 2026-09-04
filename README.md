@@ -71,7 +71,7 @@ uv run pytest
 .\scripts\verify-phase4e.ps1
 ```
 
-当前基线：`259 passed`。Phase 4A 版本化质量评测 `2/2 passed`，Java Lab 8 类确定性故障测试通过；RabbitMQ、Redis、GitHub 固定 commit 和 SMTP 已完成本地真实协议验收。测试通过证明工程链路可回归，不等于生产规模 SLA 或统计诊断准确率。
+当前基线：`260 passed`。Phase 4A 版本化质量评测 `2/2 passed`，Java Lab 8 类确定性故障测试通过；RabbitMQ、Redis、GitHub 固定 commit 和 SMTP 已完成本地真实协议验收。测试通过证明工程链路可回归，不等于生产规模 SLA 或统计诊断准确率。
 
 已提交的 `evals/results/real-model-*` 仅包含 Java Lab 可控公开样本。后续接入真实业务日志时，只允许提交脱敏摘要、评分和复盘结论，不提交原始日志、源码片段、密钥或本地私有评测结果。
 
@@ -123,6 +123,7 @@ uv run pytest
 - [Phase 4E 契约验收记录](./docs/04-validation/phase4e-acceptance.md)
 - [Phase 6A 工程审计基线报告](./docs/04-validation/2026-09-04-Phase6A工程审计基线报告.md)
 - [Phase 6B Agent 失败行为加固验收](./docs/04-validation/2026-09-04-Phase6B-Agent失败行为加固验收.md)
+- [Phase 6C 二轮审计与加固记录](./docs/04-validation/2026-09-05-Phase6C二轮审计与加固记录.md)
 - [简历与面试描述](./docs/00-overview/简历项目描述.md)
 
 ## 当前边界
